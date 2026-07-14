@@ -14,6 +14,15 @@ export function SiteHeader() {
   const menuPanelRef = useRef<HTMLElement>(null);
   const { itemCount, openCart, hydrated } = useCart();
 
+  const handleBrandClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (pathname !== "/") return;
+
+    event.preventDefault();
+    setMenuOpenedOnPath(null);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    window.dispatchEvent(new Event("malabar:replay-intro"));
+  };
+
   useEffect(() => {
     if (!isMenuOpen) return;
 
@@ -70,7 +79,7 @@ export function SiteHeader() {
           <span className="arrow" aria-hidden="true">↗</span>
         </Link>
 
-        <Link className="brand" href="/" aria-label="Malabar Coast home">
+        <Link className="brand" href="/" aria-label="Malabar Coast home" onClick={handleBrandClick}>
           <Image src="/logo-white.png" alt="Malabar Coast" width={1372} height={285} priority />
         </Link>
 

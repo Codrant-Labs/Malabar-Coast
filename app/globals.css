@@ -87,7 +87,9 @@ button { color: inherit; font: inherit; }
 
 .intro {
   --intro-logo-width: clamp(19rem, 46vw, 42rem);
-  /* First-visit loading screen duration on desktop. */
+  --intro-logo-handoff-scale: .34;
+  --intro-logo-handoff-top: 3.625rem;
+  /* Loading screen duration on desktop. */
   --intro-duration: 3.2s;
   position: fixed;
   z-index: 100;
@@ -825,9 +827,12 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
 }
 @keyframes logoReveal {
   0%, 12% { opacity: 0; transform: translate(-50%, -42%) scale(.94); }
-  30%, 78% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  92% { opacity: .9; transform: translate(-50%, -53%) scale(.99); }
-  100% { opacity: 0; transform: translate(-50%, -58%) scale(.965); }
+  30%, 78% { top: 50%; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% {
+    top: var(--intro-logo-handoff-top);
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(var(--intro-logo-handoff-scale));
+  }
 }
 @keyframes introKicker {
   0%, 10% { opacity: 0; transform: translate(-50%, .65rem); }
@@ -850,13 +855,14 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
   82% { opacity: .75; transform: translate(-50%, clamp(5.8rem, 11vw, 8.3rem)) scaleX(1); }
   100% { opacity: 0; transform: translate(-50%, clamp(5.8rem, 11vw, 8.3rem)) scaleX(1); }
 }
-@keyframes introExit { 0%, 86% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+@keyframes introExit { 0%, 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 @keyframes skipReveal { from { opacity: 0; transform: translateY(.5rem); } to { opacity: 1; transform: translateY(0); } }
 @keyframes navReveal { from { opacity: 0; transform: translateY(-.45rem); } to { opacity: 1; transform: translateY(0); } }
 @keyframes heroReveal { from { opacity: 0; transform: translateY(calc(-50% + 1.2rem)); } to { opacity: 1; transform: translateY(-50%); } }
 @keyframes quietReveal { from { opacity: 0; } to { opacity: 1; } }
 
 @media (max-width: 1100px) and (min-width: 721px) {
+  .intro { --intro-logo-handoff-scale: .5; --intro-logo-handoff-top: 3rem; }
   .nav.siteHeader { min-height: 6rem; padding-inline: 2rem; }
   .siteHeader .brand { width: 12rem; }
   .siteMenuPanel .menuInner { padding-top: 7.5rem; }
@@ -902,6 +908,8 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
   .hero { min-height: 44rem; }
   .intro {
     --intro-logo-width: min(78vw, 24rem);
+    --intro-logo-handoff-scale: .5;
+    --intro-logo-handoff-top: 2.8rem;
   }
   .introScene { background-position: 82% center; }
   .introRule { width: 86vw; }

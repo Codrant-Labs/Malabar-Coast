@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { HomeStoryScroll } from "./components/home-story-scroll";
 import { HomeSignatures } from "./components/home-signatures";
 
-const RETURNING_INTRO_DELAY_MS = 120;
+const REDUCED_MOTION_INTRO_DELAY_MS = 120;
+const REPLAY_INTRO_EVENT = "malabar:replay-intro";
 
 function CompassMark() {
   return (
@@ -34,18 +35,20 @@ export default function Home() {
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const introSeen = window.sessionStorage.getItem("malabar-intro-seen") === "true";
-
-    window.sessionStorage.setItem("malabar-intro-seen", "true");
-
-    if (!reducedMotion && !introSeen) return;
+    if (!reducedMotion || !introActive) return;
 
     const introTimer = window.setTimeout(
       () => setIntroActive(false),
-      RETURNING_INTRO_DELAY_MS,
+      REDUCED_MOTION_INTRO_DELAY_MS,
     );
 
     return () => window.clearTimeout(introTimer);
+  }, [introActive]);
+
+  useEffect(() => {
+    const replayIntro = () => setIntroActive(true);
+    window.addEventListener(REPLAY_INTRO_EVENT, replayIntro);
+    return () => window.removeEventListener(REPLAY_INTRO_EVENT, replayIntro);
   }, []);
 
   return (

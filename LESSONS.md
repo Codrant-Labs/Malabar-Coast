@@ -21,3 +21,9 @@
 - Use intentional asymmetry: when one editorial card is taller than its neighbors, the resulting lower channel is an effective place for a strong next-step CTA.
 - A fixed light navigation system needs a controlled dark backdrop when later sections use pale backgrounds.
 - Hide route graphics on compact layouts when their coordinate labels are removed; an unlabeled line adds clutter rather than meaning.
+
+# Loading transition lessons
+
+- A branded intro should use one clear replay contract: mount on every homepage entry and expose an explicit event for same-route logo clicks.
+- Smooth handoffs come from spatial continuity, not only opacity; land the intro logo on the real navbar logo before the overlay disappears.
+- Keep reduced-motion behavior short and functional even when the standard experience intentionally replays a cinematic loader.

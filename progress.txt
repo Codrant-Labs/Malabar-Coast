@@ -30,3 +30,11 @@
 - Converted the unused lower-right signature-card space into a full-width editorial CTA for the complete menu.
 - Tightened signature-section spacing and added a dark translucent fixed-header treatment for reliable contrast over both photography and ivory sections.
 - Verified TypeScript, ESLint, the production build, desktop geometry, mobile layout, CTA placement and zero horizontal overflow.
+
+2026-07-14 - Repeatable loading-screen handoff complete
+
+- Removed the session-only intro suppression so the loading screen now appears on every homepage refresh and every navigation back to the homepage.
+- Made the Malabar Coast navbar logo replay the intro when it is clicked on the homepage and return the document to the hero before the reveal.
+- Reworked the final intro-logo keyframes so the large central mark scales and travels into the navbar logo while the loading layer crossfades away.
+- Preserved the 120 ms reduced-motion fallback for visitors who request minimized animation.
+- Verified TypeScript, ESLint, the production build, refresh playback, logo-click playback and the final logo-to-navbar alignment.
