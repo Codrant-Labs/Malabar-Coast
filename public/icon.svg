@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Malabar Coast">
+  <rect width="64" height="64" rx="14" fill="#071310"/>
+  <circle cx="32" cy="32" r="24" fill="none" stroke="#c89b53" stroke-width="1.5"/>
+  <path d="M18 42V22h4.4L32 35.2 41.6 22H46v20h-4V28.5L32 42 22 28.5V42z" fill="#f2ead9"/>
+</svg>

@@ -1,0 +1,247 @@
+.editorialPage {
+  --ed-ink: #071310;
+  --ed-deep: #0d211b;
+  --ed-ivory: #efe6d4;
+  --ed-paper: #dfd3bc;
+  --ed-brass: #c79a52;
+  min-height: 100vh;
+  overflow: clip;
+  background: var(--ed-ink);
+  color: var(--ed-ivory);
+}
+
+.storyHero,
+.restaurantHero { position: relative; width: 100%; min-height: 100vh; min-height: 100svh; overflow: hidden; }
+.storyHero > img,
+.restaurantHero > img { object-fit: cover; animation: editorialLens 18s ease-in-out infinite alternate; }
+.editorialHeroShade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(3,9,8,.83) 0%, rgba(3,9,8,.36) 52%, rgba(3,9,8,.12) 100%), linear-gradient(180deg, rgba(3,9,8,.48), transparent 36%, rgba(3,9,8,.54)); }
+.storyHeroCopy,
+.restaurantHeroCopy { position: absolute; z-index: 2; top: 51%; left: clamp(1.25rem, 8vw, 8.5rem); width: min(82vw, 70rem); transform: translateY(-50%); }
+.storyHeroCopy > p,
+.restaurantHeroCopy > p { margin: 0 0 1.5rem; color: var(--ed-brass); font-size: .62rem; letter-spacing: .25em; text-transform: uppercase; }
+.storyHeroCopy h1,
+.restaurantHeroCopy h1 { margin: 0; font-family: "Bodoni 72", Didot, "Iowan Old Style", serif; font-size: clamp(5rem, 9.5vw, 11rem); font-weight: 400; line-height: .77; letter-spacing: -.06em; text-transform: uppercase; }
+.storyHeroCopy h1 span,
+.restaurantHeroCopy h1 span { display: block; }
+.storyHeroCopy h1 span:last-child,
+.restaurantHeroCopy h1 span:last-child { margin-left: clamp(1rem, 7vw, 7rem); color: transparent; -webkit-text-stroke: 1px rgba(239,230,212,.83); }
+.heroChapterMark { position: absolute; z-index: 2; right: clamp(1.25rem,4vw,4.5rem); bottom: 2.4rem; left: clamp(1.25rem,4vw,4.5rem); display: flex; align-items: center; gap: 1rem; font-size: .51rem; letter-spacing: .18em; text-transform: uppercase; }
+.heroChapterMark i { flex: 1; height: 1px; background: rgba(239,230,212,.3); }
+
+.reveal { opacity: 0; transform: translateY(2rem); transition: opacity .9s cubic-bezier(.2,.7,.2,1) var(--reveal-delay), transform .9s cubic-bezier(.2,.7,.2,1) var(--reveal-delay); }
+.reveal.isVisible { opacity: 1; transform: translateY(0); }
+
+.storyPrelude { display: grid; grid-template-columns: .7fr 2fr 1fr; gap: clamp(2rem,5vw,6rem); align-items: start; padding: clamp(7rem,12vw,13rem) clamp(1.25rem,6vw,7rem); background: var(--ed-paper); color: #10201c; }
+.preludeNumber,
+.chapterIndex,
+.welcomeLabel,
+.bridgeNumber,
+.locationLabel { color: #8a5d24; font-size: .56rem; letter-spacing: .2em; text-transform: uppercase; }
+.storyPrelude h2 { margin: 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(3.3rem,6.5vw,7.5rem); font-weight: 400; line-height: .9; letter-spacing: -.045em; }
+.storyPrelude .preludeBody { max-width: 28rem; margin: .25rem 0 0; color: rgba(16,32,28,.72); font-family: "Iowan Old Style", Georgia, serif; font-size: 1rem; line-height: 1.65; }
+
+.storyChapters { display: grid; grid-template-columns: 50% 50%; background: #071310; }
+.chapterVisual { position: sticky; top: 0; width: 100%; height: 100vh; overflow: hidden; }
+.chapterVisual img { object-fit: cover; }
+.chapterVisual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(4,11,9,.72)); }
+.chapterImageLabel { position: absolute; z-index: 2; right: 2rem; bottom: 2rem; left: 2rem; display: flex; justify-content: space-between; font-size: .52rem; letter-spacing: .16em; text-transform: uppercase; }
+.chapterTexts { padding: 0 clamp(1.5rem,7vw,7rem); }
+.storyChapter { display: flex; flex-direction: column; justify-content: center; min-height: 100vh; padding: 7rem 0; border-bottom: 1px solid rgba(239,230,212,.17); }
+.storyChapter h2,
+.foodStoryIntro h2,
+.roomPortraitText h2,
+.restaurantStoryBridge h2 { margin: 1.2rem 0 2rem; font-family: "Bodoni 72", Didot, serif; font-size: clamp(3.8rem,6vw,7rem); font-weight: 400; line-height: .82; letter-spacing: -.05em; text-transform: uppercase; }
+.storyChapter p,
+.foodStoryIntro > p,
+.foodStoryBody p,
+.roomPortraitText > p,
+.restaurantStoryBridge > div > p { max-width: 33rem; margin: 0 0 1.35rem; color: rgba(239,230,212,.7); font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(.92rem,1.05vw,1.05rem); line-height: 1.68; }
+
+.ghatsInterlude,
+.hospitalityInterlude { position: relative; min-height: 115vh; overflow: hidden; }
+.ghatsInterlude > img,
+.hospitalityInterlude > img { object-fit: cover; }
+.ghatsShade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(2,9,7,.64), transparent 62%), linear-gradient(180deg, rgba(2,9,7,.08), rgba(2,9,7,.55)); }
+.ghatsCopy { position: absolute; z-index: 2; top: 50%; left: clamp(1.25rem,7vw,7rem); transform: translateY(-50%); }
+.ghatsCopy.isVisible { transform: translateY(-50%); }
+.ghatsCopy p { margin: 0 0 1.5rem; color: var(--ed-brass); font-size: .57rem; letter-spacing: .23em; text-transform: uppercase; }
+.ghatsCopy h2 { margin: 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(6rem,13vw,14rem); font-weight: 400; line-height: .66; letter-spacing: -.07em; text-transform: uppercase; }
+.ghatsCopy h2 span { display: block; }
+.ghatsCopy h2 span:nth-child(2) { margin-left: 8vw; color: transparent; -webkit-text-stroke: 1px rgba(239,230,212,.75); }
+.ghatsCopy h2 span:nth-child(3) { margin-left: 3vw; }
+.ghatsNote { position: absolute; z-index: 2; right: 2rem; bottom: 2rem; font-size: .53rem; letter-spacing: .18em; text-transform: uppercase; writing-mode: vertical-rl; }
+
+.foodStory { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1.25rem; padding: clamp(6rem,10vw,11rem) clamp(1.25rem,5vw,6rem); background: #e6dcc7; color: #10201c; }
+.foodStoryIntro { padding: 2rem clamp(1rem,4vw,4rem) 5rem 0; }
+.foodStoryIntro > p,
+.foodStoryBody p { color: rgba(16,32,28,.72); }
+.foodImage { position: relative; min-height: 34rem; overflow: hidden; }
+.foodImage img { object-fit: cover; transition: transform 1.2s ease; }
+.foodImage:hover img { transform: scale(1.025); }
+.foodImage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 65%, rgba(2,9,7,.65)); }
+.foodImage span { position: absolute; z-index: 2; bottom: 1.25rem; left: 1.25rem; color: var(--ed-ivory); font-size: .52rem; letter-spacing: .16em; text-transform: uppercase; }
+.foodImageLarge { min-height: 54rem; }
+.foodImageSmall { min-height: 39rem; margin-top: -8rem; }
+.foodStoryBody { display: flex; flex-direction: column; justify-content: center; padding: clamp(2rem,5vw,5rem); }
+.foodStoryBody strong { max-width: 31rem; margin-top: 1rem; font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(1.4rem,2.2vw,2.15rem); font-weight: 400; line-height: 1.25; }
+
+.storyFinale { display: flex; flex-direction: column; justify-content: center; min-height: 90vh; padding: clamp(6rem,10vw,11rem) clamp(1.25rem,7vw,8rem); background: #071310; }
+.finaleMark { color: var(--ed-brass); font-size: .58rem; letter-spacing: .22em; text-transform: uppercase; }
+.storyFinale h2 { margin: 2rem 0 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(4.5rem,9vw,10rem); font-weight: 400; line-height: .78; letter-spacing: -.055em; text-transform: uppercase; }
+.storyFinale h2 em { color: transparent; font-style: normal; -webkit-text-stroke: 1px rgba(239,230,212,.72); }
+.editorialCtas,
+.bridgeLinks { display: flex; gap: 1rem; margin-top: 3rem; }
+.editorialCtas a,
+.bridgeLinks a,
+.locationActions a { display: inline-flex; align-items: center; justify-content: space-between; gap: 2rem; min-height: 3.25rem; padding: 0 1rem; border: 1px solid rgba(239,230,212,.34); font-size: .56rem; letter-spacing: .18em; text-transform: uppercase; transition: background .2s,color .2s; }
+.editorialCtas a:hover,
+.bridgeLinks a:hover,
+.locationActions a:hover { background: var(--ed-ivory); color: var(--ed-ink); }
+
+.restaurantHero > img { object-position: center center; }
+.restaurantHeroCopy { width: min(78vw,68rem); }
+.restaurantWelcome { display: grid; grid-template-columns: .7fr 1.6fr 1fr; gap: clamp(2rem,5vw,6rem); padding: clamp(5.5rem,8vw,9rem) clamp(1.25rem,6vw,7rem); background: #e5dac4; color: #10201c; }
+.restaurantWelcome h2 { margin: 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(4rem,7vw,8rem); font-weight: 400; line-height: .82; letter-spacing: -.05em; text-transform: uppercase; }
+.welcomeCopy p { margin: 0 0 1.25rem; color: rgba(16,32,28,.72); font-family: "Iowan Old Style", Georgia, serif; line-height: 1.65; }
+.welcomeCopy p:first-child { color: #10201c; font-size: 1.35rem; line-height: 1.35; }
+
+.serviceNotes { display: grid; grid-template-columns: repeat(4,1fr); border-top: 1px solid rgba(16,32,28,.18); border-bottom: 1px solid rgba(16,32,28,.18); background: #e5dac4; color: #10201c; padding: 0 clamp(1.25rem,6vw,7rem); }
+.serviceNotes > div { display: flex; flex-direction: column; gap: .5rem; padding: 1.8rem 1.5rem; border-left: 1px solid rgba(16,32,28,.18); }
+.serviceNotes > div:last-child { border-right: 1px solid rgba(16,32,28,.18); }
+.serviceNotes span { color: #8a5d24; font-size: .5rem; letter-spacing: .18em; text-transform: uppercase; }
+.serviceNotes strong { font-family: "Iowan Old Style",Georgia,serif; font-size: 1.05rem; font-weight: 400; }
+.roomPortrait { display: grid; grid-template-columns: 1.35fr .65fr; min-height: 88vh; background: #0b1b17; }
+.roomPortraitImage { position: relative; min-height: 100%; overflow: hidden; }
+.roomPortraitImage img { object-fit: cover; }
+.roomPortraitText { display: flex; flex-direction: column; justify-content: center; padding: clamp(4rem,6vw,7rem); }
+.materialList { display: grid; grid-template-columns: repeat(2,1fr); margin-top: 2rem; border-top: 1px solid rgba(239,230,212,.2); }
+.materialList span { display: flex; gap: .65rem; padding: 1rem 0; border-bottom: 1px solid rgba(239,230,212,.2); font-family: "Iowan Old Style", Georgia, serif; }
+.materialList i { color: var(--ed-brass); font-family: "Avenir Next",sans-serif; font-size: .48rem; font-style: normal; letter-spacing: .12em; }
+
+.kitchenSignatures { padding: clamp(5.5rem,8vw,9rem) clamp(1.25rem,5vw,6rem); background: #e8deca; color: #10201c; }
+.kitchenSignatures > h2 { margin: 1.2rem 0 3.5rem; font-family: "Bodoni 72",Didot,serif; font-size: clamp(4rem,7vw,8rem); font-weight: 400; line-height: .82; letter-spacing: -.05em; text-transform: uppercase; }
+.signatureGrid { display: grid; grid-template-columns: repeat(3,1fr); gap: clamp(1rem,2vw,2rem); }
+.signatureImage { position: relative; min-height: clamp(19rem,34vw,34rem); margin-bottom: 1.5rem; overflow: hidden; background: #c9bea9; }
+.signatureImage img { object-fit: cover; transition: transform .8s cubic-bezier(.2,.7,.2,1); }
+.signatureCard:hover img { transform: scale(1.025); }
+.signatureCard > span { color: #8a5d24; font-size: .5rem; letter-spacing: .18em; text-transform: uppercase; }
+.signatureCard h3 { margin: .7rem 0 .6rem; font-family: "Iowan Old Style",Georgia,serif; font-size: clamp(1.35rem,2vw,2rem); font-weight: 400; }
+.signatureCard p { max-width: 28rem; margin: 0; color: rgba(16,32,28,.68); font-family: "Iowan Old Style",Georgia,serif; line-height: 1.55; }
+.signatureOrder { display: grid; grid-template-columns: 1fr auto; gap: .6rem 1rem; align-items: center; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(16,32,28,.22); }
+.signatureOrder > span { font-family: "Iowan Old Style",Georgia,serif; font-size: .95rem; }
+.signatureOrder > strong { font-family: "Iowan Old Style",Georgia,serif; font-size: 1rem; font-weight: 400; }
+.signatureOrder .addToOrder { grid-column: 1 / -1; width: 100%; }
+.signatureCta { display: flex; justify-content: flex-end; margin-top: 3rem; }
+.signatureCta a { display: inline-flex; justify-content: space-between; gap: 3rem; min-width: 16rem; padding: 1rem 0; border-bottom: 1px solid rgba(16,32,28,.35); font-size: .55rem; letter-spacing: .18em; text-transform: uppercase; }
+.hospitalityInterlude { min-height: 82vh; }
+.hospitalityShade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(3,10,8,.78), rgba(3,10,8,.15) 68%), linear-gradient(180deg, transparent 60%, rgba(3,10,8,.5)); }
+.hospitalityQuote { position: absolute; z-index: 2; top: 50%; left: clamp(1.25rem,7vw,8rem); width: min(75vw,65rem); transform: translateY(-50%); }
+.hospitalityQuote.isVisible { transform: translateY(-50%); }
+.hospitalityQuote p { margin: 0 0 1.6rem; color: var(--ed-brass); font-size: .58rem; letter-spacing: .22em; text-transform: uppercase; }
+.hospitalityQuote blockquote { margin: 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(4.2rem,8vw,9rem); font-weight: 400; line-height: .84; letter-spacing: -.05em; text-transform: uppercase; }
+
+.restaurantStoryBridge { display: grid; grid-template-columns: .65fr 1.35fr 1fr; gap: clamp(2rem,5vw,6rem); align-items: start; padding: clamp(5.5rem,8vw,9rem) clamp(1.25rem,6vw,7rem); background: #e3d7c0; color: #10201c; }
+.restaurantStoryBridge h2 { margin-top: 0; }
+.restaurantStoryBridge > div > p { color: rgba(16,32,28,.72); }
+.restaurantStoryBridge > div > strong { display: block; margin-top: 1.5rem; font-family: "Iowan Old Style", Georgia, serif; font-size: 1.4rem; font-weight: 400; line-height: 1.4; }
+.bridgeLinks a { border-color: rgba(16,32,28,.3); }
+
+.locationSection { isolation: isolate; position: relative; min-height: 78vh; padding: clamp(6rem,9vw,9rem) clamp(1.25rem,6vw,7rem); overflow: hidden; background: #071310; }
+.locationGrid { position: absolute; z-index: -1; inset: 0; opacity: .18; background-image: linear-gradient(rgba(199,154,82,.24) 1px,transparent 1px),linear-gradient(90deg,rgba(199,154,82,.24) 1px,transparent 1px); background-size: 6rem 6rem; mask-image: radial-gradient(circle at 70% 45%,black,transparent 65%); }
+.locationSection > h2 { margin: 2rem 0 4rem; font-family: "Bodoni 72", Didot, serif; font-size: clamp(6rem,15vw,17rem); font-weight: 400; line-height: .72; letter-spacing: -.07em; text-transform: uppercase; }
+.locationDetails { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: end; margin-left: 34%; }
+.locationDetails address { display: flex; flex-direction: column; gap: .3rem; font-family: "Iowan Old Style",Georgia,serif; font-size: clamp(1.4rem,2.2vw,2.2rem); font-style: normal; line-height: 1.25; }
+.locationCoordinates { display: flex; align-items: center; gap: 1rem; margin-top: 2rem; color: rgba(239,230,212,.54); font-size: .51rem; letter-spacing: .18em; }
+.locationCoordinates i { flex: 1; height: 1px; background: rgba(239,230,212,.2); }
+.locationActions { display: flex; gap: .75rem; justify-content: flex-end; }
+
+@keyframes editorialLens { from { transform: scale(1.015); } to { transform: scale(1.07); } }
+
+@media (max-width: 900px) {
+  .innerBrand { width: 9.3rem; }
+  .innerHome span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .innerHome { width: 2.75rem; }
+  .innerNav { gap: .4rem; }
+  .innerNav a { width: 2.75rem; overflow: hidden; color: transparent; }
+  .innerNav a:last-child { color: rgba(239,230,212,.75); font-size: .5rem; }
+  .innerNav a.isActive { color: transparent; }
+  .innerNav a::before { color: var(--ed-ivory); font-size: .62rem; }
+  .innerNav a[href="/story"]::before { content: "S"; }
+  .innerNav a[href="/restaurant"]::before { content: "R"; }
+  .innerNav a[href="/menu"]::before { content: "M"; }
+  .storyHeroCopy,.restaurantHeroCopy { left: 1.2rem; width: calc(100% - 2.4rem); }
+  .storyHeroCopy h1,.restaurantHeroCopy h1 { font-size: clamp(4rem,17.5vw,7rem); line-height: .82; }
+  .storyHeroCopy h1 span:last-child,.restaurantHeroCopy h1 span:last-child { margin-left: 4vw; }
+  .storyHero > img { object-position: 62% center; }
+  .restaurantHero > img { object-position: 58% center; }
+  .heroChapterMark { right: 1rem; bottom: 1.4rem; left: 1rem; }
+  .storyPrelude,.restaurantWelcome,.restaurantStoryBridge { display: block; padding: 6rem 1.25rem; }
+  .storyPrelude h2,.restaurantWelcome h2,.restaurantStoryBridge h2 { margin: 1.5rem 0 2rem; }
+  .storyPrelude .preludeBody { margin-top: 2rem; }
+  .storyChapters { display: block; }
+  .chapterVisual { position: relative; height: 72svh; }
+  .chapterTexts { padding: 0 1.25rem; }
+  .storyChapter { min-height: auto; padding: 6rem 0; }
+  .ghatsInterlude,.hospitalityInterlude { min-height: 76svh; }
+  .ghatsCopy { left: 1.2rem; }
+  .ghatsCopy h2 { font-size: 24vw; }
+  .foodStory { display: flex; flex-direction: column; padding: 6rem 1.25rem; }
+  .foodStoryIntro { padding: 0 0 3rem; }
+  .foodImage,.foodImageLarge,.foodImageSmall { width: 100%; min-height: 62svh; margin: 0; }
+  .foodImageSmall { min-height: 50svh; }
+  .foodStoryBody { padding: 3rem 0 0; }
+  .storyFinale { min-height: 78svh; padding: 6rem 1.25rem; }
+  .storyFinale h2 { font-size: 16vw; }
+  .editorialCtas,.bridgeLinks { flex-direction: column; align-items: stretch; }
+  .editorialCtas a,.bridgeLinks a { justify-content: space-between; }
+  .roomPortrait { display: flex; flex-direction: column; min-height: auto; }
+  .roomPortraitImage { min-height: 70svh; }
+  .roomPortraitText { padding: 5rem 1.25rem; }
+  .serviceNotes { grid-template-columns: repeat(2,1fr); padding: 0 1.25rem; }
+  .serviceNotes > div:nth-child(3) { border-top: 1px solid rgba(16,32,28,.18); }
+  .serviceNotes > div:nth-child(4) { border-top: 1px solid rgba(16,32,28,.18); border-right: 1px solid rgba(16,32,28,.18); }
+  .kitchenSignatures { padding: 5.5rem 1.25rem; }
+  .signatureGrid { display: block; }
+  .signatureCard { margin-bottom: 3.5rem; }
+  .signatureImage { min-height: 65svh; }
+  .hospitalityQuote { left: 1.25rem; width: calc(100% - 2.5rem); }
+  .hospitalityQuote blockquote { font-size: 13vw; }
+  .restaurantStoryBridge > div > p { color: rgba(16,32,28,.72); }
+  .locationSection { min-height: 72svh; padding: 6rem 1.25rem; }
+  .locationSection > h2 { margin: 2rem 0 3rem; font-size: 23vw; }
+  .locationDetails { display: block; margin-left: 0; }
+  .locationActions { flex-direction: column; margin-top: 3rem; }
+  .locationActions a { justify-content: space-between; }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .signatureGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .signatureCard { margin-bottom: 1.5rem; }
+  .signatureCard:last-child { grid-column: 1 / -1; }
+  .signatureImage { min-height: 38vw; }
+  .signatureCard:last-child .signatureImage { min-height: 46vw; }
+  .serviceNotes { grid-template-columns: repeat(4,1fr); }
+  .serviceNotes > div:nth-child(3),.serviceNotes > div:nth-child(4) { border-top: 0; }
+  .roomPortraitImage { min-height: 62svh; }
+}
+
+@media (max-width: 600px) {
+  .restaurantWelcome,.restaurantStoryBridge { padding-block: 5rem; }
+  .roomPortraitImage { min-height: 56svh; }
+  .roomPortraitText { padding-block: 4.5rem; }
+  .kitchenSignatures { padding-block: 5rem; }
+  .signatureImage { min-height: 52svh; }
+  .signatureCard { margin-bottom: 3rem; }
+  .hospitalityInterlude { min-height: 68svh; }
+  .locationCoordinates { gap: .65rem; }
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  .roomPortraitImage img,.signatureImage img { transition: none; }
+  .signatureCta a,.bridgeLinks a,.locationActions a { min-height: 2.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .storyHero > img,.restaurantHero > img { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}

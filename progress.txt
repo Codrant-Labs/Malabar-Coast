@@ -1,0 +1,32 @@
+2026-07-13 — Responsive refinement complete
+
+- Audited all public and checkout routes at phone portrait, phone landscape, tablet portrait, and tablet landscape sizes.
+- Added tablet-specific menu, restaurant, home-story, checkout, and navigation layouts.
+- Added safe-area spacing, fixed-header anchor offsets, and minimum 44px primary touch targets.
+- Kept native scrolling on touch-first devices and reduced expensive mobile parallax, grain, and loader work.
+- Verified zero horizontal overflow, working burger navigation while scrolled, responsive cart and checkout, TypeScript, ESLint, production build, and route responses.
+
+2026-07-13 — Discovery, hero and search foundations complete
+
+- Reworked the home hero with direct restaurant positioning, two primary actions, a food-led signature plate and a session-aware 3.2-second maximum intro.
+- Added a concise homepage restaurant overview, practical service facts and a dedicated 15-answer FAQ page.
+- Added comprehensive metadata, canonical URLs, Open Graph and Twitter cards, Restaurant, Menu, Article, FAQ and breadcrumb JSON-LD.
+- Added robots.txt, sitemap.xml, manifest.webmanifest, llms.txt, llm.txt, agents.txt, facts.json, humans.txt and a branded icon.
+- Converted the direct-loading hero background from a 1.7 MB PNG to a visually matched 148 KB JPEG; responsive content images remain optimized by Next Image.
+- Verified TypeScript, ESLint, the production build, public route responses, internal links, structured-data parsing and desktop/mobile rendering with no horizontal overflow.
+
+2026-07-14 — Restaurant-first hero image complete
+
+- Generated a new 1672 × 941 restaurant hero showing a Kerala-inspired dining room and coastal table, with text-safe negative space on the left.
+- Preserved both original ship assets and reused the compressed ship image in the hero story card and loading sequence.
+- Added an optimized 218 KB JPEG for the live hero while retaining the full-quality generated PNG as the source asset.
+- Centralized first-visit intro completion on the CSS animation end; desktop and compact durations are now controlled by documented CSS variables.
+- Verified TypeScript, ESLint and the production build.
+
+2026-07-14 - Hero composition and menu density refinement complete
+
+- Reduced the hero grain, shimmer and vignette strength so the new restaurant photography reads cleanly without losing the cinematic tone.
+- Redrew the Calicut-to-Holytown route so its endpoints align with the coordinate labels and its path stays below the headline; removed it on compact screens where the labels are intentionally hidden.
+- Converted the unused lower-right signature-card space into a full-width editorial CTA for the complete menu.
+- Tightened signature-section spacing and added a dark translucent fixed-header treatment for reliable contrast over both photography and ivory sections.
+- Verified TypeScript, ESLint, the production build, desktop geometry, mobile layout, CTA placement and zero horizontal overflow.
