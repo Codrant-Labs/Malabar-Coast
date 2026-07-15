@@ -57,54 +57,6 @@
 
 .storyTransition i { width: clamp(3rem, 9vw, 9rem); height: 1px; background: currentColor; }
 
-.storyCursor {
-  position: fixed;
-  z-index: 2100;
-  top: 0;
-  left: 0;
-  width: .55rem;
-  height: .55rem;
-  opacity: 0;
-  border: 1px solid var(--story-ivory);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  transition: width .3s cubic-bezier(.2,.7,.2,1), height .3s cubic-bezier(.2,.7,.2,1), opacity .2s, background .3s;
-  mix-blend-mode: difference;
-}
-
-.storyCursor[data-visible="true"] { opacity: 1; }
-.storyCursor[data-active="true"] { width: 7rem; height: 7rem; background: var(--story-ivory); }
-
-.storyCursorCross::before,
-.storyCursorCross::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  background: var(--story-ivory);
-  transform: translate(-50%, -50%);
-}
-
-.storyCursorCross::before { width: 1.5rem; height: 1px; }
-.storyCursorCross::after { width: 1px; height: 1.5rem; }
-.storyCursor[data-active="true"] .storyCursorCross { opacity: 0; }
-
-.storyCursorLabel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 90%;
-  color: var(--story-ink);
-  font-size: .52rem;
-  font-weight: 700;
-  letter-spacing: .14em;
-  line-height: 1.25;
-  text-align: center;
-  text-transform: uppercase;
-  transform: translate(-50%, -50%);
-}
-
 .storyFilmHero {
   isolation: isolate;
   min-height: 48rem;
@@ -407,19 +359,11 @@
 .calicutNext > a i { font-size: clamp(3rem,8vw,8rem); font-style: normal; }
 .calicutNext small { display: block; margin-top: 2rem; font-size: .53rem; letter-spacing: .2em; text-transform: uppercase; }
 
-@media (hover: hover) and (pointer: fine) {
-  .storyExperience,
-  .storyExperience a,
-  .storyExperience button,
-  .storyExperience [data-cursor-label] { cursor: none; }
-}
-
 @media (max-width: 900px) {
   .storyTableIntro { grid-template-columns: 1fr; }
   .storyTableGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .storyTableDish:last-child { grid-column: 1 / -1; }
   .storyTableDish > div { height: 48vw; min-height: 23rem; }
-  .storyCursor { display: none; }
   .storyFilmGrid, .calicutHeroGrid { background-size: 50vw 100%, 100% 25vh; }
   .storyHeroMeta { width: 100%; }
   .storyFilmFooter { grid-template-columns: 1fr auto; }

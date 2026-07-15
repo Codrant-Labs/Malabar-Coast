@@ -25,6 +25,61 @@ body {
 a { color: inherit; text-decoration: none; }
 button { color: inherit; font: inherit; }
 
+.hasCustomCursor,
+.hasCustomCursor * { cursor: none !important; }
+
+.customCursor {
+  position: fixed;
+  z-index: 2100;
+  top: 0;
+  left: 0;
+  width: .55rem;
+  height: .55rem;
+  opacity: 0;
+  border: 1px solid var(--ivory);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width .3s cubic-bezier(.2,.7,.2,1), height .3s cubic-bezier(.2,.7,.2,1), opacity .2s, background .3s;
+  mix-blend-mode: difference;
+}
+
+.customCursor[data-visible="true"] { opacity: 1; }
+.customCursor[data-active="true"] { width: 7rem; height: 7rem; background: var(--ivory); }
+
+.customCursorCross::before,
+.customCursorCross::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: var(--ivory);
+  transform: translate(-50%, -50%);
+}
+
+.customCursorCross::before { width: 1.5rem; height: 1px; }
+.customCursorCross::after { width: 1px; height: 1.5rem; }
+.customCursor[data-active="true"] .customCursorCross { opacity: 0; }
+
+.customCursorLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  color: var(--ink);
+  font-size: .52rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  line-height: 1.25;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
+}
+
+@media (pointer: coarse) {
+  .customCursor { display: none; }
+}
+
 .homePage {
   min-height: 100vh;
   overflow: clip;
@@ -38,7 +93,14 @@ button { color: inherit; font: inherit; }
   background: linear-gradient(180deg, rgba(3, 11, 9, .86), rgba(3, 11, 9, .46));
   box-shadow: 0 .75rem 2.5rem rgba(0, 0, 0, .12);
   backdrop-filter: blur(.65rem) saturate(.82);
-  transition: background .35s ease, border-color .35s ease;
+  transition: background .35s ease, border-color .35s ease, box-shadow .35s ease, backdrop-filter .35s ease;
+}
+
+.nav.siteHeader.navMinimal {
+  background: transparent;
+  border-bottom-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .siteHeader .brand,
@@ -255,14 +317,11 @@ button { color: inherit; font: inherit; }
 
 .introActive .hero { z-index: 99; }
 
-.introActive .routeLine,
-.introActive .routeDestination { animation-play-state: paused; }
 
 .introComplete .nav > * { animation: navReveal .65s ease-out both; }
 .introComplete .nav .brand { animation-delay: .04s; }
 .introComplete .heroContent { animation: heroReveal .9s .14s cubic-bezier(.2, .7, .2, 1) both; }
 .introComplete .coordinates { animation: quietReveal .8s .4s ease-out both; }
-.introComplete .heroFooter { animation: quietReveal .8s .28s ease-out both; }
 
 .heroImage {
   position: absolute;
@@ -323,6 +382,16 @@ button { color: inherit; font: inherit; }
 .brand { display: block; width: clamp(11rem, 15vw, 15.5rem); }
 .brand img { display: block; width: 100%; height: auto; }
 
+.navMinimal .bookButton,
+.navMinimal .headerActions {
+  opacity: 0;
+  transform: translateY(1.5rem);
+}
+
+.headerActions {
+  transition: transform .5s cubic-bezier(.2,.7,.2,1);
+}
+
 .bookButton {
   justify-self: start;
   display: flex;
@@ -335,7 +404,7 @@ button { color: inherit; font: inherit; }
   font-weight: 600;
   letter-spacing: .19em;
   text-transform: uppercase;
-  transition: background .25s ease, color .25s ease;
+  transition: background .25s ease, color .25s ease, transform .5s cubic-bezier(.2,.7,.2,1);
 }
 
 .bookButton:hover, .bookButton:focus-visible { background: var(--ivory); color: var(--ink); outline: none; }
@@ -476,20 +545,6 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
 .compass { flex: 0 0 2.75rem; width: 2.75rem; height: 2.75rem; fill: none; stroke: var(--brass); stroke-width: .8; }
 .compassNeedle { fill: rgba(200,155,83,.35); }
 
-.routeChart {
-  position: absolute;
-  z-index: -1;
-  inset: 18% 3% auto 3%;
-  width: 94%;
-  height: 64%;
-  opacity: .44;
-  pointer-events: none;
-}
-
-.routeGhost { fill: none; stroke: rgba(242,234,217,.14); stroke-width: 1; stroke-dasharray: 4 10; }
-.routeLine { fill: none; stroke: var(--brass); stroke-width: 1.05; stroke-dasharray: 1100; stroke-dashoffset: 1100; animation: drawRoute 4.5s 1s ease-out forwards; }
-.routeOrigin, .routeDestination { fill: var(--brass); stroke: rgba(242,234,217,.7); stroke-width: 5; paint-order: stroke; }
-.routeDestination { opacity: 0; animation: appear 1s 5s forwards; }
 
 .coordinates { position: absolute; z-index: 2; display: flex; flex-direction: column; gap: .12rem; color: var(--paper); text-transform: uppercase; }
 .coordinates small { font-size: .52rem; letter-spacing: .18em; opacity: .7; }
@@ -511,6 +566,12 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
   padding: 0 clamp(1.25rem, 4vw, 4.5rem);
   border-top: 1px solid var(--line);
   background: rgba(4, 13, 12, .38);
+  transition: transform .5s cubic-bezier(.2,.7,.2,1);
+}
+
+.heroFooterHidden {
+  opacity: 0;
+  transform: translateY(1.5rem);
 }
 
 .chapter, .year { display: flex; align-items: baseline; gap: 1rem; text-transform: uppercase; }
@@ -621,8 +682,8 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
 }
 
 .homeStoryIntro {
-  min-height: 72vh;
-  padding: clamp(5.5rem, 8vw, 9rem) clamp(1.25rem, 5vw, 5.5rem) clamp(4.5rem, 7vw, 7rem);
+  min-height: 50vh;
+  padding: clamp(3rem, 5vw, 5rem) clamp(1.25rem, 4vw, 4rem) clamp(2.5rem, 4vw, 4rem);
   background: var(--home-story-paper);
   color: #10201c;
 }
@@ -639,7 +700,7 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
 }
 
 .homeStoryHeading {
-  margin: clamp(4rem, 8vw, 8rem) 0 clamp(3rem, 6vw, 6rem);
+  margin: clamp(2.5rem, 5vw, 5rem) 0 clamp(2rem, 4vw, 4rem);
   overflow: hidden;
   font-family: "Bodoni 72", Didot, "Iowan Old Style", serif;
   font-size: clamp(4.8rem, 10.5vw, 12rem);
@@ -745,7 +806,7 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
 .homeReservationsActions a:hover span, .homeReservationsActions a:focus-visible span { transform: translate(.25rem, -.12rem); }
 
 .homeOverview {
-  padding: clamp(5.5rem, 10vw, 10rem) clamp(1.25rem, 5vw, 5.5rem);
+  padding: clamp(3rem, 6vw, 6rem) clamp(1.25rem, 4vw, 4rem);
   background: #eee4d2;
   color: #071311;
 }
@@ -766,9 +827,9 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
 .homeOverviewLead {
   display: grid;
   grid-template-columns: 1.08fr .72fr;
-  gap: clamp(3rem, 8vw, 10rem);
+  gap: clamp(2rem, 5vw, 6rem);
   align-items: end;
-  padding-block: clamp(4rem, 8vw, 8rem);
+  padding-block: clamp(2.5rem, 5vw, 5rem);
 }
 
 .homeOverviewLead h2 {
@@ -935,7 +996,6 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
   .heroActions { gap: .5rem; }
   .heroActions a { gap: .6rem; padding-inline: .65rem; font-size: .47rem; letter-spacing: .1em; }
   .heroDish { display: none; }
-  .routeChart { display: none; }
   .coordinates { display: none; }
   .heroFooter { min-height: 5rem; padding-inline: 1rem; grid-template-columns: 1fr auto; }
   .chapter { flex-direction: column; gap: .2rem; }
@@ -944,7 +1004,7 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
   .scrollCue span, .year { display: none; }
   .scrollCue i { height: 2.3rem; }
 
-  .homeStoryIntro { min-height: auto; padding-block: 7rem; }
+  .homeStoryIntro { min-height: auto; padding-block: 4rem; }
   .homeStoryIntroMeta { gap: 1.5rem; }
   .homeStoryHeading { margin-block: 4rem; font-size: clamp(4.2rem, 20vw, 6.7rem); line-height: .76; }
   .homeStoryHeading > span:last-child { margin-left: 4vw; }

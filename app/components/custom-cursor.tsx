@@ -14,6 +14,8 @@ export function CustomCursor() {
 
     if (!cursor || !label || !hasFinePointer) return;
 
+    document.documentElement.classList.add("hasCustomCursor");
+
     const moveX = gsap.quickTo(cursor, "x", { duration: 0.28, ease: "power3.out" });
     const moveY = gsap.quickTo(cursor, "y", { duration: 0.28, ease: "power3.out" });
 
@@ -41,6 +43,7 @@ export function CustomCursor() {
     document.documentElement.addEventListener("mouseleave", handlePointerLeave);
 
     return () => {
+      document.documentElement.classList.remove("hasCustomCursor");
       window.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("pointerover", handlePointerOver);
       document.documentElement.removeEventListener("mouseleave", handlePointerLeave);
@@ -48,9 +51,9 @@ export function CustomCursor() {
   }, []);
 
   return (
-    <div className="storyCursor" ref={cursorRef} aria-hidden="true">
-      <span className="storyCursorCross" />
-      <span className="storyCursorLabel" ref={labelRef} />
+    <div className="customCursor" ref={cursorRef} aria-hidden="true">
+      <span className="customCursorCross" />
+      <span className="customCursorLabel" ref={labelRef} />
     </div>
   );
 }

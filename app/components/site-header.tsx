@@ -6,13 +6,30 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "./cart-provider";
 
+const NAV_REVEAL_SCROLL_THRESHOLD = 4;
+
 export function SiteHeader() {
   const pathname = usePathname();
+  const isHome = pathname === "/";
   const [menuOpenedOnPath, setMenuOpenedOnPath] = useState<string | null>(null);
+  const [homeNavScrolled, setHomeNavScrolled] = useState(false);
   const isMenuOpen = menuOpenedOnPath === pathname;
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuPanelRef = useRef<HTMLElement>(null);
   const { itemCount, openCart, hydrated } = useCart();
+  const navMinimal = isHome && !homeNavScrolled;
+
+  useEffect(() => {
+    if (!isHome) return;
+
+    const checkScroll = () => {
+      if (window.scrollY > NAV_REVEAL_SCROLL_THRESHOLD) setHomeNavScrolled(true);
+    };
+
+    checkScroll();
+    window.addEventListener("scroll", checkScroll, { passive: true });
+    return () => window.removeEventListener("scroll", checkScroll);
+  }, [isHome]);
 
   const handleBrandClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (pathname !== "/") return;
@@ -73,8 +90,8 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="nav siteHeader" aria-label="Primary navigation">
-        <Link className="bookButton" href="/#reservations">
+      <header className={`nav siteHeader ${navMinimal ? "navMinimal" : ""}`} aria-label="Primary navigation">
+        <Link className="bookButton" href="/#reservations" inert={navMinimal}>
           <span>Plan your visit</span>
           <span className="arrow" aria-hidden="true">↗</span>
         </Link>
@@ -83,7 +100,7 @@ export function SiteHeader() {
           <Image src="/logo-white.png" alt="Malabar Coast" width={1372} height={285} priority />
         </Link>
 
-        <div className="headerActions">
+        <div className="headerActions" inert={navMinimal}>
           <button className="cartButton" type="button" onClick={openCart} aria-label={`Open order, ${itemCount} items`}>
             <span>Order</span><b aria-live="polite">{hydrated ? itemCount : 0}</b>
           </button>

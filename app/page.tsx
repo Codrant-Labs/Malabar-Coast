@@ -8,6 +8,7 @@ import { HomeSignatures } from "./components/home-signatures";
 
 const REDUCED_MOTION_INTRO_DELAY_MS = 120;
 const REPLAY_INTRO_EVENT = "malabar:replay-intro";
+const HERO_FOOTER_SCROLL_THRESHOLD = 4;
 
 function CompassMark() {
   return (
@@ -19,19 +20,9 @@ function CompassMark() {
   );
 }
 
-function RouteChart() {
-  return (
-    <svg className="routeChart" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
-      <path className="routeGhost" d="M35 378 C260 398 560 398 760 360 C870 338 920 175 955 42" />
-      <path className="routeLine" d="M35 378 C260 398 560 398 760 360 C870 338 920 175 955 42" />
-      <circle className="routeOrigin" cx="35" cy="378" r="5" />
-      <circle className="routeDestination" cx="955" cy="42" r="5" />
-    </svg>
-  );
-}
-
 export default function Home() {
   const [introActive, setIntroActive] = useState(true);
+  const [heroFooterRevealed, setHeroFooterRevealed] = useState(false);
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -46,9 +37,22 @@ export default function Home() {
   }, [introActive]);
 
   useEffect(() => {
-    const replayIntro = () => setIntroActive(true);
+    const replayIntro = () => {
+      setIntroActive(true);
+      setHeroFooterRevealed(false);
+    };
     window.addEventListener(REPLAY_INTRO_EVENT, replayIntro);
     return () => window.removeEventListener(REPLAY_INTRO_EVENT, replayIntro);
+  }, []);
+
+  useEffect(() => {
+    const checkScroll = () => {
+      if (window.scrollY > HERO_FOOTER_SCROLL_THRESHOLD) setHeroFooterRevealed(true);
+    };
+
+    checkScroll();
+    window.addEventListener("scroll", checkScroll, { passive: true });
+    return () => window.removeEventListener("scroll", checkScroll);
   }, []);
 
   return (
@@ -116,7 +120,6 @@ export default function Home() {
       <div className="seaShimmer" aria-hidden="true" />
       <div className="vignette" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
-      <RouteChart />
 
       <section className="heroContent" id="top" aria-labelledby="hero-title">
         <div className="eyebrow">
@@ -163,18 +166,8 @@ export default function Home() {
         </span>
       </Link>
 
-      <div className="coordinates origin" aria-hidden="true">
-        <small>11.2588° N</small>
-        <strong>Calicut</strong>
-        <span>Malabar Coast</span>
-      </div>
-      <div className="coordinates destination" aria-hidden="true">
-        <small>55.8207° N</small>
-        <strong>Holytown</strong>
-        <span>Scotland</span>
-      </div>
 
-      <footer className="heroFooter">
+      <footer className={`heroFooter ${heroFooterRevealed ? "" : "heroFooterHidden"}`} aria-hidden={!heroFooterRevealed}>
         <div className="chapter">
           <span>Chapter I</span>
           <strong>The coast that changed the table</strong>

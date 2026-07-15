@@ -8,6 +8,7 @@ import "./faq/faq.css";
 import { SiteHeader } from "./components/site-header";
 import { SmoothScroll } from "./components/smooth-scroll";
 import { CartProvider } from "./components/cart-provider";
+import { CustomCursor } from "./components/custom-cursor";
 import { JsonLd } from "./components/json-ld";
 import { absoluteUrl, site } from "./lib/site";
 
@@ -120,6 +121,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <JsonLd data={globalSchema} />
         <SmoothScroll />
+        <CustomCursor />
         <CartProvider>
           <SiteHeader />
           {children}

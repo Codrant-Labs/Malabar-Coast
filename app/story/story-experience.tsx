@@ -4,7 +4,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePathname, useRouter } from "next/navigation";
 import { type ReactNode, useEffect, useRef } from "react";
-import { CustomCursor } from "../components/custom-cursor";
 
 type StoryExperienceProps = {
   children: ReactNode;
@@ -87,7 +86,6 @@ export function StoryExperience({ children }: StoryExperienceProps) {
   return (
     <div className="storyExperience">
       {children}
-      <CustomCursor />
       <div className="storyTransition" ref={transitionRef} aria-hidden="true">
         <span>Malabar Coast</span>
         <i />
