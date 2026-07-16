@@ -5,10 +5,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { HomeStoryScroll } from "./components/home-story-scroll";
 import { HomeSignatures } from "./components/home-signatures";
+import { HomeTestimonials } from "./components/home-testimonials";
 
 const REDUCED_MOTION_INTRO_DELAY_MS = 120;
 const REPLAY_INTRO_EVENT = "malabar:replay-intro";
 const HERO_FOOTER_SCROLL_THRESHOLD = 4;
+const GOOGLE_MAPS_URL =
+  "https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+North+Lanarkshire+ML1+4TH";
+const GOOGLE_MAPS_EMBED_URL =
+  "https://www.google.com/maps?q=33+Main+Street,+Holytown,+North+Lanarkshire,+ML1+4TH&output=embed";
 
 function CompassMark() {
   return (
@@ -193,7 +198,7 @@ export default function Home() {
           <div>
             <p>
               Malabar Coast is a Southern Indian coastal restaurant at 33 Main Street in
-              Holytown, Motherwell. The kitchen connects Kerala&apos;s pepper, coconut, curry leaf
+              Holytown, Holytown. The kitchen connects Kerala&apos;s pepper, coconut, curry leaf
               and tamarind with Scottish seafood and produce in dishes designed for sharing.
             </p>
             <Link href="/faq">Restaurant questions answered <span aria-hidden="true">↗</span></Link>
@@ -211,7 +216,9 @@ export default function Home() {
 
       <HomeStoryScroll />
 
-      <section className="homeReservations" id="reservations" aria-labelledby="reservations-title">
+      <HomeTestimonials />
+
+      <footer className="homeReservations" id="reservations" aria-labelledby="reservations-title">
         <div className="homeReservationsMeta">
           <span>Plan your visit</span>
           <span>Holytown · Scotland</span>
@@ -229,7 +236,35 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+        <div className="homeReservationsLocation">
+          <div className="homeReservationsMap">
+            <iframe
+              src={GOOGLE_MAPS_EMBED_URL}
+              title="Map showing Malabar Coast at 33 Main Street in Holytown"
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            <span aria-hidden="true">Map · Holytown</span>
+          </div>
+          <div className="homeReservationsLocationCopy">
+            <p>Find the table</p>
+            <h3>33 Main Street</h3>
+            <address>
+              Holytown<br />
+              North Lanarkshire · ML1 4TH
+            </address>
+            <div className="homeReservationsCoordinates" aria-label="Restaurant coordinates">
+              <span>55.8207° N</span>
+              <i aria-hidden="true" />
+              <span>3.9735° W</span>
+            </div>
+            <a href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer">
+              Open in Google Maps <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

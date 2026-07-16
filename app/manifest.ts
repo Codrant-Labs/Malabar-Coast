@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Malabar Coast",
     short_name: "Malabar Coast",
-    description: "Southern Indian coastal restaurant in Holytown, Motherwell.",
+    description: "Southern Indian coastal restaurant in Holytown, Holytown.",
     start_url: "/",
     display: "standalone",
     background_color: "#071310",

@@ -21,7 +21,7 @@ Canonical site: ${site.url}
 
 - Name: Malabar Coast
 - Category: Southern Indian coastal restaurant
-- Address: 33 Main Street, Holytown, Motherwell, North Lanarkshire, ML1 4TH, United Kingdom
+- Address: 33 Main Street, Holytown, Holytown, North Lanarkshire, ML1 4TH, United Kingdom
 - Cuisine: Kerala, South Indian, Indian coastal and seafood
 - Service shown on this site: dine in, collection and delivery
 - Currency: GBP

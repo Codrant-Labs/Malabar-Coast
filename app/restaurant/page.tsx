@@ -10,12 +10,12 @@ import { absoluteUrl } from "../lib/site";
 export const metadata: Metadata = {
   title: "Restaurant in Holytown",
   description:
-    "Coastal South Indian cooking, warm hospitality and a dining room shaped by Kerala at Malabar Coast in Holytown, Motherwell.",
+    "Coastal South Indian cooking, warm hospitality and a dining room shaped by Kerala at Malabar Coast in Holytown, Holytown.",
   alternates: { canonical: "/restaurant" },
   openGraph: {
     type: "website",
     url: "/restaurant",
-    title: "Malabar Coast Restaurant in Holytown, Motherwell",
+    title: "Malabar Coast Restaurant in Holytown, Holytown",
     description: "A warm neighbourhood dining room for Kerala and Southern Indian coastal cooking at 33 Main Street, Holytown.",
     images: ["/restaurant/dining-room.png"],
   },
@@ -68,7 +68,7 @@ export default function RestaurantPage() {
         />
         <div className="editorialHeroShade" />
         <div className="restaurantHeroCopy">
-          <p>Our restaurant · Motherwell</p>
+          <p>Our restaurant · Holytown</p>
           <h1 id="restaurant-title"><span>Let us take you</span><span>to the coast.</span></h1>
         </div>
         <div className="heroChapterMark"><span>33 Main Street</span><i /><span>Holytown · ML1 4TH</span></div>
@@ -188,16 +188,16 @@ export default function RestaurantPage() {
       <section className="locationSection" id="location" aria-labelledby="location-title">
         <div className="locationGrid" aria-hidden="true" />
         <Reveal className="locationLabel">Our restaurant · 01</Reveal>
-        <Reveal as="h2" delay={70} id="location-title">Motherwell.</Reveal>
+        <Reveal as="h2" delay={70} id="location-title">Holytown.</Reveal>
         <Reveal className="locationDetails" delay={130}>
           <address>
             <span>33 Main Street</span>
-            <span>Holytown, Motherwell</span>
+            <span>Holytown, Holytown</span>
             <span>ML1 4TH</span>
           </address>
           <div className="locationCoordinates"><span>55.8207° N</span><i /><span>3.9735° W</span></div>
           <div className="locationActions">
-            <a href="https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+Motherwell+ML1+4TH" target="_blank" rel="noreferrer">Get directions <span>↗</span></a>
+            <a href="https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+Holytown+ML1+4TH" target="_blank" rel="noreferrer">Get directions <span>↗</span></a>
             <Link href="/#reservations">Reserve a table <span>→</span></Link>
           </div>
         </Reveal>

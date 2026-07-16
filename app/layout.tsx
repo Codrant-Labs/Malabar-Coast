@@ -25,11 +25,11 @@ export const metadata: Metadata = {
   publisher: site.name,
   keywords: [
     "South Indian restaurant Holytown",
-    "Kerala restaurant Motherwell",
+    "Kerala restaurant Holytown",
     "Indian restaurant North Lanarkshire",
     "Malabar cuisine Scotland",
     "South Indian seafood",
-    "Kerala food delivery Motherwell",
+    "Kerala food delivery Holytown",
   ],
   alternates: { canonical: "/" },
   robots: {
@@ -101,7 +101,7 @@ const globalSchema = {
         "@type": "GeoCoordinates",
         ...site.geo,
       },
-      areaServed: ["Holytown", "Motherwell", "North Lanarkshire"],
+      areaServed: ["Holytown", "Holytown", "North Lanarkshire"],
     },
     {
       "@type": "WebSite",

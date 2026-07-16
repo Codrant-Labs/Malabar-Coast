@@ -13,7 +13,7 @@ export const site = {
   legalName: "Malabar Coast",
   url: resolveSiteUrl(),
   description:
-    "Malabar Coast is a Southern Indian coastal restaurant in Holytown, Motherwell, serving Kerala-inspired seafood, curries, biriyani and plant-based dishes.",
+    "Malabar Coast is a Southern Indian coastal restaurant in Holytown, Holytown, serving Kerala-inspired seafood, curries, biriyani and plant-based dishes.",
   shortDescription: "Southern Indian coastal cooking from Malabar to Scotland.",
   cuisine: ["South Indian", "Kerala", "Indian", "Seafood"],
   priceRange: "££",

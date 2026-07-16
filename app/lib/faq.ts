@@ -3,13 +3,13 @@ export const faqItems = [
     id: "what-is-malabar-coast",
     question: "What is Malabar Coast restaurant in Holytown?",
     answer:
-      "Malabar Coast is a Southern Indian coastal restaurant in Holytown, Motherwell. The menu draws on Kerala’s pepper, coconut, curry leaf and tamarind, then connects those flavours with Scottish seafood and produce in a warm neighbourhood dining room.",
+      "Malabar Coast is a Southern Indian coastal restaurant in Holytown, Holytown. The menu draws on Kerala’s pepper, coconut, curry leaf and tamarind, then connects those flavours with Scottish seafood and produce in a warm neighbourhood dining room.",
   },
   {
     id: "where-is-malabar-coast",
     question: "Where is the Malabar Coast restaurant located?",
     answer:
-      "Malabar Coast is at 33 Main Street, Holytown, Motherwell, North Lanarkshire, ML1 4TH. The restaurant page includes a direct Google Maps link and the site lists the location consistently for diners, collections and delivery orders.",
+      "Malabar Coast is at 33 Main Street, Holytown, Holytown, North Lanarkshire, ML1 4TH. The restaurant page includes a direct Google Maps link and the site lists the location consistently for diners, collections and delivery orders.",
   },
   {
     id: "what-cuisine",
