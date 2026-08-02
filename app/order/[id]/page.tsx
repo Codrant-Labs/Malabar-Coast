@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { OrderStatusRefresh } from "../../components/order-status-refresh";
 import { hasOrderAccess } from "../../lib/order-access";
 import { getOrder } from "../../lib/order-store";
-import { inferPaymentStatus, orderStatusLabels } from "../../lib/orders";
+import { inferPaymentStatus, orderStatusLabels, paymentStatusLabels } from "../../lib/orders";
 import { isValidOrderId } from "../../lib/security";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +21,10 @@ const statusCopy = {
   payment_failed: "The payment provider did not complete this payment. Return to checkout to try again.",
   cancelled: "This payment or order was cancelled.",
   expired: "The payment session expired before payment was confirmed.",
+  payment_partially_refunded: "Part of this payment has been refunded, so fulfilment is paused while the order is reconciled.",
+  refunded: "The payment has been refunded. Contact the restaurant if you need help with the refund timeline.",
+  payment_disputed: "The payment is under dispute, so fulfilment has been paused while it is reviewed.",
+  payment_reversed: "The payment was reversed after confirmation, so fulfilment has been paused securely.",
 } as const;
 
 export default async function CustomerOrderPage({ params }: { params: Promise<{ id: string }> }) {
@@ -40,7 +44,7 @@ export default async function CustomerOrderPage({ params }: { params: Promise<{ 
       <section className="customerOrderSummary" aria-labelledby="order-summary-title">
         <div><p>Order reference</p><h2 id="order-summary-title">{order.id}</h2></div>
         <dl>
-          <div><dt>Payment</dt><dd>{inferPaymentStatus(order)}</dd></div>
+          <div><dt>Payment</dt><dd>{paymentStatusLabels[inferPaymentStatus(order)]}</dd></div>
           <div><dt>Method</dt><dd>{order.fulfilment}</dd></div>
           <div><dt>Requested</dt><dd>{order.requestedTime.replace("T", " ")}</dd></div>
           <div><dt>Total</dt><dd>{money(order.totalPence)}</dd></div>

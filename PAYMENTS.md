@@ -5,15 +5,15 @@ The menu catalogue in `app/lib/menu.ts` is the only price source. Checkout sends
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and add test credentials.
-2. Run `npm run dev`.
+2. Run `pnpm dev`.
 3. In development only, orders fall back to `.data/orders.json`. Production deliberately refuses new orders without Supabase.
-4. For production, run the current `supabase/schema.sql` in the Supabase SQL editor and set `SUPABASE_URL` plus the server-only service-role key. The payment-event function is required for atomic webhook processing.
+4. Before deploying the matching application build, run the current `supabase/schema.sql` in the Supabase SQL editor and set `SUPABASE_URL` plus the server-only service-role key. The checkout-claim, provider-attachment, admin-transition and payment-event functions are all required.
 
 Every checkout receives a server-generated order reference. The browser idempotency key is stored only as a SHA-256 digest, and a separate signed HTTP-only cookie controls access to the customer order page and status API.
 
 ## Stripe
 
-Set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`. Register `POST /api/webhooks/stripe` for Checkout Session events, including completed, async succeeded/failed, and expired. The adapter creates a hosted Checkout Session and the signed webhook is authoritative for payment status. The success page also retrieves the supplied Checkout Session from Stripe and verifies order ID, amount, currency and paid state before showing payment confirmation.
+Set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`. Register `POST /api/webhooks/stripe` for Checkout Session completed, async succeeded/failed and expired events, plus `charge.refunded`, `charge.dispute.created`, `charge.dispute.closed`, and `payment_intent.canceled`. Every event is resolved back to its Checkout Session and checked against the stored provider reference, order ID, amount and currency before it can change payment state. The success page performs the same direct verification before showing payment confirmation.
 
 ## Worldpay
 
@@ -38,5 +38,6 @@ The private dashboard is served at `/admin`. It lists recent orders, deployment 
 - Use separate test and live environment variables.
 - Keep `NEXT_PUBLIC_SITE_URL` on the final HTTPS origin so provider redirects return correctly.
 - Do not treat a checkout return URL as proof of payment. Only the verified provider session or atomic signed webhook may establish paid state.
+- A refund, partial refund, dispute or reversal immediately locks administrator fulfilment controls. Reconciliation occurs in the provider dashboard; this application never silently restores `paid` from a later duplicate event.
 - In-memory request throttling limits opportunistic abuse per running instance. Add an edge/WAF rate limit for distributed production protection.
 - Delivery is enabled with a configurable fee. Confirm the service radius, opening times, lead times, minimum order and refund policy before launch.

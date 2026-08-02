@@ -1,7 +1,13 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { applyPaymentEvent } from "../../../lib/order-store";
+import { applyPaymentEvent, getOrder } from "../../../lib/order-store";
 import type { PaymentStatus } from "../../../lib/orders";
-import { isValidOrderId, noStoreJson } from "../../../lib/security";
+import {
+  retrieveStripeCheckoutSession,
+  retrieveStripeCheckoutSessionForPaymentIntent,
+  stripeSessionMatchesOrder,
+  type StripeCheckoutSession,
+} from "../../../lib/payments/stripe";
+import { isValidOrderId, noStoreJson, readLimitedText, RequestBodyTooLargeError } from "../../../lib/security";
 
 export const runtime = "nodejs";
 
@@ -20,41 +26,92 @@ function verifyStripeSignature(payload: string, signatureHeader: string, secret:
   });
 }
 
+type StripeEventObject = {
+  id?: string;
+  client_reference_id?: string;
+  payment_status?: string;
+  status?: string;
+  amount?: number;
+  amount_refunded?: number;
+  currency?: string;
+  payment_intent?: string | { id?: string } | null;
+  metadata?: { orderId?: string };
+};
+
+function paymentIntentId(object: StripeEventObject) {
+  return typeof object.payment_intent === "string" ? object.payment_intent : object.payment_intent?.id;
+}
+
+async function verifiedSession(eventType: string, object: StripeEventObject): Promise<StripeCheckoutSession | null> {
+  if (eventType.startsWith("checkout.session.")) return object.id ? retrieveStripeCheckoutSession(object.id) : null;
+  if (eventType === "payment_intent.canceled") return object.id ? retrieveStripeCheckoutSessionForPaymentIntent(object.id) : null;
+  const intentId = paymentIntentId(object);
+  return intentId ? retrieveStripeCheckoutSessionForPaymentIntent(intentId) : null;
+}
+
+function paymentStatusFor(eventType: string, object: StripeEventObject, session: StripeCheckoutSession): PaymentStatus | undefined {
+  if (eventType === "checkout.session.completed") return session.payment_status === "paid" ? "paid" : "pending";
+  if (eventType === "checkout.session.async_payment_succeeded") return session.payment_status === "paid" ? "paid" : undefined;
+  if (eventType === "checkout.session.async_payment_failed") return "failed";
+  if (eventType === "checkout.session.expired") return "expired";
+  if (eventType === "payment_intent.canceled") return "cancelled";
+  if (eventType === "charge.refunded") {
+    return Number(object.amount_refunded) >= Number(object.amount) ? "refunded" : "partially_refunded";
+  }
+  if (eventType === "charge.dispute.created") return "disputed";
+  if (eventType === "charge.dispute.closed") return object.status === "lost" ? "reversed" : "disputed";
+  return undefined;
+}
+
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret) return noStoreJson({ error: "Stripe webhook is not configured." }, { status: 503 });
-  const contentLength = Number(request.headers.get("content-length") || "0");
-  if (contentLength > 1_000_000) return noStoreJson({ error: "Payload too large." }, { status: 413 });
-  const payload = await request.text();
+
+  let payload: string;
+  try {
+    payload = await readLimitedText(request, 1_000_000);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) return noStoreJson({ error: "Payload too large." }, { status: 413 });
+    return noStoreJson({ error: "Webhook body could not be read." }, { status: 400 });
+  }
   const signature = request.headers.get("stripe-signature") || "";
   if (!verifyStripeSignature(payload, signature, secret)) return noStoreJson({ error: "Invalid signature." }, { status: 400 });
 
-  let event: { id?: string; type?: string; data?: { object?: { id?: string; client_reference_id?: string; payment_status?: string; metadata?: { orderId?: string } } } };
+  let event: { id?: string; type?: string; data?: { object?: StripeEventObject } };
   try {
     event = JSON.parse(payload) as typeof event;
   } catch {
     return noStoreJson({ error: "Invalid JSON payload." }, { status: 400 });
   }
   const object = event.data?.object;
-  const orderId = object?.client_reference_id || object?.metadata?.orderId;
-  if (!orderId || !isValidOrderId(orderId) || !event.id || event.id.length > 180 || !event.type) return noStoreJson({ received: true });
+  if (!object || !event.id || event.id.length > 180 || !event.type) return noStoreJson({ received: true });
 
-  const statuses: Record<string, PaymentStatus> = {
-    "checkout.session.async_payment_succeeded": "paid",
-    "checkout.session.async_payment_failed": "failed",
-    "checkout.session.expired": "expired",
-  };
-  const paymentStatus = event.type === "checkout.session.completed"
-    ? object?.payment_status === "paid" ? "paid" : "pending"
-    : statuses[event.type];
-  if (paymentStatus) {
+  let session: StripeCheckoutSession | null;
+  try {
+    session = await verifiedSession(event.type, object);
+  } catch (error) {
+    console.error("Stripe webhook verification lookup failed.", error instanceof Error ? error.message : "UnknownError");
+    return noStoreJson({ error: "Payment verification is temporarily unavailable." }, { status: 503 });
+  }
+  const orderId = session?.client_reference_id || session?.metadata?.orderId;
+  if (!session || !orderId || !isValidOrderId(orderId)) return noStoreJson({ received: true });
+
+  const order = await getOrder(orderId);
+  if (!order || order.provider !== "stripe" || !stripeSessionMatchesOrder(session, order)) {
+    console.warn("Rejected a Stripe event that did not match its stored order.", event.id);
+    return noStoreJson({ received: true });
+  }
+  const paymentStatus = paymentStatusFor(event.type, object, session);
+  if (paymentStatus && session.id && session.amount_total !== undefined && session.currency) {
     await applyPaymentEvent({
       provider: "stripe",
       eventId: event.id,
       orderId,
       paymentStatus,
       outcome: event.type,
-      providerReference: object?.id,
+      providerReference: session.id,
+      amountPence: session.amount_total,
+      currency: session.currency,
     });
   }
   return noStoreJson({ received: true });

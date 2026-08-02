@@ -14,7 +14,9 @@
 
 ## Payment event integrity
 
-`supabase/schema.sql` contains `apply_order_payment_event`, a transaction that locks the matching provider order, deduplicates the provider event and updates payment state atomically. Run the current schema before enabling production checkout. Webhooks fail closed when authentication or the database function is missing.
+`supabase/schema.sql` owns all state-changing order invariants. `create_checkout_order` atomically claims a unique idempotency digest, `attach_checkout_provider_reference` binds the provider identity without stale JSON replacement, `transition_order_status` row-locks administrator changes, and `apply_order_payment_event` deduplicates and validates provider reference, amount and currency. Run the current schema before enabling the matching production build. Webhooks fail closed when authentication, provider verification or a database function is missing.
+
+Refunded, disputed, partially refunded and reversed payments cannot advance through fulfilment. Late `paid` duplicates cannot reopen these irreversible states.
 
 Administrator controls cannot manually mark an order paid. The allowed fulfilment sequence is:
 
@@ -37,7 +39,7 @@ Collection orders omit the delivery step.
 
 ## Verification before each release
 
-1. Run `pnpm lint` and `pnpm build`.
+1. Run `pnpm test`, `pnpm lint`, `pnpm audit --prod` and `pnpm build`.
 2. Inspect headers on `/`, `/checkout`, `/order/test`, `/admin/login` and `/api/payment-config`.
 3. Confirm private routes return `X-Robots-Tag` and `Cache-Control: no-store`.
 4. Confirm unsigned Stripe and Worldpay webhook requests are rejected.

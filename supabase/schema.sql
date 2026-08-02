@@ -2,12 +2,26 @@ create table if not exists public.orders (
   id text primary key,
   status text not null,
   provider text not null,
+  idempotency_key_hash text,
+  request_fingerprint text,
   data jsonb not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
+alter table public.orders add column if not exists idempotency_key_hash text;
+alter table public.orders add column if not exists request_fingerprint text;
+
+update public.orders
+set
+  idempotency_key_hash = coalesce(idempotency_key_hash, data->>'idempotencyKeyHash'),
+  request_fingerprint = coalesce(request_fingerprint, data->>'requestFingerprint')
+where idempotency_key_hash is null or request_fingerprint is null;
+
 create index if not exists orders_status_created_at_idx on public.orders (status, created_at desc);
+create unique index if not exists orders_idempotency_key_hash_uidx
+  on public.orders (idempotency_key_hash)
+  where idempotency_key_hash is not null;
 
 alter table public.orders enable row level security;
 
@@ -19,23 +33,222 @@ create table if not exists public.order_payment_events (
   order_id text not null references public.orders(id) on delete cascade,
   payment_status text not null,
   outcome text not null,
+  provider_reference text,
+  amount_pence integer,
+  currency text,
   created_at timestamptz not null default now(),
   primary key (provider, event_id)
 );
+
+alter table public.order_payment_events add column if not exists provider_reference text;
+alter table public.order_payment_events add column if not exists amount_pence integer;
+alter table public.order_payment_events add column if not exists currency text;
 
 create index if not exists order_payment_events_order_id_idx
   on public.order_payment_events (order_id, created_at desc);
 
 alter table public.order_payment_events enable row level security;
 
--- Atomically records provider events and updates payment state. Duplicate events are ignored.
+-- Claims one idempotency key exactly once. Concurrent callers either receive the
+-- same order or a conflict and cannot create a second provider checkout.
+create or replace function public.create_checkout_order(
+  p_id text,
+  p_provider text,
+  p_idempotency_key_hash text,
+  p_request_fingerprint text,
+  p_data jsonb,
+  p_created_at timestamptz
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  inserted_data jsonb;
+  existing_data jsonb;
+  existing_fingerprint text;
+begin
+  if p_id is null or p_id !~ '^ord_[A-Za-z0-9_-]{20,60}$'
+    or p_provider is null or p_provider not in ('stripe', 'worldpay')
+    or p_idempotency_key_hash is null or p_idempotency_key_hash !~ '^[a-f0-9]{64}$'
+    or p_request_fingerprint is null or p_request_fingerprint !~ '^[a-f0-9]{64}$'
+    or p_data->>'id' is distinct from p_id
+    or p_data->>'provider' is distinct from p_provider
+    or p_data->>'status' is distinct from 'pending_payment'
+    or p_data->>'paymentStatus' is distinct from 'pending' then
+    raise exception 'Invalid checkout order';
+  end if;
+
+  insert into public.orders (
+    id, status, provider, idempotency_key_hash, request_fingerprint, data, created_at, updated_at
+  ) values (
+    p_id, 'pending_payment', p_provider, p_idempotency_key_hash, p_request_fingerprint,
+    p_data, p_created_at, p_created_at
+  )
+  on conflict (idempotency_key_hash) where idempotency_key_hash is not null do nothing
+  returning data into inserted_data;
+
+  if inserted_data is not null then
+    return jsonb_build_object('result', 'created', 'order', inserted_data);
+  end if;
+
+  select data, request_fingerprint into existing_data, existing_fingerprint
+  from public.orders
+  where idempotency_key_hash = p_idempotency_key_hash
+  for update;
+
+  if existing_data is null then
+    raise exception 'Checkout idempotency claim could not be resolved';
+  end if;
+
+  return jsonb_build_object(
+    'result', case when existing_fingerprint = p_request_fingerprint then 'existing' else 'conflict' end,
+    'order', existing_data
+  );
+end;
+$$;
+
+revoke all on function public.create_checkout_order(text, text, text, text, jsonb, timestamptz) from public;
+grant execute on function public.create_checkout_order(text, text, text, text, jsonb, timestamptz) to service_role;
+
+-- Attaches provider identity without replacing the order JSON read by another
+-- transaction. A different provider reference is always rejected.
+create or replace function public.attach_checkout_provider_reference(
+  p_order_id text,
+  p_provider text,
+  p_provider_reference text,
+  p_provider_checkout_url text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  current_data jsonb;
+  changed_at timestamptz := now();
+  changed_at_iso text := to_char(changed_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"');
+begin
+  if p_provider_reference is null or length(p_provider_reference) < 3 or length(p_provider_reference) > 180
+    or (p_provider_checkout_url is not null and (length(p_provider_checkout_url) > 2048 or p_provider_checkout_url !~ '^https://')) then
+    raise exception 'Invalid provider checkout identity';
+  end if;
+
+  select data into current_data
+  from public.orders
+  where id = p_order_id and provider = p_provider
+  for update;
+
+  if not found or (
+    current_data->>'providerReference' is not null
+    and current_data->>'providerReference' <> p_provider_reference
+  ) then
+    return null;
+  end if;
+
+  update public.orders
+  set
+    updated_at = changed_at,
+    data = data || jsonb_strip_nulls(jsonb_build_object(
+      'providerReference', p_provider_reference,
+      'providerCheckoutUrl', coalesce(p_provider_checkout_url, data->>'providerCheckoutUrl'),
+      'updatedAt', changed_at_iso
+    ))
+  where id = p_order_id and provider = p_provider
+  returning data into current_data;
+
+  return current_data;
+end;
+$$;
+
+revoke all on function public.attach_checkout_provider_reference(text, text, text, text) from public;
+grant execute on function public.attach_checkout_provider_reference(text, text, text, text) to service_role;
+
+-- Validates and advances fulfilment while holding the same order row lock used by
+-- payment events, so an admin action can never overwrite a refund or reversal.
+create or replace function public.transition_order_status(p_order_id text, p_next_status text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  current_data jsonb;
+  current_status text;
+  current_payment text;
+  fulfilment_method text;
+  changed_at timestamptz := now();
+  changed_at_iso text := to_char(changed_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"');
+  recent_history jsonb;
+begin
+  select status, data into current_status, current_data
+  from public.orders
+  where id = p_order_id
+  for update;
+
+  if not found then return null; end if;
+
+  current_payment := coalesce(current_data->>'paymentStatus', case
+    when current_status in ('paid', 'confirmed', 'preparing', 'ready', 'out_for_delivery', 'completed') then 'paid'
+    else 'pending'
+  end);
+  fulfilment_method := current_data->>'fulfilment';
+
+  if current_payment <> 'paid' or not (
+    (current_status = 'paid' and p_next_status = 'confirmed')
+    or (current_status = 'confirmed' and p_next_status = 'preparing')
+    or (current_status = 'preparing' and p_next_status = 'ready')
+    or (current_status = 'ready' and fulfilment_method = 'delivery' and p_next_status = 'out_for_delivery')
+    or (current_status = 'ready' and p_next_status = 'completed')
+    or (current_status = 'out_for_delivery' and fulfilment_method = 'delivery' and p_next_status = 'completed')
+  ) then
+    return null;
+  end if;
+
+  select coalesce(jsonb_agg(value order by ordinality), '[]'::jsonb)
+  into recent_history
+  from (
+    select value, ordinality
+    from jsonb_array_elements(coalesce(current_data->'statusHistory', '[]'::jsonb)) with ordinality
+    order by ordinality desc
+    limit 99
+  ) recent;
+
+  update public.orders
+  set
+    status = p_next_status,
+    updated_at = changed_at,
+    data = data || jsonb_build_object(
+      'status', p_next_status,
+      'updatedAt', changed_at_iso,
+      'statusHistory', recent_history || jsonb_build_array(jsonb_build_object(
+        'status', p_next_status, 'at', changed_at_iso, 'actor', 'admin'
+      ))
+    )
+  where id = p_order_id
+  returning data into current_data;
+
+  return current_data;
+end;
+$$;
+
+revoke all on function public.transition_order_status(text, text) from public;
+grant execute on function public.transition_order_status(text, text) to service_role;
+
+-- Remove the earlier six-argument overload before installing the identity-bound
+-- event function. This prevents old application code from bypassing value checks.
+drop function if exists public.apply_order_payment_event(text, text, text, text, text, text);
+
 create or replace function public.apply_order_payment_event(
   p_provider text,
   p_event_id text,
   p_order_id text,
   p_payment_status text,
   p_outcome text,
-  p_provider_reference text default null
+  p_provider_reference text default null,
+  p_amount_pence integer default null,
+  p_currency text default null
 )
 returns boolean
 language plpgsql
@@ -44,66 +257,115 @@ set search_path = public
 as $$
 declare
   current_status text;
+  current_payment text;
+  effective_payment text;
   next_status text;
+  current_data jsonb;
+  stored_reference text;
+  stored_amount integer;
+  stored_currency text;
   changed_at timestamptz := now();
+  changed_at_iso text := to_char(changed_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"');
   recent_event_ids jsonb;
   next_history jsonb;
 begin
-  if p_provider not in ('stripe', 'worldpay')
-    or p_payment_status not in ('pending', 'paid', 'failed', 'cancelled', 'expired')
-    or length(p_event_id) < 3
-    or length(p_event_id) > 180
-    or length(p_order_id) < 16
-    or length(p_order_id) > 80 then
+  if p_provider is null or p_provider not in ('stripe', 'worldpay')
+    or p_payment_status is null or p_payment_status not in ('pending', 'paid', 'failed', 'cancelled', 'expired', 'partially_refunded', 'refunded', 'disputed', 'reversed')
+    or p_event_id is null or length(p_event_id) < 3 or length(p_event_id) > 180
+    or p_order_id is null or length(p_order_id) < 16 or length(p_order_id) > 80
+    or p_outcome is null then
     raise exception 'Invalid payment event';
   end if;
 
-  select status into current_status
+  select status, data into current_status, current_data
   from public.orders
   where id = p_order_id and provider = p_provider
   for update;
 
-  if not found then
+  if not found then return false; end if;
+
+  stored_reference := current_data->>'providerReference';
+  stored_amount := (current_data->>'totalPence')::integer;
+  stored_currency := upper(current_data->>'currency');
+
+  if (stored_reference is not null and p_provider_reference is not null and stored_reference <> p_provider_reference)
+    or (p_amount_pence is not null and p_amount_pence <> stored_amount)
+    or (p_currency is not null and upper(p_currency) <> stored_currency) then
     return false;
   end if;
 
-  insert into public.order_payment_events (provider, event_id, order_id, payment_status, outcome)
-  values (p_provider, p_event_id, p_order_id, p_payment_status, left(p_outcome, 180))
+  if p_provider = 'stripe'
+    and p_payment_status in ('paid', 'partially_refunded', 'refunded', 'disputed', 'reversed')
+    and (p_provider_reference is null or p_amount_pence is null or p_currency is null) then
+    return false;
+  end if;
+
+  insert into public.order_payment_events (
+    provider, event_id, order_id, payment_status, outcome, provider_reference, amount_pence, currency
+  ) values (
+    p_provider, p_event_id, p_order_id, p_payment_status, left(p_outcome, 180),
+    p_provider_reference, p_amount_pence, upper(p_currency)
+  )
   on conflict (provider, event_id) do nothing;
 
-  if not found then
-    return false;
-  end if;
+  if not found then return false; end if;
 
-  next_status := case
-    when p_payment_status = 'paid' and current_status in ('pending_payment', 'payment_failed') then 'paid'
-    when p_payment_status = 'failed' and current_status = 'pending_payment' then 'payment_failed'
-    when p_payment_status = 'cancelled' and current_status = 'pending_payment' then 'cancelled'
-    when p_payment_status = 'expired' and current_status = 'pending_payment' then 'expired'
-    else current_status
-  end;
+  current_payment := coalesce(current_data->>'paymentStatus', case
+    when current_status in ('paid', 'confirmed', 'preparing', 'ready', 'out_for_delivery', 'completed') then 'paid'
+    when current_status = 'payment_failed' then 'failed'
+    when current_status = 'cancelled' then 'cancelled'
+    when current_status = 'expired' then 'expired'
+    when current_status = 'payment_partially_refunded' then 'partially_refunded'
+    when current_status = 'refunded' then 'refunded'
+    when current_status = 'payment_disputed' then 'disputed'
+    when current_status = 'payment_reversed' then 'reversed'
+    else 'pending'
+  end);
+  effective_payment := p_payment_status;
+  next_status := current_status;
+
+  if current_payment = 'refunded' then
+    effective_payment := current_payment;
+  elsif current_payment in ('partially_refunded', 'disputed', 'reversed') and p_payment_status = 'paid' then
+    effective_payment := current_payment;
+  elsif p_payment_status = 'refunded' then
+    next_status := 'refunded';
+  elsif p_payment_status = 'disputed' then
+    next_status := 'payment_disputed';
+  elsif p_payment_status = 'reversed' then
+    next_status := 'payment_reversed';
+  elsif p_payment_status = 'partially_refunded' then
+    next_status := 'payment_partially_refunded';
+  elsif p_payment_status in ('failed', 'cancelled', 'expired') and current_payment = 'paid' then
+    effective_payment := 'reversed';
+    next_status := 'payment_reversed';
+  elsif p_payment_status = 'paid' and current_status in ('pending_payment', 'payment_failed', 'cancelled', 'expired') then
+    next_status := 'paid';
+  elsif p_payment_status = 'failed' and current_status = 'pending_payment' then
+    next_status := 'payment_failed';
+  elsif p_payment_status = 'cancelled' and current_status in ('pending_payment', 'payment_failed') then
+    next_status := 'cancelled';
+  elsif p_payment_status = 'expired' and current_status in ('pending_payment', 'payment_failed') then
+    next_status := 'expired';
+  elsif p_payment_status = 'pending' and current_payment <> 'pending' then
+    effective_payment := current_payment;
+  end if;
 
   select coalesce(jsonb_agg(value order by ordinality), '[]'::jsonb)
   into recent_event_ids
   from (
     select value, ordinality
-    from jsonb_array_elements(coalesce((select data from public.orders where id = p_order_id)->'processedWebhookIds', '[]'::jsonb))
-      with ordinality
+    from jsonb_array_elements(coalesce(current_data->'processedWebhookIds', '[]'::jsonb)) with ordinality
     order by ordinality desc
     limit 49
   ) recent;
 
-  select case
-    when next_status = current_status then coalesce(data->'statusHistory', '[]'::jsonb)
-    else coalesce(data->'statusHistory', '[]'::jsonb) || jsonb_build_array(jsonb_build_object(
-      'status', next_status,
-      'at', to_char(changed_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-      'actor', 'payment_provider'
-    ))
-  end
-  into next_history
-  from public.orders
-  where id = p_order_id;
+  next_history := coalesce(current_data->'statusHistory', '[]'::jsonb);
+  if next_status <> current_status then
+    next_history := next_history || jsonb_build_array(jsonb_build_object(
+      'status', next_status, 'at', changed_at_iso, 'actor', 'payment_provider'
+    ));
+  end if;
 
   update public.orders
   set
@@ -111,12 +373,12 @@ begin
     updated_at = changed_at,
     data = data || jsonb_build_object(
       'status', next_status,
-      'paymentStatus', p_payment_status,
+      'paymentStatus', effective_payment,
       'providerOutcome', left(p_outcome, 180),
-      'providerReference', coalesce(p_provider_reference, data->>'providerReference'),
+      'providerReference', coalesce(p_provider_reference, stored_reference),
       'processedWebhookIds', recent_event_ids || jsonb_build_array(p_event_id),
       'statusHistory', next_history,
-      'updatedAt', to_char(changed_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+      'updatedAt', changed_at_iso
     )
   where id = p_order_id and provider = p_provider;
 
@@ -124,5 +386,5 @@ begin
 end;
 $$;
 
-revoke all on function public.apply_order_payment_event(text, text, text, text, text, text) from public;
-grant execute on function public.apply_order_payment_event(text, text, text, text, text, text) to service_role;
+revoke all on function public.apply_order_payment_event(text, text, text, text, text, text, integer, text) from public;
+grant execute on function public.apply_order_payment_event(text, text, text, text, text, text, integer, text) to service_role;

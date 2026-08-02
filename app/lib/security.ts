@@ -64,6 +64,44 @@ export function noStoreJson(body: unknown, init: ResponseInit = {}) {
   return response;
 }
 
+export class RequestBodyTooLargeError extends Error {
+  constructor() {
+    super("Request body is too large.");
+    this.name = "RequestBodyTooLargeError";
+  }
+}
+
+export async function readLimitedText(request: Request, maximumBytes: number) {
+  const declaredLength = Number(request.headers.get("content-length") || "0");
+  if (Number.isFinite(declaredLength) && declaredLength > maximumBytes) throw new RequestBodyTooLargeError();
+  if (!request.body) return "";
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > maximumBytes) {
+      await reader.cancel();
+      throw new RequestBodyTooLargeError();
+    }
+    chunks.push(value);
+  }
+  const combined = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    combined.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(combined);
+}
+
+export async function readLimitedJson(request: Request, maximumBytes: number): Promise<unknown> {
+  return JSON.parse(await readLimitedText(request, maximumBytes));
+}
+
 export function isValidOrderId(value: string) {
   return /^ord_[A-Za-z0-9_-]{20,60}$/.test(value) || /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(value);
 }

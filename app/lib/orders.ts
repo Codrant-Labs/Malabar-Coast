@@ -2,7 +2,16 @@ import { getMenuItem } from "./menu";
 
 export type PaymentProvider = "stripe" | "worldpay";
 export type FulfilmentMethod = "collection" | "delivery";
-export type PaymentStatus = "pending" | "paid" | "failed" | "cancelled" | "expired";
+export type PaymentStatus =
+  | "pending"
+  | "paid"
+  | "failed"
+  | "cancelled"
+  | "expired"
+  | "partially_refunded"
+  | "refunded"
+  | "disputed"
+  | "reversed";
 export type OrderStatus =
   | "pending_payment"
   | "paid"
@@ -13,7 +22,11 @@ export type OrderStatus =
   | "completed"
   | "payment_failed"
   | "cancelled"
-  | "expired";
+  | "expired"
+  | "payment_partially_refunded"
+  | "refunded"
+  | "payment_disputed"
+  | "payment_reversed";
 
 export type OrderStatusHistoryEntry = {
   status: OrderStatus;
@@ -82,6 +95,22 @@ export const orderStatusLabels: Record<OrderStatus, string> = {
   payment_failed: "Payment failed",
   cancelled: "Cancelled",
   expired: "Payment expired",
+  payment_partially_refunded: "Partially refunded",
+  refunded: "Refunded",
+  payment_disputed: "Payment disputed",
+  payment_reversed: "Payment reversed",
+};
+
+export const paymentStatusLabels: Record<PaymentStatus, string> = {
+  pending: "Pending",
+  paid: "Paid",
+  failed: "Failed",
+  cancelled: "Cancelled",
+  expired: "Expired",
+  partially_refunded: "Partially refunded",
+  refunded: "Refunded",
+  disputed: "Disputed",
+  reversed: "Reversed",
 };
 
 const adminStatusTransitions: Partial<Record<OrderStatus, OrderStatus[]>> = {
@@ -92,7 +121,8 @@ const adminStatusTransitions: Partial<Record<OrderStatus, OrderStatus[]>> = {
   out_for_delivery: ["completed"],
 };
 
-export function getAllowedAdminTransitions(order: Pick<OrderRecord, "status" | "fulfilment">) {
+export function getAllowedAdminTransitions(order: Pick<OrderRecord, "status" | "fulfilment" | "paymentStatus">) {
+  if (inferPaymentStatus(order) !== "paid") return [];
   const transitions = adminStatusTransitions[order.status] ?? [];
   return order.fulfilment === "collection"
     ? transitions.filter((status) => status !== "out_for_delivery")
@@ -105,11 +135,55 @@ export function inferPaymentStatus(order: Pick<OrderRecord, "status" | "paymentS
   if (order.status === "payment_failed") return "failed";
   if (order.status === "cancelled") return "cancelled";
   if (order.status === "expired") return "expired";
+  if (order.status === "payment_partially_refunded") return "partially_refunded";
+  if (order.status === "refunded") return "refunded";
+  if (order.status === "payment_disputed") return "disputed";
+  if (order.status === "payment_reversed") return "reversed";
   return "pending";
 }
 
 export function isPaymentConfirmed(order: Pick<OrderRecord, "status" | "paymentStatus">) {
   return inferPaymentStatus(order) === "paid";
+}
+
+const irreversiblePaymentStates: PaymentStatus[] = ["partially_refunded", "refunded", "disputed", "reversed"];
+
+export function resolvePaymentTransition(
+  order: Pick<OrderRecord, "status" | "paymentStatus">,
+  incoming: PaymentStatus,
+): { paymentStatus: PaymentStatus; orderStatus: OrderStatus } {
+  const currentPayment = inferPaymentStatus(order);
+
+  if (irreversiblePaymentStates.includes(currentPayment) && incoming === "paid") {
+    return { paymentStatus: currentPayment, orderStatus: order.status };
+  }
+  if (currentPayment === "refunded") {
+    return { paymentStatus: currentPayment, orderStatus: order.status };
+  }
+  if (incoming === "refunded") return { paymentStatus: incoming, orderStatus: "refunded" };
+  if (incoming === "disputed") return { paymentStatus: incoming, orderStatus: "payment_disputed" };
+  if (incoming === "reversed") return { paymentStatus: incoming, orderStatus: "payment_reversed" };
+  if (incoming === "partially_refunded") return { paymentStatus: incoming, orderStatus: "payment_partially_refunded" };
+
+  if (["failed", "cancelled", "expired"].includes(incoming) && currentPayment === "paid") {
+    return { paymentStatus: "reversed", orderStatus: "payment_reversed" };
+  }
+  if (incoming === "paid" && ["pending_payment", "payment_failed", "cancelled", "expired"].includes(order.status)) {
+    return { paymentStatus: incoming, orderStatus: "paid" };
+  }
+  if (incoming === "failed" && order.status === "pending_payment") {
+    return { paymentStatus: incoming, orderStatus: "payment_failed" };
+  }
+  if (incoming === "cancelled" && ["pending_payment", "payment_failed"].includes(order.status)) {
+    return { paymentStatus: incoming, orderStatus: "cancelled" };
+  }
+  if (incoming === "expired" && ["pending_payment", "payment_failed"].includes(order.status)) {
+    return { paymentStatus: incoming, orderStatus: "expired" };
+  }
+  if (incoming === "pending" && currentPayment !== "pending") {
+    return { paymentStatus: currentPayment, orderStatus: order.status };
+  }
+  return { paymentStatus: incoming, orderStatus: order.status };
 }
 
 export class CheckoutValidationError extends Error {

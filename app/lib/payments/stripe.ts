@@ -1,5 +1,16 @@
 import type { OrderRecord } from "../orders";
 
+export type StripeCheckoutSession = {
+  id?: string;
+  client_reference_id?: string;
+  payment_status?: string;
+  status?: string;
+  amount_total?: number;
+  currency?: string;
+  payment_intent?: string | { id?: string } | null;
+  metadata?: { orderId?: string };
+};
+
 export function isStripeConfigured() {
   return Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET);
 }
@@ -45,27 +56,45 @@ export async function createStripeCheckout(order: OrderRecord, baseUrl: string) 
   return { providerReference: result.id, redirectUrl: result.url };
 }
 
-export async function verifyStripeCheckoutSession(sessionId: string, order: OrderRecord) {
+export async function retrieveStripeCheckoutSession(sessionId: string): Promise<StripeCheckoutSession | null> {
   const secret = process.env.STRIPE_SECRET_KEY;
-  if (!secret || !/^cs_(?:test|live)_[A-Za-z0-9]{10,}$/.test(sessionId)) return false;
+  if (!secret || !/^cs_(?:test|live)_[A-Za-z0-9]{10,}$/.test(sessionId)) return null;
   const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
     headers: { Authorization: `Bearer ${secret}` },
     cache: "no-store",
     signal: AbortSignal.timeout(15_000),
   });
-  if (!response.ok) return false;
-  const session = await response.json() as {
-    id?: string;
-    client_reference_id?: string;
-    payment_status?: string;
-    amount_total?: number;
-    currency?: string;
-    metadata?: { orderId?: string };
-  };
-  return session.id === sessionId
+  if (!response.ok) throw new Error(`Stripe session lookup failed (${response.status}).`);
+  return response.json() as Promise<StripeCheckoutSession>;
+}
+
+export async function retrieveStripeCheckoutSessionForPaymentIntent(paymentIntentId: string): Promise<StripeCheckoutSession | null> {
+  const secret = process.env.STRIPE_SECRET_KEY;
+  if (!secret || !/^pi_[A-Za-z0-9]{10,}$/.test(paymentIntentId)) return null;
+  const query = new URLSearchParams({ payment_intent: paymentIntentId, limit: "1" });
+  const response = await fetch(`https://api.stripe.com/v1/checkout/sessions?${query}`, {
+    headers: { Authorization: `Bearer ${secret}` },
+    cache: "no-store",
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!response.ok) throw new Error(`Stripe payment lookup failed (${response.status}).`);
+  const result = await response.json() as { data?: StripeCheckoutSession[] };
+  return result.data?.[0] ?? null;
+}
+
+export function stripeSessionMatchesOrder(session: StripeCheckoutSession, order: OrderRecord) {
+  return (!order.providerReference || session.id === order.providerReference)
     && session.client_reference_id === order.id
     && session.metadata?.orderId === order.id
-    && session.payment_status === "paid"
     && session.amount_total === order.totalPence
-    && session.currency?.toLowerCase() === "gbp";
+    && session.currency?.toUpperCase() === order.currency;
+}
+
+export async function verifyStripeCheckoutSession(sessionId: string, order: OrderRecord) {
+  try {
+    const session = await retrieveStripeCheckoutSession(sessionId);
+    return Boolean(session && stripeSessionMatchesOrder(session, order) && session.payment_status === "paid");
+  } catch {
+    return false;
+  }
 }

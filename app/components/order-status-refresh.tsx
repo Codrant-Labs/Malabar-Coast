@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 export function OrderStatusRefresh({ orderId, initialStatus }: { orderId: string; initialStatus: string }) {
   useEffect(() => {
-    if (["completed", "payment_failed", "cancelled", "expired"].includes(initialStatus)) return;
+    if (["completed", "payment_failed", "cancelled", "expired", "payment_partially_refunded", "refunded", "payment_disputed", "payment_reversed"].includes(initialStatus)) return;
     let active = true;
     const interval = window.setInterval(async () => {
       try {

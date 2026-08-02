@@ -10,7 +10,16 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
   if (!order_id || !isValidOrderId(order_id) || !(await hasOrderAccess(order_id))) return <CheckoutResult kind="pending" />;
   let order = await getOrder(order_id);
   if (order?.provider === "stripe" && session_id && !isPaymentConfirmed(order) && await verifyStripeCheckoutSession(session_id, order)) {
-    await applyPaymentEvent({ provider: "stripe", eventId: `return:${session_id}`, orderId: order.id, paymentStatus: "paid", outcome: "verified_checkout_return", providerReference: session_id });
+    await applyPaymentEvent({
+      provider: "stripe",
+      eventId: `return:${session_id}`,
+      orderId: order.id,
+      paymentStatus: "paid",
+      outcome: "verified_checkout_return",
+      providerReference: session_id,
+      amountPence: order.totalPence,
+      currency: order.currency,
+    });
     order = await getOrder(order_id);
   }
   const confirmed = Boolean(order && isPaymentConfirmed(order));

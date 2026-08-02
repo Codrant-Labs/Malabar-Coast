@@ -22,7 +22,7 @@ export default async function AdminPage() {
   if (!session) redirect("/admin/login");
   const orders = await listOrders(100);
   const paidOrders = orders.filter((order) => inferPaymentStatus(order) === "paid");
-  const activeOrders = orders.filter((order) => ["paid", "confirmed", "preparing", "ready", "out_for_delivery"].includes(order.status));
+  const activeOrders = orders.filter((order) => inferPaymentStatus(order) === "paid" && ["paid", "confirmed", "preparing", "ready", "out_for_delivery"].includes(order.status));
   const revenue = paidOrders.reduce((total, order) => total + order.totalPence, 0);
   const storageReady = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
   const canonicalReady = (() => {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getAdminSession } from "../../../lib/admin-auth";
 import { getOrder } from "../../../lib/order-store";
-import { getAllowedAdminTransitions, inferPaymentStatus, orderStatusLabels } from "../../../lib/orders";
+import { getAllowedAdminTransitions, inferPaymentStatus, orderStatusLabels, paymentStatusLabels } from "../../../lib/orders";
 import { isValidOrderId } from "../../../lib/security";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +19,7 @@ export default async function AdminOrderPage({ params, searchParams }: { params:
   if (!order) notFound();
   const { update } = await searchParams;
   const transitions = getAllowedAdminTransitions(order);
+  const paymentStatus = inferPaymentStatus(order);
 
   return (
     <main className="adminShell adminOrderPage">
@@ -33,7 +34,7 @@ export default async function AdminOrderPage({ params, searchParams }: { params:
         <article className="adminPanel adminOrderSummary">
           <div className="adminPanelHeading"><div><p>Payment and fulfilment</p><h2>Order state</h2></div></div>
           <dl>
-            <div><dt>Payment</dt><dd>{inferPaymentStatus(order)}</dd></div>
+            <div><dt>Payment</dt><dd>{paymentStatusLabels[paymentStatus]}</dd></div>
             <div><dt>Provider</dt><dd>{order.provider}</dd></div>
             <div><dt>Provider reference</dt><dd>{order.providerReference || "Awaiting provider"}</dd></div>
             <div><dt>Provider outcome</dt><dd>{order.providerOutcome || "Awaiting provider"}</dd></div>
@@ -42,6 +43,7 @@ export default async function AdminOrderPage({ params, searchParams }: { params:
             <div><dt>Created</dt><dd>{date(order.createdAt)}</dd></div>
             <div><dt>Updated</dt><dd>{date(order.updatedAt)}</dd></div>
           </dl>
+          {paymentStatus !== "paid" && <div className="adminAlert isError" role="alert">Fulfilment is locked until the payment state is securely reconciled.</div>}
           {transitions.length > 0 && <div className="adminTransitions"><p>Advance fulfilment</p>{transitions.map((status) => (
             <form action={`/api/admin/orders/${order.id}/status`} method="post" key={status}>
               <input type="hidden" name="csrf" value={session.csrfToken} /><input type="hidden" name="status" value={status} />
