@@ -15,15 +15,27 @@ export function GET() {
       cuisine: site.cuisine,
       priceRange: site.priceRange,
       serviceModes: ["dine-in", "collection", "delivery"],
+      websiteCredit: {
+        creator: "Codrant Labs",
+        url: "https://codrantlabs.in/",
+        role: "Website design and development",
+      },
+      privateHall: {
+        name: "Private Event Hall at Malabar Coast",
+        url: absoluteUrl("/hall"),
+        verifiedFeatures: ["flexible open floor", "built-in wooden bar", "raised stage", "ceiling lighting"],
+      },
       sources: {
         menu: absoluteUrl("/menu"),
         restaurant: absoluteUrl("/restaurant"),
         faq: absoluteUrl("/faq"),
+        hall: absoluteUrl("/hall"),
       },
       faq: faqItems.map(({ id, question, answer }) => ({ id, question, answer })),
       limitations: [
         "Opening hours are not currently published on this site.",
         "Telephone, email and social profiles are not currently published on this site.",
+        "Private hall capacity, packages, catering options, availability and prices are not yet published.",
         "Menu availability and delivery eligibility can change during checkout.",
       ],
     },

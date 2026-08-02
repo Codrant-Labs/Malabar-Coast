@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "admin:hash": "node scripts/hash-admin-password.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",

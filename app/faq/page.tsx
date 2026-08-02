@@ -7,13 +7,13 @@ import { absoluteUrl, site } from "../lib/site";
 export const metadata: Metadata = {
   title: "Restaurant FAQs",
   description:
-    "Answers about Malabar Coast in Holytown, including cuisine, location, ordering, delivery, dietary choices, allergens and spice levels.",
+    "Answers about Malabar Coast in Holytown, including cuisine, location, private hall, ordering, delivery, dietary choices, allergens and spice levels.",
   alternates: { canonical: "/faq" },
   openGraph: {
     type: "website",
     url: "/faq",
     title: "Restaurant FAQs | Malabar Coast",
-    description: "Clear answers about dining, ordering and Southern Indian coastal food at Malabar Coast.",
+    description: "Clear answers about dining, the private event hall, ordering and Southern Indian coastal food at Malabar Coast.",
     images: ["/restaurant/table-for-two.png"],
   },
 };
@@ -58,10 +58,10 @@ export default function FaqPage() {
         <h1 aria-label="Before you come ashore."><span>Before you</span><span>come ashore.</span></h1>
         <div>
           <p>
-            Direct answers about the food, dietary choices, location and ordering at Malabar
-            Coast in Holytown.
+            Direct answers about the food, private hall, dietary choices, location and ordering
+            at Malabar Coast in Holytown.
           </p>
-          <time dateTime={site.lastUpdated}>Last reviewed 13 July 2026</time>
+          <time dateTime={site.lastUpdated}>Last reviewed 2 August 2026</time>
         </div>
       </header>
 
@@ -86,6 +86,7 @@ export default function FaqPage() {
         <h2>Follow the flavour.</h2>
         <div>
           <Link href="/menu">Explore the menu <span aria-hidden="true">↗</span></Link>
+          <Link href="/hall">Explore the private hall <span aria-hidden="true">↗</span></Link>
           <Link href="/restaurant#location">Plan your visit <span aria-hidden="true">→</span></Link>
         </div>
       </footer>

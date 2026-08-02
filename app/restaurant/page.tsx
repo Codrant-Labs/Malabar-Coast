@@ -10,12 +10,12 @@ import { absoluteUrl } from "../lib/site";
 export const metadata: Metadata = {
   title: "Restaurant in Holytown",
   description:
-    "Coastal South Indian cooking, warm hospitality and a dining room shaped by Kerala at Malabar Coast in Holytown, Holytown.",
+    "Coastal South Indian cooking, warm hospitality and a dining room shaped by Kerala at Malabar Coast in Holytown, Scotland.",
   alternates: { canonical: "/restaurant" },
   openGraph: {
     type: "website",
     url: "/restaurant",
-    title: "Malabar Coast Restaurant in Holytown, Holytown",
+    title: "Malabar Coast Restaurant in Holytown, Scotland",
     description: "A warm neighbourhood dining room for Kerala and Southern Indian coastal cooking at 33 Main Street, Holytown.",
     images: ["/restaurant/dining-room.png"],
   },
@@ -98,6 +98,25 @@ export default function RestaurantPage() {
         <Reveal delay={60}><span>At the table</span><strong>Sharing encouraged</strong></Reveal>
         <Reveal delay={120}><span>Service</span><strong>Lunch &amp; dinner</strong></Reveal>
         <Reveal delay={180}><span>Good to know</span><strong>Vegetarian choices</strong></Reveal>
+      </section>
+
+      <section className="restaurantHallTeaser" aria-labelledby="restaurant-hall-title">
+        <Image
+          src="/Hall3.jpeg"
+          alt="The private event hall at Malabar Coast with a raised stage and flexible seating"
+          fill
+          sizes="100vw"
+        />
+        <div className="restaurantHallShade" />
+        <div className="restaurantHallCopy">
+          <Reveal className="chapterIndex">Private gatherings · Within Malabar Coast</Reveal>
+          <Reveal as="h2" id="restaurant-hall-title" delay={70}>A room<br />of your own.</Reveal>
+          <Reveal as="p" delay={130}>
+            The restaurant includes a flexible private hall with a built-in bar, raised stage
+            and open floor for celebrations, family gatherings and community occasions.
+          </Reveal>
+          <Reveal delay={180}><Link href="/hall">Explore the private hall <span aria-hidden="true">↗</span></Link></Reveal>
+        </div>
       </section>
 
       <section className="roomPortrait">
@@ -192,7 +211,7 @@ export default function RestaurantPage() {
         <Reveal className="locationDetails" delay={130}>
           <address>
             <span>33 Main Street</span>
-            <span>Holytown, Holytown</span>
+            <span>Holytown, Scotland</span>
             <span>ML1 4TH</span>
           </address>
           <div className="locationCoordinates"><span>55.8207° N</span><i /><span>3.9735° W</span></div>

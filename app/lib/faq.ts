@@ -3,13 +3,13 @@ export const faqItems = [
     id: "what-is-malabar-coast",
     question: "What is Malabar Coast restaurant in Holytown?",
     answer:
-      "Malabar Coast is a Southern Indian coastal restaurant in Holytown, Holytown. The menu draws on Kerala’s pepper, coconut, curry leaf and tamarind, then connects those flavours with Scottish seafood and produce in a warm neighbourhood dining room.",
+      "Malabar Coast is a Southern Indian coastal restaurant in Holytown. The menu draws on Kerala’s pepper, coconut, curry leaf and tamarind, then connects those flavours with Scottish seafood and produce in a warm neighbourhood dining room.",
   },
   {
     id: "where-is-malabar-coast",
     question: "Where is the Malabar Coast restaurant located?",
     answer:
-      "Malabar Coast is at 33 Main Street, Holytown, Holytown, North Lanarkshire, ML1 4TH. The restaurant page includes a direct Google Maps link and the site lists the location consistently for diners, collections and delivery orders.",
+      "Malabar Coast is at 33 Main Street, Holytown, North Lanarkshire, ML1 4TH. The restaurant page includes a direct Google Maps link and the site lists the location consistently for diners, collections and delivery orders.",
   },
   {
     id: "what-cuisine",
@@ -51,7 +51,7 @@ export const faqItems = [
     id: "spice-levels",
     question: "How spicy is the food at Malabar Coast?",
     answer:
-      "No. Dishes are labelled Gentle, Warm, Medium, Hot, Aromatic or None. Coconut-based moilee, children’s dishes and several plant-based plates offer gentler choices, while pepper, chilli and Chettinad dishes provide more pronounced heat.",
+      "Malabar Coast labels dishes Gentle, Warm, Medium, Hot, Aromatic or None. Coconut-based moilee, children’s dishes and several plant-based plates offer gentler choices, while pepper, chilli and Chettinad dishes provide more pronounced heat.",
   },
   {
     id: "children-menu",
@@ -88,5 +88,23 @@ export const faqItems = [
     question: "Why is the restaurant called Malabar Coast?",
     answer:
       "The name honours Southern India’s historic Malabar Coast, where monsoon trade connected pepper, coconut, rice and coastal cooking with distant ports. The restaurant carries that living food culture to Holytown rather than treating the story as a museum piece.",
+  },
+  {
+    id: "private-hall",
+    question: "Does Malabar Coast have a private event hall?",
+    answer:
+      "Yes. Malabar Coast has a flexible private hall within the restaurant at 33 Main Street, Holytown. Current photographs show an open floor, a built-in wooden bar and a raised stage for private celebrations, family gatherings and community occasions.",
+  },
+  {
+    id: "hall-facilities",
+    question: "Which facilities are included in the private hall?",
+    answer:
+      "The private hall includes a dedicated built-in bar, raised stage, ceiling lighting and flexible open floor. Final guest capacity, seating layouts, catering packages, availability and prices have not yet been published, so the site does not infer those details.",
+  },
+  {
+    id: "hall-enquiries",
+    question: "How can I book the Malabar Coast hall?",
+    answer:
+      "Hall enquiry and booking details are still being finalised. The hall page currently provides verified room photographs, visible facilities and the restaurant address. An official contact method, event packages, capacity and pricing will be added after the restaurant confirms them.",
   },
 ] as const;

@@ -123,9 +123,34 @@
 .checkoutResult a { display: flex; justify-content: space-between; gap: 2rem; min-height: 3.4rem; padding: 1rem; border: 1px solid rgba(16,32,28,.35); font-size: .5rem; letter-spacing: .14em; text-transform: uppercase; }
 .checkoutResult a:first-child { background: #071310; color: #efe6d4; }
 
+.customerOrderPage { min-height: 100vh; padding: clamp(8rem,12vw,12rem) clamp(1.25rem,7vw,8rem) clamp(5rem,8vw,8rem); background: #e8deca; color: #10201c; }
+.customerOrderPage > header { display: grid; grid-template-columns: .7fr 1.4fr 1fr; gap: clamp(2rem,5vw,6rem); align-items: start; padding-bottom: clamp(4rem,7vw,7rem); border-bottom: 1px solid rgba(16,32,28,.28); }
+.customerOrderPage > header > p,.customerOrderLines > p { margin: 0; color: #8a5d24; font-size: .53rem; letter-spacing: .2em; text-transform: uppercase; }
+.customerOrderPage > header h1 { margin: 0; font-family: "Bodoni 72",Didot,serif; font-size: clamp(4.2rem,8vw,9rem); font-weight: 400; line-height: .8; letter-spacing: -.055em; text-transform: uppercase; }
+.customerOrderPage > header > span:not(.orderAutoRefresh) { font-family: "Iowan Old Style",Georgia,serif; font-size: 1.15rem; line-height: 1.6; }
+.orderAutoRefresh { grid-column: 3; color: rgba(16,32,28,.5); font-size: .5rem; letter-spacing: .12em; line-height: 1.5; text-transform: uppercase; }
+.customerOrderSummary { display: grid; grid-template-columns: 1fr 1.5fr; gap: clamp(3rem,8vw,9rem); padding: clamp(4rem,7vw,7rem) 0; border-bottom: 1px solid rgba(16,32,28,.28); }
+.customerOrderSummary > div > p { margin: 0 0 1rem; color: #8a5d24; font-size: .5rem; letter-spacing: .18em; text-transform: uppercase; }
+.customerOrderSummary h2 { margin: 0; font: clamp(1rem,2vw,1.7rem) ui-monospace,SFMono-Regular,Consolas,monospace; overflow-wrap: anywhere; }
+.customerOrderSummary dl { display: grid; grid-template-columns: repeat(2,1fr); margin: 0; }
+.customerOrderSummary dl > div { padding: 1rem 0; border-bottom: 1px solid rgba(16,32,28,.2); }
+.customerOrderSummary dt { color: rgba(16,32,28,.52); font-size: .49rem; letter-spacing: .15em; text-transform: uppercase; }
+.customerOrderSummary dd { margin: .5rem 0 0; font-family: "Iowan Old Style",Georgia,serif; text-transform: capitalize; }
+.customerOrderLines { padding: clamp(4rem,7vw,7rem) 0; }
+.customerOrderLines h2 { margin: 1rem 0 2.5rem; font-family: "Bodoni 72",Didot,serif; font-size: clamp(3.5rem,6vw,7rem); font-weight: 400; line-height: .85; letter-spacing: -.05em; text-transform: uppercase; }
+.customerOrderLines article { display: grid; grid-template-columns: 4rem 1fr auto; gap: 1rem; padding: 1.1rem 0; border-top: 1px solid rgba(16,32,28,.2); font-family: "Iowan Old Style",Georgia,serif; }
+.customerOrderLines article span { color: #8a5d24; }
+.customerOrderLines article b { font-weight: 400; }
+.customerOrderActions { display: flex; gap: 1rem; justify-content: flex-end; }
+.customerOrderActions a { display: flex; justify-content: space-between; gap: 3rem; min-width: min(100%,19rem); padding: 1rem 0; border-bottom: 1px solid rgba(16,32,28,.35); font-size: .53rem; letter-spacing: .16em; text-transform: uppercase; }
+
 @media (max-width: 900px) {
   .checkoutLayout { grid-template-columns: 1fr; }
   .checkoutSummary { position: relative; top: auto; }
+  .customerOrderPage > header { display: block; }
+  .customerOrderPage > header h1 { margin: 1.5rem 0 2rem; }
+  .orderAutoRefresh { display: block; margin-top: 1rem; }
+  .customerOrderSummary { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 620px) {
@@ -136,6 +161,9 @@
   .fieldGrid label:first-child { grid-column: auto; }
   .choiceCards label { min-height: 6.5rem; }
   .checkoutResult > div > div { flex-direction: column; }
+  .customerOrderSummary dl { grid-template-columns: 1fr; }
+  .customerOrderLines article { grid-template-columns: 2.5rem 1fr auto; }
+  .customerOrderActions { flex-direction: column; }
 }
 
 @media (max-width: 430px) {

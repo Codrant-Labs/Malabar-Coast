@@ -34,6 +34,7 @@ In development only, orders fall back to `.data/orders.json` when Supabase is no
 | `pnpm build` | Production build |
 | `pnpm start` | Start the production server |
 | `pnpm lint` | Run ESLint |
+| `pnpm admin:hash -- "long password"` | Generate a scrypt administrator password hash |
 
 ## Project structure
 
@@ -46,5 +47,6 @@ supabase/       Database schema
 ## Documentation
 
 - [PAYMENTS.md](./PAYMENTS.md) — orders, Stripe, and Worldpay integration notes
+- [SECURITY.md](./SECURITY.md) — admin access, private order routes, headers and launch checklist
 - [LESSONS.md](./LESSONS.md) — responsive design and editorial composition notes
 - [progress.txt](./progress.txt) — build log

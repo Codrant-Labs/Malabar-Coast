@@ -1,0 +1,121 @@
+body:has(.adminShell) .siteHeader,
+body:has(.adminShell) .siteMenuScrim,
+body:has(.adminShell) .siteMenuPanel,
+body:has(.adminShell) .siteFooter { display: none; }
+body:has(.adminShell) { background: #071310; }
+
+.adminShell {
+  --admin-ink: #071310;
+  --admin-deep: #0c1d19;
+  --admin-paper: #eee5d2;
+  --admin-brass: #c89b53;
+  min-height: 100vh;
+  padding: clamp(1.25rem, 4vw, 4.5rem);
+  background: var(--admin-ink);
+  color: var(--admin-paper);
+}
+
+.adminLoginShell { display: grid; min-height: 100svh; place-items: center; background: radial-gradient(circle at 70% 20%,rgba(200,155,83,.12),transparent 35%),#071310; }
+.adminLoginCard { width: min(100%,41rem); padding: clamp(2rem,5vw,4.5rem); border: 1px solid rgba(238,229,210,.2); background: #0b1b17; box-shadow: 0 2rem 7rem rgba(0,0,0,.28); }
+.adminLoginCard > p,.adminTopbar p,.adminPanelHeading p { margin: 0 0 .85rem; color: var(--admin-brass); font-size: .54rem; letter-spacing: .2em; text-transform: uppercase; }
+.adminLoginCard h1 { margin: 0; font-family: "Bodoni 72",Didot,serif; font-size: clamp(3.8rem,8vw,7rem); font-weight: 400; line-height: .78; letter-spacing: -.055em; text-transform: uppercase; }
+.adminLoginCard > span { display: block; max-width: 31rem; margin: 2rem 0; color: rgba(238,229,210,.6); font-family: "Iowan Old Style",Georgia,serif; line-height: 1.6; }
+.adminLoginCard form { display: grid; gap: 1rem; margin-top: 2rem; }
+.adminLoginCard label { display: grid; gap: .55rem; color: rgba(238,229,210,.68); font-size: .54rem; letter-spacing: .16em; text-transform: uppercase; }
+.adminLoginCard input { min-height: 3.4rem; padding: 0 1rem; border: 1px solid rgba(238,229,210,.25); border-radius: 0; outline: 0; background: rgba(238,229,210,.05); color: var(--admin-paper); font: 1rem "Iowan Old Style",Georgia,serif; }
+.adminLoginCard input:focus { border-color: var(--admin-brass); box-shadow: 0 0 0 2px rgba(200,155,83,.15); }
+.adminLoginCard button,.adminTransitions button { display: flex; justify-content: space-between; align-items: center; min-height: 3.5rem; padding: 0 1rem; border: 1px solid var(--admin-brass); background: var(--admin-brass); color: var(--admin-ink); font-size: .55rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.adminLoginCard > a { display: flex; justify-content: space-between; margin-top: 2.5rem; padding: 1rem 0; border-bottom: 1px solid rgba(238,229,210,.2); font-size: .52rem; letter-spacing: .16em; text-transform: uppercase; }
+.adminSetupNotice { margin-top: 2rem; padding: 1.2rem; border: 1px solid rgba(200,155,83,.42); background: rgba(200,155,83,.08); }
+.adminSetupNotice strong { color: var(--admin-brass); font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; }
+.adminSetupNotice p { margin: .8rem 0 0; color: rgba(238,229,210,.68); font-family: "Iowan Old Style",Georgia,serif; line-height: 1.6; }
+
+.adminDashboard,.adminOrderPage { max-width: 100rem; margin: 0 auto; }
+.adminTopbar { display: flex; justify-content: space-between; gap: 3rem; align-items: end; padding-bottom: 2rem; border-bottom: 1px solid rgba(238,229,210,.2); }
+.adminTopbar h1 { margin: 0; font-family: "Bodoni 72",Didot,serif; font-size: clamp(3.8rem,7vw,8rem); font-weight: 400; line-height: .78; letter-spacing: -.055em; text-transform: uppercase; }
+.adminTopbar form button,.adminOrderTopbar > span { min-height: 2.9rem; padding: 0 1rem; border: 1px solid rgba(238,229,210,.3); background: transparent; color: var(--admin-paper); font-size: .52rem; letter-spacing: .16em; text-transform: uppercase; }
+
+.adminMetrics { display: grid; grid-template-columns: repeat(3,1fr); margin: 2rem 0; border: 1px solid rgba(238,229,210,.18); }
+.adminMetrics article { display: flex; min-height: 10rem; flex-direction: column; justify-content: space-between; padding: 1.5rem; border-right: 1px solid rgba(238,229,210,.18); }
+.adminMetrics article:last-child { border-right: 0; }
+.adminMetrics span,.adminMetrics small { color: rgba(238,229,210,.52); font-size: .51rem; letter-spacing: .15em; text-transform: uppercase; }
+.adminMetrics strong { font-family: "Bodoni 72",Didot,serif; font-size: clamp(2.4rem,4vw,4.5rem); font-weight: 400; }
+
+.adminPanel { margin-top: 2rem; padding: clamp(1.25rem,2.5vw,2.5rem); border: 1px solid rgba(238,229,210,.18); background: var(--admin-deep); }
+.adminPanelHeading { display: flex; justify-content: space-between; gap: 2rem; align-items: end; padding-bottom: 1.4rem; border-bottom: 1px solid rgba(238,229,210,.15); }
+.adminPanelHeading h2 { margin: 0; font-family: "Iowan Old Style",Georgia,serif; font-size: clamp(1.7rem,3vw,3rem); font-weight: 400; }
+.adminPanelHeading > span,.adminPanelHeading > strong { color: rgba(238,229,210,.52); font-size: .54rem; font-weight: 400; letter-spacing: .16em; text-transform: uppercase; }
+.adminTableWrap { overflow-x: auto; }
+.adminPanel table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+.adminPanel th { padding: 1rem .75rem; color: rgba(238,229,210,.42); font-size: .48rem; font-weight: 500; letter-spacing: .16em; text-align: left; text-transform: uppercase; }
+.adminPanel td { padding: 1rem .75rem; border-top: 1px solid rgba(238,229,210,.1); vertical-align: top; }
+.adminPanel td:first-child { font-family: ui-monospace,SFMono-Regular,Consolas,monospace; font-size: .68rem; }
+.adminPanel td a { color: var(--admin-brass); }
+.adminPanel td small { display: block; margin-top: .35rem; color: rgba(238,229,210,.4); font-family: "Avenir Next",sans-serif; font-size: .48rem; }
+.adminStatus { display: inline-flex; align-items: center; min-height: 1.8rem; padding: 0 .65rem; border: 1px solid rgba(238,229,210,.24); color: var(--admin-paper); font-size: .47rem; letter-spacing: .13em; text-transform: uppercase; white-space: nowrap; }
+.status_paid,.status_confirmed,.status_preparing,.status_ready,.status_out_for_delivery { border-color: rgba(90,184,128,.48); color: #a7d7b5; }
+.status_completed { border-color: rgba(200,155,83,.5); color: #dcb978; }
+.status_payment_failed,.status_cancelled,.status_expired { border-color: rgba(210,92,84,.5); color: #e9a29d; }
+.adminEmpty { padding: 3rem 0 1rem; color: rgba(238,229,210,.52); font-family: "Iowan Old Style",Georgia,serif; }
+
+.adminChecks { display: grid; grid-template-columns: repeat(2,1fr); gap: .75rem; margin-top: 1.5rem; }
+.adminChecks article { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; padding: 1rem; border: 1px solid rgba(238,229,210,.14); }
+.adminChecks article > i { width: .55rem; height: .55rem; border-radius: 50%; background: #cf645e; box-shadow: 0 0 1rem rgba(207,100,94,.45); }
+.adminChecks article.isReady > i { background: #69b483; box-shadow: 0 0 1rem rgba(105,180,131,.45); }
+.adminChecks article strong,.adminChecks article span { display: block; }
+.adminChecks article strong { font-family: "Iowan Old Style",Georgia,serif; font-size: 1rem; font-weight: 400; }
+.adminChecks article span { margin-top: .25rem; color: rgba(238,229,210,.48); font-size: .53rem; }
+.adminChecks article b { color: rgba(238,229,210,.55); font-size: .47rem; font-weight: 500; letter-spacing: .13em; text-transform: uppercase; }
+
+.adminAlert { margin: 1.25rem 0; padding: 1rem 1.2rem; border: 1px solid; font-size: .68rem; line-height: 1.5; }
+.adminAlert.isError { border-color: rgba(210,92,84,.45); background: rgba(210,92,84,.08); color: #edb0ab; }
+.adminAlert.isSuccess { border-color: rgba(90,184,128,.45); background: rgba(90,184,128,.08); color: #b0dec0; }
+.adminOrderTopbar > div > a { display: inline-flex; margin-bottom: 2rem; color: rgba(238,229,210,.58); font-size: .52rem; letter-spacing: .15em; text-transform: uppercase; }
+.adminOrderTopbar h1 { font: clamp(1.25rem,2.4vw,2.5rem) ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing: -.03em; text-transform: none; overflow-wrap: anywhere; }
+.adminOrderGrid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 2rem; }
+.adminOrderSummary dl,.adminLines > dl { display: grid; grid-template-columns: repeat(2,1fr); margin: 1.5rem 0 0; }
+.adminOrderSummary dl > div,.adminLines > dl > div { padding: 1rem 0; border-bottom: 1px solid rgba(238,229,210,.12); }
+.adminOrderSummary dt,.adminLines dt { color: rgba(238,229,210,.42); font-size: .48rem; letter-spacing: .14em; text-transform: uppercase; }
+.adminOrderSummary dd,.adminLines dd { margin: .45rem 0 0; font-family: "Iowan Old Style",Georgia,serif; overflow-wrap: anywhere; }
+.adminTransitions { margin-top: 2rem; }
+.adminTransitions > p { color: var(--admin-brass); font-size: .5rem; letter-spacing: .15em; text-transform: uppercase; }
+.adminTransitions form { margin-top: .65rem; }
+.adminTransitions button { width: 100%; }
+.adminCustomer address { display: flex; flex-direction: column; gap: .5rem; margin-top: 1.5rem; font-style: normal; }
+.adminCustomer address strong { font: 1.5rem "Iowan Old Style",Georgia,serif; }
+.adminCustomer address a,.adminCustomer address span { color: rgba(238,229,210,.65); font-family: "Iowan Old Style",Georgia,serif; overflow-wrap: anywhere; }
+.adminDeliveryAddress { padding-top: 1.5rem; border-top: 1px solid rgba(238,229,210,.15); }
+.adminOrderNote { margin-top: 2rem; padding: 1rem; background: rgba(238,229,210,.05); }
+.adminOrderNote span { color: var(--admin-brass); font-size: .48rem; letter-spacing: .14em; text-transform: uppercase; }
+.adminOrderNote p { margin: .7rem 0 0; font-family: "Iowan Old Style",Georgia,serif; line-height: 1.5; white-space: pre-wrap; }
+.adminLines > article { display: flex; justify-content: space-between; gap: 2rem; padding: 1.2rem 0; border-bottom: 1px solid rgba(238,229,210,.12); }
+.adminLines > article > div { display: grid; grid-template-columns: 3rem 1fr; gap: .3rem 1rem; }
+.adminLines > article span { color: var(--admin-brass); }
+.adminLines > article small { grid-column: 2; color: rgba(238,229,210,.46); }
+.adminLines > article b { font-family: "Iowan Old Style",Georgia,serif; font-weight: 400; }
+.adminLines > dl { grid-template-columns: repeat(3,1fr); }
+.adminTimeline ol { margin: 1.5rem 0 0; padding: 0; list-style: none; }
+.adminTimeline li { display: grid; grid-template-columns: auto 1fr; gap: 1rem; padding: .8rem 0; }
+.adminTimeline li > i { width: .6rem; height: .6rem; margin-top: .25rem; border: 1px solid var(--admin-brass); border-radius: 50%; }
+.adminTimeline li strong,.adminTimeline li span { display: block; }
+.adminTimeline li strong { font-family: "Iowan Old Style",Georgia,serif; font-weight: 400; }
+.adminTimeline li span { margin-top: .25rem; color: rgba(238,229,210,.44); font-size: .5rem; letter-spacing: .1em; text-transform: uppercase; }
+
+@media (max-width: 900px) {
+  .adminMetrics { grid-template-columns: 1fr; }
+  .adminMetrics article { min-height: 8rem; border-right: 0; border-bottom: 1px solid rgba(238,229,210,.18); }
+  .adminMetrics article:last-child { border-bottom: 0; }
+  .adminChecks,.adminOrderGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .adminShell { padding: 1rem; }
+  .adminTopbar { align-items: start; flex-direction: column; }
+  .adminTopbar form,.adminTopbar form button { width: 100%; }
+  .adminPanel { padding: 1rem; }
+  .adminPanelHeading { align-items: start; flex-direction: column; }
+  .adminChecks article { grid-template-columns: auto 1fr; }
+  .adminChecks article b { grid-column: 2; }
+  .adminOrderSummary dl,.adminLines > dl { grid-template-columns: 1fr; }
+  .adminLines > article > div { grid-template-columns: 2.2rem 1fr; }
+}

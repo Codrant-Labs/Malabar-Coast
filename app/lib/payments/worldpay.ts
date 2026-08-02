@@ -2,6 +2,18 @@ import type { OrderRecord } from "../orders";
 
 type Sessions = { card?: string; cvv?: string };
 
+export function isWorldpayCheckoutEnabled() {
+  return process.env.WORLDPAY_CHECKOUT_ENABLED === "true"
+    && Boolean(
+      process.env.NEXT_PUBLIC_WORLDPAY_CHECKOUT_ID
+      && process.env.WORLDPAY_USERNAME
+      && process.env.WORLDPAY_PASSWORD
+      && process.env.WORLDPAY_MERCHANT_ENTITY
+      && process.env.WORLDPAY_WEBHOOK_USERNAME
+      && process.env.WORLDPAY_WEBHOOK_PASSWORD,
+    );
+}
+
 export async function authorizeWorldpay(order: OrderRecord, sessions: Sessions | undefined) {
   const username = process.env.WORLDPAY_USERNAME;
   const password = process.env.WORLDPAY_PASSWORD;
@@ -26,6 +38,8 @@ export async function authorizeWorldpay(order: OrderRecord, sessions: Sessions |
         paymentInstrument: { type: "card/checkout", sessionHref: sessions.card, cvcHref: sessions.cvv },
       },
     }),
+    cache: "no-store",
+    signal: AbortSignal.timeout(15_000),
   });
   const result = await response.json() as Record<string, unknown>;
   const outcome = typeof result.outcome === "string" ? result.outcome : "unknown";

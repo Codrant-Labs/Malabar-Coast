@@ -160,7 +160,7 @@ export function HomeStoryScroll() {
 
       <div className="homeStoryExit">
         <p>Two shores. One living kitchen.</p>
-        <Link href="/story">Continue the journey <span aria-hidden="true">→</span></Link>
+        <Link href="/story">Continue Our journey <span aria-hidden="true">→</span></Link>
       </div>
     </section>
   );

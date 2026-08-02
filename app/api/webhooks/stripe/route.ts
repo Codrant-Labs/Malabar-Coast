@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { NextResponse } from "next/server";
-import { getOrder, updateOrder } from "../../../lib/order-store";
-import type { OrderStatus } from "../../../lib/orders";
+import { applyPaymentEvent } from "../../../lib/order-store";
+import type { PaymentStatus } from "../../../lib/orders";
+import { isValidOrderId, noStoreJson } from "../../../lib/security";
 
 export const runtime = "nodejs";
 
@@ -15,32 +15,47 @@ function verifyStripeSignature(payload: string, signatureHeader: string, secret:
   if (!timestamp || Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
   const expected = createHmac("sha256", secret).update(`${timestamp}.${payload}`).digest("hex");
   return (values.v1 || []).some((candidate) => {
-    if (candidate.length !== expected.length) return false;
+    if (!/^[a-f0-9]{64}$/i.test(candidate) || candidate.length !== expected.length) return false;
     return timingSafeEqual(Buffer.from(candidate, "hex"), Buffer.from(expected, "hex"));
   });
 }
 
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!secret) return NextResponse.json({ error: "Stripe webhook is not configured." }, { status: 503 });
+  if (!secret) return noStoreJson({ error: "Stripe webhook is not configured." }, { status: 503 });
+  const contentLength = Number(request.headers.get("content-length") || "0");
+  if (contentLength > 1_000_000) return noStoreJson({ error: "Payload too large." }, { status: 413 });
   const payload = await request.text();
   const signature = request.headers.get("stripe-signature") || "";
-  if (!verifyStripeSignature(payload, signature, secret)) return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
+  if (!verifyStripeSignature(payload, signature, secret)) return noStoreJson({ error: "Invalid signature." }, { status: 400 });
 
-  const event = JSON.parse(payload) as { id: string; type: string; data?: { object?: { client_reference_id?: string; metadata?: { orderId?: string } } } };
+  let event: { id?: string; type?: string; data?: { object?: { id?: string; client_reference_id?: string; payment_status?: string; metadata?: { orderId?: string } } } };
+  try {
+    event = JSON.parse(payload) as typeof event;
+  } catch {
+    return noStoreJson({ error: "Invalid JSON payload." }, { status: 400 });
+  }
   const object = event.data?.object;
   const orderId = object?.client_reference_id || object?.metadata?.orderId;
-  if (!orderId) return NextResponse.json({ received: true });
-  const order = await getOrder(orderId);
-  if (!order || order.processedWebhookIds?.includes(event.id)) return NextResponse.json({ received: true });
+  if (!orderId || !isValidOrderId(orderId) || !event.id || event.id.length > 180 || !event.type) return noStoreJson({ received: true });
 
-  const statuses: Record<string, OrderStatus> = {
-    "checkout.session.completed": "paid",
+  const statuses: Record<string, PaymentStatus> = {
     "checkout.session.async_payment_succeeded": "paid",
-    "checkout.session.async_payment_failed": "payment_failed",
+    "checkout.session.async_payment_failed": "failed",
     "checkout.session.expired": "expired",
   };
-  const status = statuses[event.type];
-  if (status) await updateOrder(orderId, { status, processedWebhookIds: [...(order.processedWebhookIds || []), event.id].slice(-50), providerOutcome: event.type });
-  return NextResponse.json({ received: true });
+  const paymentStatus = event.type === "checkout.session.completed"
+    ? object?.payment_status === "paid" ? "paid" : "pending"
+    : statuses[event.type];
+  if (paymentStatus) {
+    await applyPaymentEvent({
+      provider: "stripe",
+      eventId: event.id,
+      orderId,
+      paymentStatus,
+      outcome: event.type,
+      providerReference: object?.id,
+    });
+  }
+  return noStoreJson({ received: true });
 }

@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl("/"), lastModified, changeFrequency: "weekly", priority: 1 },
     { url: absoluteUrl("/menu"), lastModified, changeFrequency: "weekly", priority: .95 },
     { url: absoluteUrl("/restaurant"), lastModified, changeFrequency: "monthly", priority: .9 },
+    { url: absoluteUrl("/hall"), lastModified, changeFrequency: "monthly", priority: .9 },
     { url: absoluteUrl("/story"), lastModified, changeFrequency: "monthly", priority: .75 },
     { url: absoluteUrl("/story/calicut"), lastModified, changeFrequency: "yearly", priority: .6 },
     { url: absoluteUrl("/faq"), lastModified, changeFrequency: "monthly", priority: .8 },

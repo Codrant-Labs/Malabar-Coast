@@ -1,7 +1,8 @@
 Malabar Coast
-Southern Indian coastal cooking in Holytown, Holytown.
+Southern Indian coastal cooking in Holytown, Scotland.
 
-Design and build: Malabar Coast website team
+Website design and development: Codrant Labs
+Studio: https://codrantlabs.in/
 Language: English (United Kingdom)
-Last reviewed: 2026-07-13
+Last reviewed: 2026-08-02
 

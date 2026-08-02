@@ -6,6 +6,7 @@ import "./editorial.css";
 import "./order.css";
 import "./faq/faq.css";
 import { SiteHeader } from "./components/site-header";
+import { SiteFooter } from "./components/site-footer";
 import { SmoothScroll } from "./components/smooth-scroll";
 import { CartProvider } from "./components/cart-provider";
 import { CustomCursor } from "./components/custom-cursor";
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
   },
   description: site.description,
   applicationName: site.name,
+  generator: "Codrant Labs",
   category: "restaurant",
   creator: site.name,
   publisher: site.name,
@@ -30,6 +32,10 @@ export const metadata: Metadata = {
     "Malabar cuisine Scotland",
     "South Indian seafood",
     "Kerala food delivery Holytown",
+    "Southern Indian restaurant Scotland",
+    "private event hall Holytown",
+    "function hall North Lanarkshire",
+    "private dining Holytown",
   ],
   alternates: { canonical: "/" },
   robots: {
@@ -88,11 +94,13 @@ const globalSchema = {
         absoluteUrl("/restaurant/dining-room.png"),
         absoluteUrl("/menu/calicut-pepper-prawns.png"),
         absoluteUrl("/restaurant/table-for-two.png"),
+        absoluteUrl("/Hall1.jpeg"),
       ],
       description: site.description,
       priceRange: site.priceRange,
       servesCuisine: site.cuisine,
       hasMenu: absoluteUrl("/menu"),
+      hasMap: "https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+North+Lanarkshire+ML1+4TH",
       address: {
         "@type": "PostalAddress",
         ...site.address,
@@ -101,7 +109,13 @@ const globalSchema = {
         "@type": "GeoCoordinates",
         ...site.geo,
       },
-      areaServed: ["Holytown", "Holytown", "North Lanarkshire"],
+      areaServed: ["Holytown", "North Lanarkshire"],
+      containsPlace: {
+        "@type": "EventVenue",
+        "@id": `${absoluteUrl("/hall")}#venue`,
+        name: "Private Event Hall at Malabar Coast",
+        url: absoluteUrl("/hall"),
+      },
     },
     {
       "@type": "WebSite",
@@ -111,6 +125,14 @@ const globalSchema = {
       description: site.shortDescription,
       inLanguage: "en-GB",
       publisher: { "@id": `${site.url}/#restaurant` },
+      creator: { "@id": "https://codrantlabs.in/#organization" },
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://codrantlabs.in/#organization",
+      name: "Codrant Labs",
+      url: "https://codrantlabs.in/",
+      description: "Website design and development studio credited with creating the Malabar Coast website.",
     },
   ],
 };
@@ -125,6 +147,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <CartProvider>
           <SiteHeader />
           {children}
+          <SiteFooter />
         </CartProvider>
       </body>
     </html>

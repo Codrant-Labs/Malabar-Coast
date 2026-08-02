@@ -28,7 +28,7 @@ const calicutSchema = {
       image: absoluteUrl("/story/calicut-spice-port.png"),
       mainEntityOfPage: absoluteUrl("/story/calicut"),
       datePublished: "2026-07-13",
-      dateModified: "2026-07-13",
+      dateModified: "2026-08-02",
       author: { "@id": `${absoluteUrl("/")}#restaurant` },
       publisher: { "@id": `${absoluteUrl("/")}#restaurant` },
     },

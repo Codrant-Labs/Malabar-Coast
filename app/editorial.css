@@ -110,6 +110,14 @@
 .serviceNotes > div:last-child { border-right: 1px solid rgba(16,32,28,.18); }
 .serviceNotes span { color: #8a5d24; font-size: .5rem; letter-spacing: .18em; text-transform: uppercase; }
 .serviceNotes strong { font-family: "Iowan Old Style",Georgia,serif; font-size: 1.05rem; font-weight: 400; }
+.restaurantHallTeaser { position: relative; min-height: 78vh; overflow: hidden; }
+.restaurantHallTeaser > img { object-fit: cover; object-position: center; }
+.restaurantHallShade { position: absolute; inset: 0; background: linear-gradient(90deg,rgba(3,10,8,.83),rgba(3,10,8,.2) 68%),linear-gradient(180deg,transparent 58%,rgba(3,10,8,.55)); }
+.restaurantHallCopy { position: absolute; z-index: 2; top: 50%; left: clamp(1.25rem,7vw,8rem); width: min(42rem,80vw); transform: translateY(-50%); }
+.restaurantHallCopy h2 { margin: 1.25rem 0 1.75rem; font-family: "Bodoni 72",Didot,serif; font-size: clamp(4.5rem,8vw,9rem); font-weight: 400; line-height: .8; letter-spacing: -.055em; text-transform: uppercase; }
+.restaurantHallCopy > p { max-width: 31rem; color: rgba(239,230,212,.74); font-family: "Iowan Old Style",Georgia,serif; line-height: 1.65; }
+.restaurantHallCopy > div:last-child { display: flex; margin-top: 2rem; }
+.restaurantHallCopy a { display: inline-flex; justify-content: space-between; gap: 3rem; min-width: min(100%,19rem); padding: 1rem 0; border-bottom: 1px solid rgba(239,230,212,.38); font-size: .55rem; letter-spacing: .18em; text-transform: uppercase; }
 .roomPortrait { display: grid; grid-template-columns: 1.35fr .65fr; min-height: 88vh; background: #0b1b17; }
 .roomPortraitImage { position: relative; min-height: 100%; overflow: hidden; }
 .roomPortraitImage img { object-fit: cover; }
@@ -195,6 +203,9 @@
   .editorialCtas,.bridgeLinks { flex-direction: column; align-items: stretch; }
   .editorialCtas a,.bridgeLinks a { justify-content: space-between; }
   .roomPortrait { display: flex; flex-direction: column; min-height: auto; }
+  .restaurantHallTeaser { min-height: 68svh; }
+  .restaurantHallCopy { left: 1.25rem; width: calc(100% - 2.5rem); }
+  .restaurantHallCopy h2 { font-size: 16vw; }
   .roomPortraitImage { min-height: 70svh; }
   .roomPortraitText { padding: 5rem 1.25rem; }
   .serviceNotes { grid-template-columns: repeat(2,1fr); padding: 0 1.25rem; }
@@ -244,4 +255,92 @@
 @media (prefers-reduced-motion: reduce) {
   .storyHero > img,.restaurantHero > img { animation: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+.hallHero { position: relative; min-height: 100vh; min-height: 100svh; overflow: hidden; }
+.hallHero > img { object-fit: cover; object-position: center; animation: editorialLens 18s ease-in-out infinite alternate; }
+.hallHeroShade { position: absolute; inset: 0; background: linear-gradient(90deg,rgba(3,9,8,.84),rgba(3,9,8,.3) 62%,rgba(3,9,8,.12)),linear-gradient(180deg,rgba(3,9,8,.3),transparent 42%,rgba(3,9,8,.66)); }
+.hallHeroCopy { position: absolute; z-index: 2; top: 52%; left: clamp(1.25rem,8vw,8.5rem); width: min(86vw,78rem); transform: translateY(-50%); }
+.hallHeroCopy > p { margin: 0 0 1.5rem; color: var(--ed-brass); font-size: .62rem; letter-spacing: .25em; text-transform: uppercase; }
+.hallHeroCopy h1 { margin: 0; font-family: "Bodoni 72",Didot,"Iowan Old Style",serif; font-size: clamp(5rem,10vw,11.5rem); font-weight: 400; line-height: .76; letter-spacing: -.065em; text-transform: uppercase; }
+.hallHeroCopy h1 span { display: block; }
+.hallHeroCopy h1 span:last-child { margin-left: clamp(1rem,6vw,6rem); color: transparent; -webkit-text-stroke: 1px rgba(239,230,212,.85); }
+
+.hallIntroduction { display: grid; grid-template-columns: .65fr 1.45fr 1fr; gap: clamp(2rem,5vw,6rem); padding: clamp(6rem,10vw,11rem) clamp(1.25rem,6vw,7rem); background: #e5dac4; color: #10201c; }
+.hallIntroduction h2,.hallStageCopy h2,.hallGalleryHeading h2,.hallFaq h2,.hallClosing h2 { margin: 0; font-family: "Bodoni 72",Didot,serif; font-size: clamp(4rem,7vw,8rem); font-weight: 400; line-height: .82; letter-spacing: -.05em; text-transform: uppercase; }
+.hallIntroduction > div > p,.hallStageCopy > p,.hallClosing > p { margin: 0 0 1.35rem; font-family: "Iowan Old Style",Georgia,serif; font-size: clamp(.95rem,1.15vw,1.1rem); line-height: 1.68; }
+.hallIntroduction > div > p:first-child { font-size: clamp(1.15rem,1.6vw,1.5rem); line-height: 1.48; }
+.hallIntroduction time { display: block; margin-top: 2rem; color: #8a5d24; font-size: .51rem; letter-spacing: .18em; text-transform: uppercase; }
+
+.hallDetails { display: grid; grid-template-columns: repeat(4,1fr); padding: 0 clamp(1.25rem,6vw,7rem); border-top: 1px solid rgba(16,32,28,.18); border-bottom: 1px solid rgba(16,32,28,.18); background: #e5dac4; color: #10201c; }
+.hallDetails > div { min-height: 12rem; padding: 1.8rem 1.4rem; border-left: 1px solid rgba(16,32,28,.18); }
+.hallDetails > div:last-child { border-right: 1px solid rgba(16,32,28,.18); }
+.hallDetails span,.hallDetails p { color: #8a5d24; font-size: .49rem; letter-spacing: .17em; text-transform: uppercase; }
+.hallDetails p { margin: 2.8rem 0 .65rem; }
+.hallDetails strong { font-family: "Iowan Old Style",Georgia,serif; font-size: 1.05rem; font-weight: 400; line-height: 1.4; }
+
+.hallStagePortrait { display: grid; grid-template-columns: 1.35fr .65fr; min-height: 88vh; background: #0b1b17; }
+.hallStageImage { position: relative; min-height: 100%; overflow: hidden; }
+.hallStageImage img { object-fit: cover; }
+.hallStageCopy { display: flex; flex-direction: column; justify-content: center; padding: clamp(4rem,6vw,7rem); }
+.hallStageCopy h2 { margin: 1.2rem 0 2rem; }
+.hallStageCopy > p { color: rgba(239,230,212,.7); }
+
+.hallGallery { padding: clamp(6rem,9vw,10rem) clamp(1.25rem,5vw,6rem); background: #d9ccb2; color: #10201c; }
+.hallGalleryHeading { display: flex; align-items: end; justify-content: space-between; gap: 3rem; margin-bottom: clamp(3rem,5vw,5rem); }
+.hallGalleryImage { position: relative; min-height: min(70vw,52rem); overflow: hidden; }
+.hallGalleryImage img { object-fit: cover; }
+.hallGalleryImage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg,transparent 68%,rgba(3,9,8,.6)); }
+.hallGalleryImage > span { position: absolute; z-index: 2; right: 1.5rem; bottom: 1.5rem; color: var(--ed-ivory); font-size: .52rem; letter-spacing: .17em; text-transform: uppercase; }
+
+.hallFaq { display: grid; grid-template-columns: .7fr 1.3fr; gap: clamp(3rem,8vw,9rem); padding: clamp(6rem,10vw,11rem) clamp(1.25rem,6vw,7rem); background: #071310; }
+.hallFaq > div:first-child { position: sticky; top: 9rem; align-self: start; }
+.hallFaq h2 { margin-top: 1.2rem; }
+.hallFaqList article { display: grid; grid-template-columns: 3rem 1fr; gap: .8rem 1.5rem; padding: 2rem 0; border-top: 1px solid rgba(239,230,212,.2); }
+.hallFaqList article > span { grid-row: 1 / 4; color: var(--ed-brass); font-size: .52rem; letter-spacing: .15em; }
+.hallFaqList h3 { margin: 0; font-family: "Iowan Old Style",Georgia,serif; font-size: clamp(1.35rem,2vw,2rem); font-weight: 400; }
+.hallFaqList p { max-width: 42rem; margin: .5rem 0 0; color: rgba(239,230,212,.64); font-family: "Iowan Old Style",Georgia,serif; line-height: 1.65; }
+.hallFaqList a { width: fit-content; margin-top: .5rem; color: var(--ed-brass); font-size: .48rem; letter-spacing: .14em; text-transform: uppercase; }
+
+.hallClosing { padding: clamp(6rem,10vw,11rem) clamp(1.25rem,7vw,8rem); background: #c79a52; color: #071310; }
+.hallClosing h2 { margin: 1.5rem 0 2rem; font-size: clamp(5rem,10vw,11rem); }
+.hallClosing > p { max-width: 38rem; }
+.hallClosingActions { display: flex; gap: 1rem; margin-top: 3rem; }
+.hallClosingActions a { display: inline-flex; justify-content: space-between; gap: 3rem; min-width: min(100%,19rem); padding: 1rem 0; border-bottom: 1px solid rgba(7,19,16,.45); font-size: .55rem; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; }
+
+@media (max-width: 900px) {
+  .hallHeroCopy { left: 1.2rem; width: calc(100% - 2.4rem); }
+  .hallHeroCopy h1 { font-size: clamp(4rem,17.5vw,7rem); line-height: .82; }
+  .hallHeroCopy h1 span:last-child { margin-left: 3vw; }
+  .hallIntroduction { display: block; padding: 6rem 1.25rem; }
+  .hallIntroduction h2 { margin: 1.5rem 0 2.5rem; }
+  .hallDetails { grid-template-columns: repeat(2,1fr); padding: 0 1.25rem; }
+  .hallDetails > div { min-height: 10rem; }
+  .hallDetails > div:nth-child(3),.hallDetails > div:nth-child(4) { border-top: 1px solid rgba(16,32,28,.18); }
+  .hallStagePortrait { display: flex; flex-direction: column; min-height: auto; }
+  .hallStageImage { min-height: 68svh; }
+  .hallStageCopy { padding: 5rem 1.25rem; }
+  .hallGallery { padding: 5.5rem 1.25rem; }
+  .hallGalleryHeading { display: block; }
+  .hallGalleryHeading h2 { margin-top: 1.25rem; }
+  .hallGalleryImage { min-height: 62svh; }
+  .hallFaq { display: block; padding: 6rem 1.25rem; }
+  .hallFaq > div:first-child { position: static; margin-bottom: 3rem; }
+  .hallClosing { padding: 6rem 1.25rem; }
+  .hallClosingActions { flex-direction: column; }
+}
+
+@media (max-width: 600px) {
+  .hallHero > img { object-position: 54% center; }
+  .hallDetails { padding: 0; }
+  .hallDetails > div { padding: 1.5rem 1rem; }
+  .hallDetails p { margin-top: 2rem; }
+  .hallStageImage { min-height: 55svh; }
+  .hallGalleryImage { min-height: 53svh; }
+  .hallFaqList article { grid-template-columns: 2rem 1fr; gap: .75rem 1rem; }
+  .hallClosing h2 { font-size: 17vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hallHero > img { animation: none; }
 }

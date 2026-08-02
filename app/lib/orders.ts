@@ -2,7 +2,25 @@ import { getMenuItem } from "./menu";
 
 export type PaymentProvider = "stripe" | "worldpay";
 export type FulfilmentMethod = "collection" | "delivery";
-export type OrderStatus = "pending_payment" | "paid" | "payment_failed" | "cancelled" | "expired";
+export type PaymentStatus = "pending" | "paid" | "failed" | "cancelled" | "expired";
+export type OrderStatus =
+  | "pending_payment"
+  | "paid"
+  | "confirmed"
+  | "preparing"
+  | "ready"
+  | "out_for_delivery"
+  | "completed"
+  | "payment_failed"
+  | "cancelled"
+  | "expired";
+
+export type OrderStatusHistoryEntry = {
+  status: OrderStatus;
+  at: string;
+  actor: "system" | "payment_provider" | "admin";
+  note?: string;
+};
 
 export type CheckoutCartItem = { id: string; quantity: number; note?: string };
 export type OrderLine = {
@@ -32,11 +50,15 @@ export type OrderRecord = {
   createdAt: string;
   updatedAt: string;
   status: OrderStatus;
+  paymentStatus?: PaymentStatus;
   provider: PaymentProvider;
   providerReference?: string;
   providerCheckoutUrl?: string;
   providerOutcome?: string;
   processedWebhookIds?: string[];
+  idempotencyKeyHash?: string;
+  requestFingerprint?: string;
+  statusHistory?: OrderStatusHistoryEntry[];
   customer: CustomerDetails;
   fulfilment: FulfilmentMethod;
   requestedTime: string;
@@ -49,6 +71,47 @@ export type OrderRecord = {
   currency: "GBP";
 };
 
+export const orderStatusLabels: Record<OrderStatus, string> = {
+  pending_payment: "Awaiting payment",
+  paid: "Paid",
+  confirmed: "Confirmed",
+  preparing: "Preparing",
+  ready: "Ready",
+  out_for_delivery: "Out for delivery",
+  completed: "Completed",
+  payment_failed: "Payment failed",
+  cancelled: "Cancelled",
+  expired: "Payment expired",
+};
+
+const adminStatusTransitions: Partial<Record<OrderStatus, OrderStatus[]>> = {
+  paid: ["confirmed"],
+  confirmed: ["preparing"],
+  preparing: ["ready"],
+  ready: ["out_for_delivery", "completed"],
+  out_for_delivery: ["completed"],
+};
+
+export function getAllowedAdminTransitions(order: Pick<OrderRecord, "status" | "fulfilment">) {
+  const transitions = adminStatusTransitions[order.status] ?? [];
+  return order.fulfilment === "collection"
+    ? transitions.filter((status) => status !== "out_for_delivery")
+    : transitions;
+}
+
+export function inferPaymentStatus(order: Pick<OrderRecord, "status" | "paymentStatus">): PaymentStatus {
+  if (order.paymentStatus) return order.paymentStatus;
+  if (["paid", "confirmed", "preparing", "ready", "out_for_delivery", "completed"].includes(order.status)) return "paid";
+  if (order.status === "payment_failed") return "failed";
+  if (order.status === "cancelled") return "cancelled";
+  if (order.status === "expired") return "expired";
+  return "pending";
+}
+
+export function isPaymentConfirmed(order: Pick<OrderRecord, "status" | "paymentStatus">) {
+  return inferPaymentStatus(order) === "paid";
+}
+
 export class CheckoutValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -60,6 +123,49 @@ function cleanText(value: unknown, label: string, maxLength: number, required = 
   const text = typeof value === "string" ? value.trim().slice(0, maxLength) : "";
   if (required && !text) throw new CheckoutValidationError(`${label} is required.`);
   return text;
+}
+
+function formatRestaurantLocal(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date).reduce<Record<string, string>>((all, part) => {
+    if (part.type !== "literal") all[part.type] = part.value;
+    return all;
+  }, {});
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+}
+
+function validateRequestedTime(value: unknown) {
+  const requested = cleanText(value, "Requested time", 16);
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(requested)) {
+    throw new CheckoutValidationError("Choose a valid requested date and time.");
+  }
+  const now = new Date();
+  if (requested < formatRestaurantLocal(new Date(now.getTime() - 5 * 60_000))) {
+    throw new CheckoutValidationError("Requested time must be in the future.");
+  }
+  if (requested > formatRestaurantLocal(new Date(now.getTime() + 90 * 24 * 60 * 60_000))) {
+    throw new CheckoutValidationError("Requested time must be within the next 90 days.");
+  }
+  return requested;
+}
+
+function validateWorldpaySession(value: unknown) {
+  if (typeof value !== "string" || value.length > 500) return undefined;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && ["try.access.worldpay.com", "access.worldpay.com"].includes(url.hostname)
+      ? url.toString()
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export function getDeliveryFeePence() {
@@ -82,6 +188,7 @@ export function validateCheckout(input: unknown) {
     phone: cleanText(customerInput.phone, "Phone", 40),
   };
   if (!/^\S+@\S+\.\S+$/.test(customer.email)) throw new CheckoutValidationError("Enter a valid email address.");
+  if (!/^[+()\d][+()\d\s.-]{6,38}$/.test(customer.phone)) throw new CheckoutValidationError("Enter a valid phone number.");
 
   const cart = Array.isArray(body.cart) ? body.cart : [];
   if (cart.length === 0) throw new CheckoutValidationError("Your order is empty.");
@@ -105,6 +212,8 @@ export function validateCheckout(input: unknown) {
     if (!item?.available) throw new CheckoutValidationError("A dish in your order is no longer available. Please review your order.");
     return { menuItemId: item.id, name: item.name, unitPricePence: item.pricePence, quantity: entry.quantity, note: entry.note ?? "", lineTotalPence: item.pricePence * entry.quantity };
   });
+  const totalUnits = lines.reduce((total, line) => total + line.quantity, 0);
+  if (totalUnits > 100) throw new CheckoutValidationError("Your order contains too many items.");
 
   let deliveryAddress: DeliveryAddress | undefined;
   if (fulfilment === "delivery") {
@@ -115,21 +224,39 @@ export function validateCheckout(input: unknown) {
       city: cleanText(address.city, "Town or city", 80),
       postcode: cleanText(address.postcode, "Postcode", 16).toUpperCase(),
     };
+    if (!/^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/.test(deliveryAddress.postcode)) {
+      throw new CheckoutValidationError("Enter a valid UK postcode.");
+    }
   }
 
   const subtotalPence = lines.reduce((total, line) => total + line.lineTotalPence, 0);
   const deliveryFeePence = fulfilment === "delivery" ? getDeliveryFeePence() : 0;
+  const totalPence = subtotalPence + deliveryFeePence;
+  const configuredMaximum = Number(process.env.MAX_ORDER_TOTAL_PENCE);
+  const maximumTotal = Number.isInteger(configuredMaximum) && configuredMaximum > 0 ? configuredMaximum : 100_000;
+  if (totalPence > maximumTotal) throw new CheckoutValidationError("This order is above the online checkout limit. Please contact the restaurant.");
+
+  const sessionsInput = body.worldpaySessions && typeof body.worldpaySessions === "object"
+    ? body.worldpaySessions as Record<string, unknown>
+    : {};
+  const worldpaySessions = provider === "worldpay"
+    ? { card: validateWorldpaySession(sessionsInput.card), cvv: validateWorldpaySession(sessionsInput.cvv) }
+    : undefined;
+  if (provider === "worldpay" && (!worldpaySessions?.card || !worldpaySessions.cvv)) {
+    throw new CheckoutValidationError("Secure Worldpay card sessions are missing or invalid.");
+  }
+
   return {
     provider,
     fulfilment,
     customer,
     deliveryAddress,
-    requestedTime: cleanText(body.requestedTime, "Requested time", 80),
+    requestedTime: validateRequestedTime(body.requestedTime),
     orderNote: cleanText(body.orderNote, "Order note", 500, false),
     lines,
     subtotalPence,
     deliveryFeePence,
-    totalPence: subtotalPence + deliveryFeePence,
-    worldpaySessions: body.worldpaySessions && typeof body.worldpaySessions === "object" ? body.worldpaySessions as { card?: string; cvv?: string } : undefined,
+    totalPence,
+    worldpaySessions,
   };
 }

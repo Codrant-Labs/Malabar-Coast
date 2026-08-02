@@ -13,11 +13,11 @@ export const site = {
   legalName: "Malabar Coast",
   url: resolveSiteUrl(),
   description:
-    "Malabar Coast is a Southern Indian coastal restaurant in Holytown, Holytown, serving Kerala-inspired seafood, curries, biriyani and plant-based dishes.",
+    "Malabar Coast is a Southern Indian coastal restaurant in Holytown, Scotland, serving Kerala-inspired seafood, curries, biriyani and plant-based dishes.",
   shortDescription: "Southern Indian coastal cooking from Malabar to Scotland.",
   cuisine: ["South Indian", "Kerala", "Indian", "Seafood"],
   priceRange: "££",
-  lastUpdated: "2026-07-13",
+  lastUpdated: "2026-08-02",
   address: {
     streetAddress: "33 Main Street",
     addressLocality: "Holytown",

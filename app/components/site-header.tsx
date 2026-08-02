@@ -143,9 +143,10 @@ export function SiteHeader() {
             <Link href="/story" onClick={() => setMenuOpenedOnPath(null)}><span>01</span>Our story</Link>
             <Link href="/menu" onClick={() => setMenuOpenedOnPath(null)}><span>02</span>The menu</Link>
             <Link href="/restaurant" onClick={() => setMenuOpenedOnPath(null)}><span>03</span>Our restaurant</Link>
-            <Link href="/faq" onClick={() => setMenuOpenedOnPath(null)}><span>04</span>Good to know</Link>
-            <Link href="/#reservations" onClick={() => setMenuOpenedOnPath(null)}><span>05</span>Plan your visit</Link>
-            <Link href="/checkout" onClick={() => setMenuOpenedOnPath(null)}><span>06</span>Your order</Link>
+            <Link href="/hall" onClick={() => setMenuOpenedOnPath(null)}><span>04</span>Private hall</Link>
+            <Link href="/faq" onClick={() => setMenuOpenedOnPath(null)}><span>05</span>Good to know</Link>
+            <Link href="/#reservations" onClick={() => setMenuOpenedOnPath(null)}><span>06</span>Plan your visit</Link>
+            <Link href="/checkout" onClick={() => setMenuOpenedOnPath(null)}><span>07</span>Your order</Link>
           </nav>
           <small>33 Main Street · Holytown · ML1 4TH</small>
         </div>

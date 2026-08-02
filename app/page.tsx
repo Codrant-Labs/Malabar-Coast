@@ -191,24 +191,25 @@ export default function Home() {
       <section className="homeOverview" aria-labelledby="home-overview-title">
         <div className="homeOverviewMeta">
           <span>Malabar Coast · In brief</span>
-          <time dateTime="2026-07-13">Last reviewed 13 July 2026</time>
+          <time dateTime="2026-08-02">Last reviewed 2 August 2026</time>
         </div>
         <div className="homeOverviewLead">
           <h2 id="home-overview-title">What is<br />Malabar Coast?</h2>
           <div>
             <p>
               Malabar Coast is a Southern Indian coastal restaurant at 33 Main Street in
-              Holytown, Holytown. The kitchen connects Kerala&apos;s pepper, coconut, curry leaf
+              Holytown, Scotland. The kitchen connects Kerala&apos;s pepper, coconut, curry leaf
               and tamarind with Scottish seafood and produce in dishes designed for sharing.
             </p>
             <Link href="/faq">Restaurant questions answered <span aria-hidden="true">↗</span></Link>
+            <Link href="/hall">Discover the private hall <span aria-hidden="true">↗</span></Link>
           </div>
         </div>
         <dl className="homeOverviewFacts">
           <div><dt>Cuisine</dt><dd>Kerala and Southern Indian coastal cooking</dd></div>
           <div><dt>Good to know</dt><dd>Vegetarian, vegan and gluten-free choices</dd></div>
           <div><dt>Ways to enjoy</dt><dd>Dine in, collect or order delivery</dd></div>
-          <div><dt>Find us</dt><dd>33 Main Street · Holytown · ML1 4TH</dd></div>
+          <div><dt>Private events</dt><dd>Flexible hall with a built-in bar and stage</dd></div>
         </dl>
       </section>
 
@@ -233,6 +234,7 @@ export default function Home() {
             <div className="homeReservationsActions">
               <Link href="/restaurant#location">Plan your visit <span aria-hidden="true">→</span></Link>
               <Link href="/menu">Explore the menu <span aria-hidden="true">↗</span></Link>
+              <Link href="/hall">See the private hall <span aria-hidden="true">↗</span></Link>
             </div>
           </div>
         </div>
@@ -260,7 +262,7 @@ export default function Home() {
               <span>3.9735° W</span>
             </div>
             <a href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer">
-              Open in Google Maps <span aria-hidden="true">↗</span>
+              Get Directions <span aria-hidden="true">↗</span>
             </a>
           </div>
         </div>
