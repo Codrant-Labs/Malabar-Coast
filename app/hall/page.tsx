@@ -128,6 +128,9 @@ export default async function HallPage() {
   const introductionSection = getPageSection(cmsPage, "hall-intro");
   const stageSection = getPageSection(cmsPage, "hall-stage");
   const gallerySection = getPageSection(cmsPage, "hall-gallery");
+  const occasionsSection = getPageSection(cmsPage, "hall-occasions");
+  const planningSection = getPageSection(cmsPage, "hall-planning");
+  const enquirySection = getPageSection(cmsPage, "hall-enquiry");
   return (
     <main className="editorialPage hallPage">
       <JsonLd data={hallSchema} />
@@ -144,8 +147,29 @@ export default async function HallPage() {
         <div className="hallHeroCopy">
           <p>{cmsPage?.eyebrow || "Private gatherings · Holytown"}</p>
           <h1 id="hall-title">{cmsPage?.heroHeading ? <span>{cmsPage.heroHeading}</span> : <><span>A room</span><span>of your own.</span></>}</h1>
+          <div className="hallHeroActions"><a href="#hall-enquiry">Start your enquiry <span aria-hidden="true">↓</span></a><Link href="/book-a-table">Book a restaurant table <span aria-hidden="true">↗</span></Link></div>
         </div>
         <div className="heroChapterMark"><span>Bar · Stage · Flexible floor</span><i /><span>33 Main Street</span></div>
+      </section>
+
+      <section className="hallEnquiryLead" id="hall-enquiry" aria-labelledby="hall-enquiry-title">
+        <div className="hallEnquiryLeadCopy">
+          <Reveal className="chapterIndex">{enquirySection?.eyebrow || "Your occasion · Holytown"}</Reveal>
+          <Reveal as="h2" id="hall-enquiry-title" delay={70}>{enquirySection?.heading || <>Bring people<br />together.</>}</Reveal>
+          <Reveal as="p" delay={110}>{portableTextToPlainText(enquirySection?.body) || "Tell us the date, guest estimate and the kind of gathering you have in mind. Our team will check the room and contact you before anything is confirmed."}</Reveal>
+          <Reveal as="ul" className="hallEnquiryPromises" delay={145}>
+            <li><span>01</span><strong>No payment or commitment at this stage</strong></li>
+            <li><span>02</span><strong>Availability confirmed personally by our team</strong></li>
+            <li><span>03</span><strong>Layout, catering and access planned together</strong></li>
+          </Reveal>
+        </div>
+        <Reveal className="hallEnquiryPanel hallEnquiryPanelLead" delay={120}>
+          <div className="hallEnquiryPanelHeader">
+            <span>Hall availability request</span>
+            <strong>Start with the basics.</strong>
+          </div>
+          <HallEnquiryForm />
+        </Reveal>
       </section>
 
       <section className="hallIntroduction" aria-labelledby="hall-introduction-title">
@@ -173,6 +197,17 @@ export default async function HallPage() {
         <Reveal delay={60}><span>02</span><p>At one end</p><strong>A built-in wooden bar</strong></Reveal>
         <Reveal delay={120}><span>03</span><p>At the other</p><strong>A raised event stage</strong></Reveal>
         <Reveal delay={180}><span>04</span><p>Through the room</p><strong>A flexible open floor</strong></Reveal>
+      </section>
+
+      <section className="hallOccasions" aria-labelledby="hall-occasions-title">
+        <div className="hallOccasionsIntro">
+          <Reveal className="chapterIndex">{occasionsSection?.eyebrow || "Made for your people · 02"}</Reveal>
+          <Reveal as="h2" id="hall-occasions-title" delay={70}>{occasionsSection?.heading || <>One room.<br />Many reasons.</>}</Reveal>
+          <Reveal as="p" delay={120}>{portableTextToPlainText(occasionsSection?.body) || "Shape the hall around the occasion, from a lively family celebration to a calm community gathering. Tell us what matters and we will help you find the right setup."}</Reveal>
+        </div>
+        <div className="hallOccasionGrid">
+          {(occasionsSection?.items?.length ? occasionsSection.items.map((item,index)=>[item.shortLabel || String(index+1).padStart(2,'0'),item.title,item.text || '']) : [['01','Milestones','Birthdays, anniversaries and family celebrations'],['02','Receptions','A flexible floor for welcoming, dining and dancing'],['03','Community','Meetings, presentations and shared occasions'],['04','Private dining','A more intimate room with Malabar Coast catering']]).map(([number,title,copy],index)=><Reveal as="article" delay={index*55} key={`${number}-${title}`}><span>{number}</span><h3>{title}</h3><p>{copy}</p></Reveal>)}
+        </div>
       </section>
 
       <section className="hallStagePortrait" aria-labelledby="hall-stage-title">
@@ -209,6 +244,13 @@ export default async function HallPage() {
         </Reveal>
       </section>
 
+      <section className="hallPlanning" aria-labelledby="hall-planning-title">
+        <Reveal className="chapterIndex">{planningSection?.eyebrow || "From idea to occasion · 05"}</Reveal>
+        <Reveal as="h2" id="hall-planning-title" delay={70}>{planningSection?.heading || <>A simple way<br />to begin.</>}</Reveal>
+        <Reveal as="p" delay={110}>{portableTextToPlainText(planningSection?.body) || "No polished plan is needed. Share the date, guest estimate and the feeling you want; our team will take it from there."}</Reveal>
+        <div className="hallPlanningSteps">{(planningSection?.items?.length ? planningSection.items.map((item,index)=>[item.shortLabel || String(index+1).padStart(2,'0'),item.title,item.text || '']) : [['01','Send the basics','Date, time, guest estimate and occasion.'],['02','Shape it together','Discuss layout, catering, stage and access needs.'],['03','Confirm with confidence','The team confirms availability, details and price directly.']]).map(([number,title,copy],index)=><Reveal as="article" delay={index*60} key={`${number}-${title}`}><span>{number}</span><h3>{title}</h3><p>{copy}</p></Reveal>)}</div>
+      </section>
+
       <section className="hallFaq" id="hall-faq" aria-labelledby="hall-faq-title">
         <div>
           <Reveal className="chapterIndex">Before you plan · 04</Reveal>
@@ -220,20 +262,19 @@ export default async function HallPage() {
               <span>{String(index + 1).padStart(2, "0")}</span>
               <h3>{item.question}</h3>
               <p>{item.answer}</p>
-              <a href={`#${item.id}`} aria-label={`Permanent link to ${item.question}`}>Permanent answer link</a>
             </Reveal>
           ))}
         </div>
       </section>
 
       <section className="hallClosing" aria-labelledby="hall-closing-title">
-        <Reveal className="chapterIndex">Your occasion · Holytown</Reveal>
-        <Reveal as="h2" id="hall-closing-title" delay={70}>Bring people<br />together.</Reveal>
-        <Reveal as="p" delay={120}>Tell us the basics now. The team will review your request and call or email you before anything is confirmed.</Reveal>
-        <Reveal className="hallEnquiryPanel" delay={150}><HallEnquiryForm /></Reveal>
-        <Reveal className="hallClosingActions" delay={170}>
+        <Reveal className="chapterIndex">See it for yourself · Holytown</Reveal>
+        <Reveal as="h2" id="hall-closing-title" delay={70}>Come and see<br />the room.</Reveal>
+        <Reveal as="p" delay={120}>Explore the location, look through the menu, or return to the enquiry above when you are ready. You do not need a finished plan to start the conversation.</Reveal>
+        <Reveal className="hallClosingActions" delay={150}>
+          <a href="#hall-enquiry">Return to the enquiry <span aria-hidden="true">↑</span></a>
           <Link href="/restaurant#location">See the location <span aria-hidden="true">→</span></Link>
-          <Link href="/faq">Read restaurant FAQs <span aria-hidden="true">↗</span></Link>
+          <Link href="/menu">Browse catering inspiration <span aria-hidden="true">↗</span></Link>
         </Reveal>
       </section>
     </main>

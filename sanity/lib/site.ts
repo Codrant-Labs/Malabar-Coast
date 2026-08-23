@@ -74,7 +74,13 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   try {
     const settings = await client.fetch(siteSettingsQuery, {}, {next: {revalidate: 60, tags: ["sanity-site-settings"]}}) as Partial<SiteSettings> | null;
     if (!settings?.restaurantName) return fallbackSiteSettings;
-    const safePrimaryNavigation = settings.primaryNavigation?.map(sanitisePublicLink).filter((link): link is SiteLink => Boolean(link)) ?? [];
+    const safePrimaryNavigation = settings.primaryNavigation
+      ?.map(sanitisePublicLink)
+      .filter((link): link is SiteLink => Boolean(link))
+      .map((link) => link.href === "/#reservations"
+        ? {...link, label: "Book your table", href: "/book-a-table"}
+        : link)
+      .filter((link, index, links) => links.findIndex((candidate) => candidate.href === link.href) === index) ?? [];
     const safeFooterNavigation = settings.footerNavigation?.map(sanitisePublicLink).filter((link): link is SiteLink => Boolean(link)) ?? [];
     const primaryNavigation = safePrimaryNavigation.length ? safePrimaryNavigation : fallbackSiteSettings.primaryNavigation;
     const offersLink = {label: "Offers", href: "/offers"};

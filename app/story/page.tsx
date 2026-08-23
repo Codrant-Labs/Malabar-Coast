@@ -245,7 +245,7 @@ export default async function StoryPage() {
         <h2 data-reveal>Come to<br /><em>the coast.</em></h2>
         <div className="storyConnectBottom" data-reveal>
           <span>33 Main Street · Holytown · Holytown · ML1 4TH</span>
-          <Link href="/#reservations" data-cursor-label="RESERVE A TABLE">
+          <Link href="/book-a-table" data-cursor-label="BOOK A TABLE">
             Reserve your table <i>↗</i>
           </Link>
         </div>

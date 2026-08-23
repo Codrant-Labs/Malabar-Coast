@@ -15,25 +15,33 @@
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: schema.json
-export type Promotion = {
+export type MenuItemReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "menuItem";
+};
+
+export type DailySpecial = {
   _id: string;
-  _type: "promotion";
+  _type: "dailySpecial";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
   title?: string;
   slug?: Slug;
-  status?: "active" | "paused";
-  poster?: ImageWithAlt;
+  status?: "active" | "soldOut" | "paused";
+  image?: ImageWithAlt;
   badge?: string;
-  summary?: string;
-  offerCode?: string;
-  validityLabel?: string;
+  description?: string;
+  pricePence?: number;
+  priceNote?: string;
+  dietaryNote?: string;
+  menuItem?: MenuItemReference;
+  activeDays?: Array<string>;
   startsAt?: string;
   endsAt?: string;
-  showOnHomepage?: boolean;
   callToAction?: Link;
-  terms?: string;
   displayOrder?: number;
 };
 
@@ -65,6 +73,28 @@ export type Slug = {
   _type: "slug";
   current?: string;
   source?: string;
+};
+
+export type Promotion = {
+  _id: string;
+  _type: "promotion";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  status?: "active" | "paused";
+  poster?: ImageWithAlt;
+  badge?: string;
+  summary?: string;
+  offerCode?: string;
+  validityLabel?: string;
+  startsAt?: string;
+  endsAt?: string;
+  showOnHomepage?: boolean;
+  callToAction?: Link;
+  terms?: string;
+  displayOrder?: number;
 };
 
 export type Testimonial = {
@@ -159,13 +189,6 @@ export type MarketingPage = {
   seo?: Seo;
 };
 
-export type MenuItemReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "menuItem";
-};
-
 export type MenuPage = {
   _id: string;
   _type: "menuPage";
@@ -184,7 +207,8 @@ export type MenuPage = {
   alcoholNotice?: string;
   voyageStops?: Array<{
     dish?: MenuItemReference;
-    area?: string;
+    area?:
+      "Kannur" | "Kozhikode" | "Palakkad" | "Kochi" | "Kottayam" | "Alappuzha";
     port?: string;
     region?: string;
     coordinates?: string;
@@ -333,6 +357,12 @@ export type ContentSection = {
       _key: string;
     } & Link
   >;
+  items?: Array<{
+    title?: string;
+    text?: string;
+    shortLabel?: string;
+    _key: string;
+  }>;
   shortLabel?: string;
   note?: string;
   theme?: "dark" | "light" | "green" | "copper";
@@ -462,17 +492,18 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
-  | Promotion
+  | MenuItemReference
+  | DailySpecial
   | Link
   | SanityImageAssetReference
   | ImageWithAlt
   | Slug
+  | Promotion
   | Testimonial
   | LegalPage
   | Seo
   | FaqItem
   | MarketingPage
-  | MenuItemReference
   | MenuPage
   | MenuCategoryReference
   | MenuItem
@@ -493,7 +524,7 @@ export type AllSanitySchemaTypes =
 
 // Source: ../sanity/lib/admin-content.ts
 // Variable: adminContentOverviewQuery
-// Query: {  "menuItems": *[_type == "menuItem"] | order(category->orderRank asc, displayOrder asc, name asc) {    _id,    name,    "category": category->title,    "categorySlug": category->slug.current,    pricePence,    "available": coalesce(available, true),    "onlineOrdering": coalesce(onlineOrdering, true),    "featured": coalesce(featured, false),    "isAlcoholic": coalesce(isAlcoholic, false),    "updatedAt": _updatedAt  },  "promotions": *[_type == "promotion"] | order(displayOrder asc, _updatedAt desc) {    _id,    title,    "status": coalesce(status, "paused"),    "showOnHomepage": coalesce(showOnHomepage, false),    startsAt,    endsAt,    "updatedAt": _updatedAt,    poster {alt, "url": asset->url}  },  "pages": *[_type in ["marketingPage", "legalPage"]] | order(_type asc, pageKey asc) {    _id,    _type,    title,    pageKey,    "updatedAt": _updatedAt  },  "categoryCount": count(*[_type == "menuCategory"]),  "faqCount": count(*[_type == "faqItem"]),  "testimonialCount": count(*[_type == "testimonial"]),  "hasMenuPage": defined(*[_id == "menuPage"][0]._id),  "hasSiteSettings": defined(*[_id == "siteSettings"][0]._id)}
+// Query: {  "menuItems": *[_type == "menuItem"] | order(category->orderRank asc, displayOrder asc, name asc) {    _id,    name,    "category": category->title,    "categorySlug": category->slug.current,    pricePence,    "available": coalesce(available, true),    "onlineOrdering": coalesce(onlineOrdering, true),    "featured": coalesce(featured, false),    "isAlcoholic": coalesce(isAlcoholic, false),    "updatedAt": _updatedAt  },  "promotions": *[_type == "promotion"] | order(displayOrder asc, _updatedAt desc) {    _id,    title,    "status": coalesce(status, "paused"),    "showOnHomepage": coalesce(showOnHomepage, false),    startsAt,    endsAt,    "updatedAt": _updatedAt,    poster {alt, "url": asset->url}  },  "dailySpecials": *[_type == "dailySpecial"] | order(displayOrder asc, _updatedAt desc) {    _id,    title,    "status": coalesce(status, "paused"),    pricePence,    "updatedAt": _updatedAt,    image {alt, "url": asset->url}  },  "pages": *[_type in ["marketingPage", "legalPage"]] | order(_type asc, pageKey asc) {    _id,    _type,    title,    pageKey,    "updatedAt": _updatedAt  },  "categoryCount": count(*[_type == "menuCategory"]),  "faqCount": count(*[_type == "faqItem"]),  "testimonialCount": count(*[_type == "testimonial"]),  "hasMenuPage": defined(*[_id == "menuPage"][0]._id),  "hasSiteSettings": defined(*[_id == "siteSettings"][0]._id)}
 export type AdminContentOverviewQueryResult = {
   menuItems: Array<{
     _id: string;
@@ -516,6 +547,17 @@ export type AdminContentOverviewQueryResult = {
     endsAt: string | null;
     updatedAt: string;
     poster: {
+      alt: string | null;
+      url: string | null;
+    } | null;
+  }>;
+  dailySpecials: Array<{
+    _id: string;
+    title: string | null;
+    status: "active" | "paused" | "soldOut";
+    pricePence: number | null;
+    updatedAt: string;
+    image: {
       alt: string | null;
       url: string | null;
     } | null;
@@ -659,7 +701,15 @@ export type MenuContentQueryResult = {
         voyageStops: Array<{
           _key: string;
           itemId: string | null;
-          area: string | null;
+          area:
+            | string
+            | "Alappuzha"
+            | "Kannur"
+            | "Kochi"
+            | "Kottayam"
+            | "Kozhikode"
+            | "Palakkad"
+            | null;
           region: string | null;
           coordinates: string | null;
           year: string | null;
@@ -800,7 +850,7 @@ export type SiteSettingsQueryResult =
 
 // Source: ../sanity/lib/queries.ts
 // Variable: marketingPageQuery
-// Query: *[_type == "marketingPage" && pageKey == $pageKey][0] {  pageKey,  title,  eyebrow,  heroHeading,  heroText,  heroImage {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},  heroPrimaryLink,  heroSecondaryLink,  sections[] {    _key,    _type,    internalName,    eyebrow,    heading,    body,    text,    image {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},    secondaryImage {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},    links,    primaryLink,    secondaryLink,    shortLabel,    note,    theme  },  seo}
+// Query: *[_type == "marketingPage" && pageKey == $pageKey][0] {  pageKey,  title,  eyebrow,  heroHeading,  heroText,  heroImage {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},  heroPrimaryLink,  heroSecondaryLink,  sections[] {    _key,    _type,    internalName,    eyebrow,    heading,    body,    text,    image {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},    secondaryImage {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},    links,    items[] {_key, title, text, shortLabel},    primaryLink,    secondaryLink,    shortLabel,    note,    theme  },  seo}
 export type MarketingPageQueryResult = {
   pageKey:
     | "hall"
@@ -839,6 +889,7 @@ export type MarketingPageQueryResult = {
         } | null;
         secondaryImage: null;
         links: null;
+        items: null;
         primaryLink: Link | null;
         secondaryLink: Link | null;
         shortLabel: null;
@@ -888,6 +939,12 @@ export type MarketingPageQueryResult = {
             _key: string;
           } & Link
         > | null;
+        items: Array<{
+          _key: string;
+          title: string | null;
+          text: string | null;
+          shortLabel: string | null;
+        }> | null;
         primaryLink: null;
         secondaryLink: null;
         shortLabel: string | null;
@@ -945,17 +1002,50 @@ export type ActivePromotionsQueryResult = Array<{
   } | null;
 }>;
 
+// Source: ../sanity/lib/queries.ts
+// Variable: activeDailySpecialsQuery
+// Query: *[    _type == "dailySpecial" &&    status in ["active", "soldOut"] &&    (!defined(startsAt) || startsAt <= now()) &&    (!defined(endsAt) || endsAt >= now())  ] | order(displayOrder asc, _updatedAt desc) {    _id,    title,    status,    badge,    description,    pricePence,    priceNote,    dietaryNote,    activeDays,    startsAt,    endsAt,    callToAction,    image {      alt,      caption,      "url": asset->url,      "lqip": asset->metadata.lqip,      "dimensions": asset->metadata.dimensions    },    menuItem->{      "id": coalesce(sourceKey, _id),      pricePence,      "available": coalesce(available, true),      "onlineOrdering": coalesce(onlineOrdering, true),      "isAlcoholic": coalesce(isAlcoholic, false)    }  }
+export type ActiveDailySpecialsQueryResult = Array<{
+  _id: string;
+  title: string | null;
+  status: "active" | "paused" | "soldOut" | null;
+  badge: string | null;
+  description: string | null;
+  pricePence: number | null;
+  priceNote: string | null;
+  dietaryNote: string | null;
+  activeDays: Array<string> | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  callToAction: Link | null;
+  image: {
+    alt: string | null;
+    caption: string | null;
+    url: string | null;
+    lqip: string | null;
+    dimensions: SanityImageDimensions | null;
+  } | null;
+  menuItem: {
+    id: string;
+    pricePence: number | null;
+    available: boolean | true;
+    onlineOrdering: boolean | true;
+    isAlcoholic: boolean | false;
+  } | null;
+}>;
+
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '{\n  "menuItems": *[_type == "menuItem"] | order(category->orderRank asc, displayOrder asc, name asc) {\n    _id,\n    name,\n    "category": category->title,\n    "categorySlug": category->slug.current,\n    pricePence,\n    "available": coalesce(available, true),\n    "onlineOrdering": coalesce(onlineOrdering, true),\n    "featured": coalesce(featured, false),\n    "isAlcoholic": coalesce(isAlcoholic, false),\n    "updatedAt": _updatedAt\n  },\n  "promotions": *[_type == "promotion"] | order(displayOrder asc, _updatedAt desc) {\n    _id,\n    title,\n    "status": coalesce(status, "paused"),\n    "showOnHomepage": coalesce(showOnHomepage, false),\n    startsAt,\n    endsAt,\n    "updatedAt": _updatedAt,\n    poster {alt, "url": asset->url}\n  },\n  "pages": *[_type in ["marketingPage", "legalPage"]] | order(_type asc, pageKey asc) {\n    _id,\n    _type,\n    title,\n    pageKey,\n    "updatedAt": _updatedAt\n  },\n  "categoryCount": count(*[_type == "menuCategory"]),\n  "faqCount": count(*[_type == "faqItem"]),\n  "testimonialCount": count(*[_type == "testimonial"]),\n  "hasMenuPage": defined(*[_id == "menuPage"][0]._id),\n  "hasSiteSettings": defined(*[_id == "siteSettings"][0]._id)\n}': AdminContentOverviewQueryResult;
+    '{\n  "menuItems": *[_type == "menuItem"] | order(category->orderRank asc, displayOrder asc, name asc) {\n    _id,\n    name,\n    "category": category->title,\n    "categorySlug": category->slug.current,\n    pricePence,\n    "available": coalesce(available, true),\n    "onlineOrdering": coalesce(onlineOrdering, true),\n    "featured": coalesce(featured, false),\n    "isAlcoholic": coalesce(isAlcoholic, false),\n    "updatedAt": _updatedAt\n  },\n  "promotions": *[_type == "promotion"] | order(displayOrder asc, _updatedAt desc) {\n    _id,\n    title,\n    "status": coalesce(status, "paused"),\n    "showOnHomepage": coalesce(showOnHomepage, false),\n    startsAt,\n    endsAt,\n    "updatedAt": _updatedAt,\n    poster {alt, "url": asset->url}\n  },\n  "dailySpecials": *[_type == "dailySpecial"] | order(displayOrder asc, _updatedAt desc) {\n    _id,\n    title,\n    "status": coalesce(status, "paused"),\n    pricePence,\n    "updatedAt": _updatedAt,\n    image {alt, "url": asset->url}\n  },\n  "pages": *[_type in ["marketingPage", "legalPage"]] | order(_type asc, pageKey asc) {\n    _id,\n    _type,\n    title,\n    pageKey,\n    "updatedAt": _updatedAt\n  },\n  "categoryCount": count(*[_type == "menuCategory"]),\n  "faqCount": count(*[_type == "faqItem"]),\n  "testimonialCount": count(*[_type == "testimonial"]),\n  "hasMenuPage": defined(*[_id == "menuPage"][0]._id),\n  "hasSiteSettings": defined(*[_id == "siteSettings"][0]._id)\n}': AdminContentOverviewQueryResult;
     '{\n  "categories": *[_type == "menuCategory" && published != false] | order(orderRank asc) {\n    "slug": slug.current,\n    title,\n    "note": coalesce(shortTitle, title),\n    "description": coalesce(description, ""),\n    orderRank\n  },\n  "items": *[_type == "menuItem"] | order(category->orderRank asc, displayOrder asc, name asc) {\n    "id": coalesce(sourceKey, _id),\n    "category": category->slug.current,\n    name,\n    "description": coalesce(description, ""),\n    subheading,\n    pricePence,\n    priceLabel,\n    hidePrice,\n    isAlcoholic,\n    isVegetarian,\n    isVegan,\n    dietaryReviewStatus,\n    "allergens": coalesce(allergens, []),\n    spiceLevel,\n    available,\n    onlineOrdering,\n    featured,\n    displayOrder,\n    image {\n      alt,\n      caption,\n      "url": asset->url,\n      "dimensions": asset->metadata.dimensions\n    }\n  },\n  "page": *[_id == "menuPage"][0] {\n    eyebrow,\n    headingLineOne,\n    headingLineTwo,\n    introduction,\n    journeyLinkLabel,\n    manifestEyebrow,\n    manifestHeading,\n    manifestIntroduction,\n    dietaryNotice,\n    alcoholNotice,\n    voyageStops[] {\n      _key,\n      "itemId": coalesce(dish->sourceKey, dish->_id),\n      "area": coalesce(area, port),\n      region,\n      coordinates,\n      "year": yearLabel,\n      "course": courseLabel,\n      description,\n      image {\n        alt,\n        "url": asset->url,\n        "dimensions": asset->metadata.dimensions\n      }\n    },\n    seo\n  }\n}': MenuContentQueryResult;
     '*[_type == "menuItem" && (sourceKey == $id || _id == $id)][0] {\n  "id": coalesce(sourceKey, _id),\n  "category": category->slug.current,\n  name,\n  pricePence,\n  available,\n  onlineOrdering,\n  isAlcoholic\n}': CheckoutMenuItemQueryResult;
     '*[_id == "siteSettings"][0] {\n  restaurantName,\n  legalName,\n  shortDescription,\n  description,\n  siteUrl,\n  phone,\n  email,\n  reservationEmail,\n  address,\n  coordinates,\n  mapUrl,\n  openingHours,\n  socialLinks,\n  primaryNavigation,\n  footerNavigation,\n  announcement,\n  copyrightText,\n  defaultSeo,\n  logo {alt, "url": asset->url},\n  lightLogo {alt, "url": asset->url},\n  favicon {alt, "url": asset->url}\n}': SiteSettingsQueryResult;
-    '*[_type == "marketingPage" && pageKey == $pageKey][0] {\n  pageKey,\n  title,\n  eyebrow,\n  heroHeading,\n  heroText,\n  heroImage {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},\n  heroPrimaryLink,\n  heroSecondaryLink,\n  sections[] {\n    _key,\n    _type,\n    internalName,\n    eyebrow,\n    heading,\n    body,\n    text,\n    image {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},\n    secondaryImage {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},\n    links,\n    primaryLink,\n    secondaryLink,\n    shortLabel,\n    note,\n    theme\n  },\n  seo\n}': MarketingPageQueryResult;
+    '*[_type == "marketingPage" && pageKey == $pageKey][0] {\n  pageKey,\n  title,\n  eyebrow,\n  heroHeading,\n  heroText,\n  heroImage {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},\n  heroPrimaryLink,\n  heroSecondaryLink,\n  sections[] {\n    _key,\n    _type,\n    internalName,\n    eyebrow,\n    heading,\n    body,\n    text,\n    image {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},\n    secondaryImage {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},\n    links,\n    items[] {_key, title, text, shortLabel},\n    primaryLink,\n    secondaryLink,\n    shortLabel,\n    note,\n    theme\n  },\n  seo\n}': MarketingPageQueryResult;
     '*[_type == "faqItem" && published != false] | order(displayOrder asc) {\n  question,\n  answer,\n  category,\n  displayOrder\n}': FaqItemsQueryResult;
     '*[_type == "testimonial" && published != false] | order(displayOrder asc) {\n  quote,\n  name,\n  source,\n  rating,\n  displayOrder\n}': TestimonialsQueryResult;
     '\n  *[\n    _type == "promotion" &&\n    status == "active" &&\n    (!defined(startsAt) || startsAt <= now()) &&\n    (!defined(endsAt) || endsAt >= now())\n  ] | order(displayOrder asc, startsAt desc, _createdAt desc) {\n    _id,\n    title,\n    badge,\n    summary,\n    offerCode,\n    validityLabel,\n    startsAt,\n    endsAt,\n    showOnHomepage,\n    terms,\n    callToAction,\n    poster {\n      alt,\n      caption,\n      hotspot,\n      crop,\n      "url": asset->url,\n      "dimensions": asset->metadata.dimensions,\n      "lqip": asset->metadata.lqip\n    }\n  }\n': ActivePromotionsQueryResult;
+    '\n  *[\n    _type == "dailySpecial" &&\n    status in ["active", "soldOut"] &&\n    (!defined(startsAt) || startsAt <= now()) &&\n    (!defined(endsAt) || endsAt >= now())\n  ] | order(displayOrder asc, _updatedAt desc) {\n    _id,\n    title,\n    status,\n    badge,\n    description,\n    pricePence,\n    priceNote,\n    dietaryNote,\n    activeDays,\n    startsAt,\n    endsAt,\n    callToAction,\n    image {\n      alt,\n      caption,\n      "url": asset->url,\n      "lqip": asset->metadata.lqip,\n      "dimensions": asset->metadata.dimensions\n    },\n    menuItem->{\n      "id": coalesce(sourceKey, _id),\n      pricePence,\n      "available": coalesce(available, true),\n      "onlineOrdering": coalesce(onlineOrdering, true),\n      "isAlcoholic": coalesce(isAlcoholic, false)\n    }\n  }\n': ActiveDailySpecialsQueryResult;
   }
 }

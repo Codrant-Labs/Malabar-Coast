@@ -24,7 +24,7 @@ export const menuItem = defineType({
     defineField({name: 'subheading', title: 'Subheading', type: 'string', description: 'Used for groups such as Whisky, Rum or House Wines.'}),
     defineField({name: 'image', title: 'Dish image', type: 'imageWithAlt'}),
     defineField({name: 'pricePence', title: 'Price in pennies', type: 'number', description: '1295 means £12.95. Leave empty when the price must not be published.', validation: (rule) => rule.integer().min(0)}),
-    defineField({name: 'priceLabel', title: 'Optional public price label', type: 'string', description: 'For example “Market price” or “Ask our team”.'}),
+    defineField({name: 'priceLabel', title: 'Optional public price label', type: 'string', description: 'For example “Market price” or “Ask the coast crew”.'}),
     defineField({name: 'hidePrice', title: 'Hide the price', type: 'boolean', initialValue: false}),
     defineField({name: 'isAlcoholic', title: 'Contains alcohol', type: 'boolean', initialValue: false}),
     defineField({name: 'isVegetarian', title: 'Vegetarian', type: 'boolean', initialValue: false}),

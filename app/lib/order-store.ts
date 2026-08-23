@@ -5,7 +5,7 @@ import { isSupabaseServerConfigured, supabaseServerRequest, supabaseServerRpc } 
 
 const dataDirectory = path.join(process.cwd(), ".data");
 const dataFile = path.join(dataDirectory, "orders.json");
-const ORDER_DATABASE_CONTRACT_VERSION = "2026-08-22-bookings-v4";
+const ORDER_DATABASE_CONTRACT_VERSION = "2026-08-23-admin-delete-v5";
 let writeQueue: Promise<void> = Promise.resolve();
 
 async function readLocalOrders(): Promise<OrderRecord[]> {
@@ -85,12 +85,13 @@ export async function checkDurableOrderStorage() {
 export async function listOrders(limit = 100): Promise<OrderRecord[]> {
   const safeLimit = Math.min(250, Math.max(1, Math.floor(limit)));
   if (isSupabaseServerConfigured()) {
-    const query = new URLSearchParams({ select: "data", order: "created_at.desc", limit: String(safeLimit) });
+    const query = new URLSearchParams({ select: "data", deleted_at: "is.null", order: "created_at.desc", limit: String(safeLimit) });
     const response = await supabaseServerRequest(`orders?${query}`, { method: "GET" });
     const rows = await response.json() as { data: OrderRecord }[];
     return rows.map((row) => row.data);
   }
   return (await readLocalOrders())
+    .filter((order) => !(order as OrderRecord & {adminDeletedAt?: string}).adminDeletedAt)
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
     .slice(0, safeLimit);
 }
@@ -114,6 +115,7 @@ export async function listOrdersPage(options: OrderListOptions = {}): Promise<Or
       order: "created_at.desc",
       limit: String(limit),
       offset: String(offset),
+      deleted_at: "is.null",
     });
     if (options.from) query.set("created_at", `gte.${options.from}`);
     if (options.to) query.append("created_at", `lt.${options.to}`);
@@ -126,6 +128,7 @@ export async function listOrdersPage(options: OrderListOptions = {}): Promise<Or
   }
 
   return (await readLocalOrders())
+    .filter((order) => !(order as OrderRecord & {adminDeletedAt?: string}).adminDeletedAt)
     .filter((order) => !options.from || order.createdAt >= options.from)
     .filter((order) => !options.to || order.createdAt < options.to)
     .filter((order) => !options.statuses?.length || options.statuses.includes(order.status))
@@ -173,6 +176,22 @@ export async function updateOrderAdminNotes(id: string, adminNotes: string, acto
   });
   await writeQueue;
   return result;
+}
+
+export async function deleteOrderFromAdmin(id: string, actorUserId: string) {
+  if (isSupabaseServerConfigured()) return supabaseServerRpc<boolean>("admin_delete_order", {p_order_id: id, p_actor_user_id: actorUserId});
+  let deleted = false;
+  writeQueue = writeQueue.then(async () => {
+    const orders = await readLocalOrders();
+    const index = orders.findIndex((order) => order.id === id);
+    if (index < 0) return;
+    const hidden = {...orders[index], adminDeletedAt: new Date().toISOString(), adminDeletedBy: actorUserId};
+    orders[index] = hidden;
+    await writeLocalOrders(orders);
+    deleted = true;
+  });
+  await writeQueue;
+  return deleted;
 }
 
 export async function attachCheckoutProviderReference(id: string, provider: PaymentProvider, providerReference?: string, providerCheckoutUrl?: string) {

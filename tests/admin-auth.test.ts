@@ -32,6 +32,8 @@ test("administrator configuration requires Supabase Auth, server access and sess
 test("role permissions follow least privilege", () => {
   assert.equal(adminCan("owner", "settings:read"), true);
   assert.equal(adminCan("admin", "orders:notes"), true);
+  assert.equal(adminCan("admin", "orders:delete"), true);
+  assert.equal(adminCan("manager", "orders:delete"), false);
   assert.equal(adminCan("manager", "reports:read"), true);
   assert.equal(adminCan("manager", "settings:read"), false);
   assert.equal(adminCan("kitchen", "orders:transition"), true);

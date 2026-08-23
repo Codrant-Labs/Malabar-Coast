@@ -10,7 +10,7 @@ import { RealtimePageRefresh } from "../components/realtime-page-refresh";
 export const dynamic = "force-dynamic";
 const pageSize = 25;
 
-type Search = { q?: string; status?: string; fulfilment?: string; provider?: string; page?: string };
+type Search = { q?: string; status?: string; fulfilment?: string; provider?: string; page?: string; delete?: string };
 
 export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<Search> }) {
   const session = await getAdminSession("orders:read");
@@ -49,6 +49,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
 
   return <AdminFrame active="/admin/orders" session={session}>
     <AdminPageHeader eyebrow="Order management" title="Every order, under control." description="Search customer and dish details, isolate exceptions, and advance paid orders without leaving the list." actions={<><RealtimePageRefresh supabaseUrl={realtimeUrl} publishableKey={realtimePublishableKey} /><Link className="adminButton" href="/admin/kitchen">Kitchen board</Link></>} />
+    {query.delete && <p className={`adminAlert ${query.delete === "success" ? "isSuccess" : "isError"}`}>{query.delete === "success" ? "Order removed from the active register. Its payment record remains retained for audit." : "That deletion was rejected."}</p>}
     <section className="adminPanel adminFilterPanel">
       <form method="get" action="/admin/orders" className="adminFilters">
         <label className="adminSearchField"><span>Search</span><input name="q" defaultValue={q} placeholder="Order, customer, email, phone or dish" /></label>
@@ -61,7 +62,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
     </section>
     <section className="adminPanel">
       <div className="adminPanelHeading"><div><p>Order register</p><h2>{filtered.length} matching order{filtered.length === 1 ? "" : "s"}</h2></div><span>Newest first · complete register</span></div>
-      <OrderTable orders={orders} csrfToken={adminCan(session.role, "orders:transition") ? session.csrfToken : undefined} returnTo={returnTo} />
+      <OrderTable orders={orders} csrfToken={adminCan(session.role, "orders:transition") ? session.csrfToken : undefined} deleteCsrfToken={adminCan(session.role, "orders:delete") ? session.csrfToken : undefined} returnTo={returnTo} />
       {pages > 1 && <nav className="adminPagination" aria-label="Order pages">
         <Link href={pageHref(Math.max(1, currentPage - 1))} aria-disabled={currentPage === 1}>Previous</Link><span>Page {currentPage} of {pages}</span><Link href={pageHref(Math.min(pages, currentPage + 1))} aria-disabled={currentPage === pages}>Next</Link>
       </nav>}

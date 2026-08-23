@@ -222,7 +222,7 @@ export default async function RestaurantPage() {
           <div className="locationCoordinates"><span>55.8207° N</span><i /><span>3.9735° W</span></div>
           <div className="locationActions">
             <a href="https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+Holytown+ML1+4TH" target="_blank" rel="noreferrer">Get directions <span>↗</span></a>
-            <Link href="/#reservations">Reserve a table <span>→</span></Link>
+            <Link href="/book-a-table">Book a table <span>→</span></Link>
           </div>
         </Reveal>
       </section>

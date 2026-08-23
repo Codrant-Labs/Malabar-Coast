@@ -52,10 +52,10 @@ export async function createReservation(input: Omit<TableReservation, "id" | "re
 
 export async function listReservations(limit = 500) {
   if (isSupabaseServerConfigured()) {
-    const response = await supabaseServerRequest(`table_reservations?select=*&order=booking_date.asc,start_time.asc&limit=${Math.min(limit, 1000)}`);
+    const response = await supabaseServerRequest(`table_reservations?select=*&deleted_at=is.null&order=created_at.desc&limit=${Math.min(limit, 1000)}`);
     return (await response.json() as Record<string, unknown>[]).map(mapReservation);
   }
-  return (await readLocal()).reservations.sort((a, b) => `${a.bookingDate}${a.startTime}`.localeCompare(`${b.bookingDate}${b.startTime}`));
+  return (await readLocal()).reservations.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 function mapReservation(row: Record<string, unknown>): TableReservation { return { id: String(row.id), reference: String(row.reference), createdAt: String(row.created_at), updatedAt: String(row.updated_at), status: row.status as ReservationStatus, name: String(row.name), email: String(row.email), phone: String(row.phone), bookingDate: String(row.booking_date), startTime: String(row.start_time).slice(0, 5), endTime: String(row.end_time).slice(0, 5), partySize: Number(row.party_size), occasion: String(row.occasion || ""), accessibilityNeeds: String(row.accessibility_needs || ""), dietaryRequirements: String(row.dietary_requirements || ""), notes: String(row.notes || ""), adminNotes: String(row.admin_notes || "") }; }
@@ -63,6 +63,11 @@ function mapReservation(row: Record<string, unknown>): TableReservation { return
 export async function updateReservationStatus(reservationId: string, status: ReservationStatus, adminNotes: string, actorUserId: string) {
   if (isSupabaseServerConfigured()) return supabaseServerRpc<TableReservation | null>("update_table_reservation", { p_reservation_id: reservationId, p_status: status, p_admin_notes: adminNotes, p_actor_user_id: actorUserId });
   let result: TableReservation | null = null; queue = queue.then(async () => { const data = await readLocal(); const index = data.reservations.findIndex((item) => item.id === reservationId); if (index < 0) return; data.reservations[index] = { ...data.reservations[index], status, adminNotes, updatedAt: new Date().toISOString() }; result = data.reservations[index]; await writeLocal(data); }); await queue; return result;
+}
+
+export async function deleteReservationFromAdmin(reservationId: string, actorUserId: string) {
+  if (isSupabaseServerConfigured()) return supabaseServerRpc<boolean>("admin_delete_table_reservation", {p_reservation_id: reservationId, p_actor_user_id: actorUserId});
+  let deleted = false; queue = queue.then(async () => { const data = await readLocal(); const next = data.reservations.filter((item) => item.id !== reservationId); deleted = next.length !== data.reservations.length; if (deleted) { data.reservations = next; await writeLocal(data); } }); await queue; return deleted;
 }
 
 export async function updateBookingSettings(settings: BookingSettings, actorUserId: string) {
@@ -79,8 +84,9 @@ export async function createHallEnquiry(input: Omit<HallEnquiry, "id" | "referen
 }
 
 export async function listHallEnquiries(limit = 500) {
-  if (isSupabaseServerConfigured()) { const response = await supabaseServerRequest(`hall_enquiries?select=*&order=created_at.desc&limit=${Math.min(limit, 1000)}`); return (await response.json() as Record<string, unknown>[]).map(mapHall); }
+  if (isSupabaseServerConfigured()) { const response = await supabaseServerRequest(`hall_enquiries?select=*&deleted_at=is.null&order=created_at.desc&limit=${Math.min(limit, 1000)}`); return (await response.json() as Record<string, unknown>[]).map(mapHall); }
   return (await readLocal()).hallEnquiries.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 function mapHall(row: Record<string, unknown>): HallEnquiry { return { id: String(row.id), reference: String(row.reference), createdAt: String(row.created_at), updatedAt: String(row.updated_at), status: row.status as HallEnquiryStatus, name: String(row.name), email: String(row.email), phone: String(row.phone), preferredDate: String(row.preferred_date), preferredTime: String(row.preferred_time || ""), alternativeDate: String(row.alternative_date || ""), guestCount: row.guest_count == null ? null : Number(row.guest_count), occasion: String(row.occasion || ""), message: String(row.message), contactPreference: row.contact_preference === "email" ? "email" : "phone", adminNotes: String(row.admin_notes || "") }; }
 export async function updateHallEnquiryStatus(enquiryId: string, status: HallEnquiryStatus, adminNotes: string, actorUserId: string) { if (isSupabaseServerConfigured()) return supabaseServerRpc<HallEnquiry | null>("update_hall_enquiry", { p_enquiry_id: enquiryId, p_status: status, p_admin_notes: adminNotes, p_actor_user_id: actorUserId }); let result: HallEnquiry | null = null; queue = queue.then(async () => { const data = await readLocal(); const index = data.hallEnquiries.findIndex((item) => item.id === enquiryId); if (index < 0) return; data.hallEnquiries[index] = { ...data.hallEnquiries[index], status, adminNotes, updatedAt: new Date().toISOString() }; result = data.hallEnquiries[index]; await writeLocal(data); }); await queue; return result; }
+export async function deleteHallEnquiryFromAdmin(enquiryId: string, actorUserId: string) { if (isSupabaseServerConfigured()) return supabaseServerRpc<boolean>("admin_delete_hall_enquiry", {p_enquiry_id: enquiryId, p_actor_user_id: actorUserId}); let deleted=false; queue=queue.then(async()=>{const data=await readLocal();const next=data.hallEnquiries.filter((item)=>item.id!==enquiryId);deleted=next.length!==data.hallEnquiries.length;if(deleted){data.hallEnquiries=next;await writeLocal(data);}});await queue;return deleted; }

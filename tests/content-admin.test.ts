@@ -24,3 +24,23 @@ test("content management keeps secrets server-side and writes in Studio", async 
   assert.doesNotMatch(page, /client\.(create|delete|patch)/);
   assert.match(page, /Open Content Studio/);
 });
+
+test("the menu journey stays limited to six Kerala regions", async () => {
+  const [schema, seed, migration] = await Promise.all([
+    readFile(new URL("../studio/schemaTypes/documents/menuPage.ts", import.meta.url), "utf8"),
+    readFile(new URL("../scripts/seed-sanity.ts", import.meta.url), "utf8"),
+    readFile(new URL("../scripts/update-menu-regions.ts", import.meta.url), "utf8"),
+  ]);
+  const seedJourney = seed.slice(seed.indexOf("const voyageSeeds"), seed.indexOf("await client.createOrReplace({", seed.indexOf("const voyageSeeds")));
+
+  for (const area of ["Kannur", "Kozhikode", "Palakkad", "Kochi", "Kottayam", "Alappuzha"]) {
+    assert.match(schema, new RegExp(area));
+    assert.match(seedJourney, new RegExp(area));
+    assert.match(migration, new RegExp(area));
+  }
+  for (const oldStop of ["Malindi", "Mozambique", "The Cape", "Lisbon", "Holytown"]) {
+    assert.doesNotMatch(seedJourney, new RegExp(oldStop));
+    assert.doesNotMatch(migration, new RegExp(oldStop));
+  }
+  assert.match(schema, /length\(6\)/);
+});

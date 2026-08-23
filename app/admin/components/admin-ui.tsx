@@ -4,6 +4,7 @@ import type { AdminSession } from "../../lib/admin-auth";
 import { adminCan, adminRoleLabels, type AdminPermission } from "../../lib/admin-permissions";
 import { getAllowedAdminTransitions, orderStatusLabels, type OrderRecord, type OrderStatus } from "../../lib/orders";
 import { displayDate, money } from "../../lib/admin-reporting";
+import {AdminDeleteButton} from "./admin-delete-button";
 
 const navigation = [
   { href: "/admin", label: "Overview", mark: "01", permission: "dashboard:read" },
@@ -64,7 +65,7 @@ export function EmptyState({ title, detail }: { title: string; detail: string })
   return <div className="adminEmpty"><b>0</b><strong>{title}</strong><span>{detail}</span></div>;
 }
 
-export function OrderTable({ orders, csrfToken, returnTo = "/admin/orders" }: { orders: OrderRecord[]; csrfToken?: string; returnTo?: string }) {
+export function OrderTable({ orders, csrfToken, deleteCsrfToken, returnTo = "/admin/orders" }: { orders: OrderRecord[]; csrfToken?: string; deleteCsrfToken?: string; returnTo?: string }) {
   if (!orders.length) return <EmptyState title="No matching orders" detail="New or matching orders will appear here automatically." />;
   return (
     <div className="adminTableWrap">
@@ -81,10 +82,10 @@ export function OrderTable({ orders, csrfToken, returnTo = "/admin/orders" }: { 
             <td className="adminCapitalize">{order.fulfilment}<small>{order.provider}</small></td>
             <td><StatusBadge status={order.status} /></td>
             <td><strong>{money(order.totalPence)}</strong></td>
-            <td>{nextStatus && csrfToken ? <form action={`/api/admin/orders/${order.id}/status`} method="post" className="adminQuickAction">
+            <td><div className="adminRowActions">{nextStatus && csrfToken ? <form action={`/api/admin/orders/${order.id}/status`} method="post" className="adminQuickAction">
               <input type="hidden" name="csrf" value={csrfToken} /><input type="hidden" name="status" value={nextStatus} /><input type="hidden" name="returnTo" value={returnTo} />
               <button type="submit" title={`Move to ${orderStatusLabels[nextStatus]}`}>Advance</button>
-            </form> : <Link className="adminRowLink" href={`/admin/orders/${order.id}`} aria-label={`Open order ${order.id}`}>View</Link>}</td>
+            </form> : <Link className="adminRowLink" href={`/admin/orders/${order.id}`} aria-label={`Open order ${order.id}`}>View</Link>}{deleteCsrfToken && <form action={`/api/admin/orders/${order.id}/delete`} method="post"><input type="hidden" name="csrf" value={deleteCsrfToken}/><AdminDeleteButton label="Delete" confirmMessage={`Remove order ${order.id.slice(-8).toUpperCase()} from the active admin register? Payment records remain retained for audit and reconciliation.`}/></form>}</div></td>
           </tr>;
         })}</tbody>
       </table>

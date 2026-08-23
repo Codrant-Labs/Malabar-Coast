@@ -118,6 +118,7 @@ export const marketingPageQuery = defineQuery(`*[_type == "marketingPage" && pag
     image {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},
     secondaryImage {alt, caption, "url": asset->url, "dimensions": asset->metadata.dimensions},
     links,
+    items[] {_key, title, text, shortLabel},
     primaryLink,
     secondaryLink,
     shortLabel,
@@ -168,6 +169,42 @@ export const activePromotionsQuery = defineQuery(`
       "url": asset->url,
       "dimensions": asset->metadata.dimensions,
       "lqip": asset->metadata.lqip
+    }
+  }
+`);
+
+export const activeDailySpecialsQuery = defineQuery(`
+  *[
+    _type == "dailySpecial" &&
+    status in ["active", "soldOut"] &&
+    (!defined(startsAt) || startsAt <= now()) &&
+    (!defined(endsAt) || endsAt >= now())
+  ] | order(displayOrder asc, _updatedAt desc) {
+    _id,
+    title,
+    status,
+    badge,
+    description,
+    pricePence,
+    priceNote,
+    dietaryNote,
+    activeDays,
+    startsAt,
+    endsAt,
+    callToAction,
+    image {
+      alt,
+      caption,
+      "url": asset->url,
+      "lqip": asset->metadata.lqip,
+      "dimensions": asset->metadata.dimensions
+    },
+    menuItem->{
+      "id": coalesce(sourceKey, _id),
+      pricePence,
+      "available": coalesce(available, true),
+      "onlineOrdering": coalesce(onlineOrdering, true),
+      "isAlcoholic": coalesce(isAlcoholic, false)
     }
   }
 `);
