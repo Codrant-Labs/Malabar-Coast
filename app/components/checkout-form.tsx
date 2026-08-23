@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import {SmartDateInput} from "./smart-date-input";
 import { FormEvent, useEffect, useState } from "react";
 import { formatPrice } from "../lib/menu";
 import type { FulfilmentMethod } from "../lib/orders";
 import { useCart } from "./cart-provider";
+import { SmartDateInput } from "./smart-date-input";
 
 type PaymentConfig = { stripe: boolean; deliveryFeePence: number };
 
@@ -18,20 +18,35 @@ export function CheckoutForm() {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/payment-config").then((response) => response.json()).then((value: PaymentConfig) => {
-      if (!active) return;
-      setConfig(value);
-    }).catch(() => active && setError("Payment configuration could not be loaded."));
-    return () => { active = false; };
+    fetch("/api/payment-config")
+      .then((response) => response.json())
+      .then((value: PaymentConfig) => {
+        if (active) setConfig(value);
+      })
+      .catch(() => active && setError("Secure payment could not be prepared. Please refresh and try again."));
+    return () => {
+      active = false;
+    };
   }, []);
 
   const deliveryFee = fulfilment === "delivery" ? config?.deliveryFeePence ?? 350 : 0;
   const totalPence = subtotalPence + deliveryFee;
-  const selectedProviderAvailable = config?.stripe;
+  const paymentReady = config?.stripe === true;
+  const paymentButtonLabel = submitting
+    ? "Opening secure payment…"
+    : config === null
+      ? "Checking secure payment…"
+      : paymentReady
+        ? `Continue to payment · ${formatPrice(totalPence)}`
+        : "Payment temporarily unavailable";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selectedProviderAvailable) return setError("This payment method is not configured yet.");
+    if (!paymentReady) {
+      setError("Online payment is temporarily unavailable. Please try again shortly or contact the restaurant.");
+      return;
+    }
+
     setSubmitting(true);
     setError("");
     const data = new FormData(event.currentTarget);
@@ -40,10 +55,18 @@ export function CheckoutForm() {
         method: "POST",
         headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({
-          provider: "stripe", fulfilment, cart: items,
+          provider: "stripe",
+          fulfilment,
+          cart: items,
           customer: { name: data.get("name"), email: data.get("email"), phone: data.get("phone") },
-          requestedTime: data.get("requestedTime"), orderNote: data.get("orderNote"),
-          deliveryAddress: { line1: data.get("line1"), line2: data.get("line2"), city: data.get("city"), postcode: data.get("postcode") },
+          requestedTime: data.get("requestedTime"),
+          orderNote: data.get("orderNote"),
+          deliveryAddress: {
+            line1: data.get("line1"),
+            line2: data.get("line2"),
+            city: data.get("city"),
+            postcode: data.get("postcode"),
+          },
         }),
       });
       const result = await response.json() as { error?: string; redirectUrl?: string };
@@ -56,23 +79,143 @@ export function CheckoutForm() {
     }
   }
 
-  if (!hydrated) return <main className="checkoutPage"><div className="checkoutLoading">Preparing your order…</div></main>;
-  if (lines.length === 0) return (
-    <main className="checkoutPage checkoutEmptyPage"><div><p>Your order · 00</p><h1>The table is<br />still empty.</h1><span>Add a few dishes before continuing to checkout.</span><Link href="/menu">Explore the menu <b>→</b></Link></div></main>
-  );
+  if (!hydrated) {
+    return <main className="checkoutPage"><div className="checkoutLoading">Preparing your order…</div></main>;
+  }
+
+  if (lines.length === 0) {
+    return (
+      <main className="checkoutPage checkoutEmptyPage">
+        <div>
+          <p>Your order · 00</p>
+          <h1>The table is<br />still empty.</h1>
+          <span>Add a few dishes before continuing to checkout.</span>
+          <Link href="/menu">Explore the menu <b>→</b></Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="checkoutPage">
+      <header className="checkoutIntro">
+        <div>
+          <p>Online order · Secure checkout</p>
+          <h1>Finish your order.</h1>
+        </div>
+        <p>Share your details, choose collection or delivery, then review everything once before paying securely.</p>
+      </header>
+
       <form className="checkoutLayout" onSubmit={handleSubmit}>
         <div className="checkoutDetails">
-          <section className="checkoutSection"><div className="checkoutSectionHeading"><span>01</span><div><p>Your details</p><h2>Who is collecting?</h2></div></div><div className="fieldGrid"><label>Full name<input name="name" autoComplete="name" required /></label><label>Email address<input name="email" type="email" autoComplete="email" required /></label><label>Phone number<input name="phone" type="tel" autoComplete="tel" required /></label></div></section>
+          <section className="checkoutSection" aria-labelledby="checkout-details-heading">
+            <div className="checkoutSectionHeading">
+              <span>01</span>
+              <div><p>Your details</p><h2 id="checkout-details-heading">Who is the order for?</h2></div>
+            </div>
+            <div className="fieldGrid">
+              <label>Full name<input name="name" autoComplete="name" required /></label>
+              <label>Email address<input name="email" type="email" autoComplete="email" required /></label>
+              <label>Phone number<input name="phone" type="tel" autoComplete="tel" required /></label>
+            </div>
+          </section>
 
-          <section className="checkoutSection"><div className="checkoutSectionHeading"><span>02</span><div><p>Fulfilment</p><h2>How should it arrive?</h2></div></div><div className="choiceCards"><label className={fulfilment === "collection" ? "isSelected" : ""}><input type="radio" name="fulfilment" value="collection" checked={fulfilment === "collection"} onChange={() => setFulfilment("collection")} /><strong>Collection</strong><span>Collect from 33 Main Street</span></label><label className={fulfilment === "delivery" ? "isSelected" : ""}><input type="radio" name="fulfilment" value="delivery" checked={fulfilment === "delivery"} onChange={() => setFulfilment("delivery")} /><strong>Delivery</strong><span>{formatPrice(config?.deliveryFeePence ?? 350)} delivery fee</span></label></div><label className="fullField">Requested date &amp; time<SmartDateInput name="requestedTime" type="datetime-local" required /></label>{fulfilment === "delivery" && <div className="fieldGrid addressFields"><label>Address line 1<input name="line1" autoComplete="address-line1" required /></label><label>Address line 2<input name="line2" autoComplete="address-line2" /></label><label>Town or city<input name="city" autoComplete="address-level2" required /></label><label>Postcode<input name="postcode" autoComplete="postal-code" required /></label></div>}<label className="fullField">Order note<textarea name="orderNote" maxLength={500} placeholder="Anything the kitchen or front of house should know?" /></label></section>
+          <section className="checkoutSection" aria-labelledby="checkout-fulfilment-heading">
+            <div className="checkoutSectionHeading">
+              <span>02</span>
+              <div><p>Fulfilment</p><h2 id="checkout-fulfilment-heading">How would you like it?</h2></div>
+            </div>
+            <div className="choiceCards">
+              <label className={fulfilment === "collection" ? "isSelected" : ""}>
+                <input type="radio" name="fulfilment" value="collection" checked={fulfilment === "collection"} onChange={() => setFulfilment("collection")} />
+                <strong>Collection</strong><span>Collect from 33 Main Street, Holytown</span>
+              </label>
+              <label className={fulfilment === "delivery" ? "isSelected" : ""}>
+                <input type="radio" name="fulfilment" value="delivery" checked={fulfilment === "delivery"} onChange={() => setFulfilment("delivery")} />
+                <strong>Delivery</strong><span>{formatPrice(config?.deliveryFeePence ?? 350)} delivery fee</span>
+              </label>
+            </div>
+            <label className="fullField">Requested date &amp; time<SmartDateInput name="requestedTime" type="datetime-local" required /></label>
+            {fulfilment === "delivery" && (
+              <div className="fieldGrid addressFields">
+                <label>Address line 1<input name="line1" autoComplete="address-line1" required /></label>
+                <label>Address line 2<input name="line2" autoComplete="address-line2" /></label>
+                <label>Town or city<input name="city" autoComplete="address-level2" required /></label>
+                <label>Postcode<input name="postcode" autoComplete="postal-code" required /></label>
+              </div>
+            )}
+            <label className="fullField">Order note<textarea name="orderNote" maxLength={500} placeholder="Allergies, collection details, or anything the team should know" /></label>
+          </section>
 
-          <section className="checkoutSection"><div className="checkoutSectionHeading"><span>03</span><div><p>Payment</p><h2>Secure payment.</h2></div></div>{config && !config.stripe && <div className="paymentNotice">Payments are not enabled for this environment. Add the Stripe values to <code>.env.local</code>, using <code>.env.example</code> only as the variable reference, then restart the server.</div>}<div className="choiceCards paymentChoices"><div className="isSelected"><strong>Stripe</strong><span>{config?.stripe ? "Secure hosted checkout" : "Setup incomplete"}</span></div></div><p className="providerExplanation">You will continue to Stripe&apos;s secure checkout to complete payment. Your order stays here; Stripe handles card details and verification.</p></section>
+          <section className="checkoutSection checkoutPaymentSection" aria-labelledby="checkout-payment-heading">
+            <div className="checkoutSectionHeading">
+              <span>03</span>
+              <div><p>Payment</p><h2 id="checkout-payment-heading">Review, then pay.</h2></div>
+            </div>
+            {config && !config.stripe && (
+              <div className="paymentNotice" role="status">
+                Online payment is temporarily unavailable. Please try again shortly or contact the restaurant for help.
+              </div>
+            )}
+            <div className="paymentHandoff">
+              <div className="paymentHandoffLead">
+                <span className="paymentSecureMark" aria-hidden="true">✓</span>
+                <div>
+                  <strong>Secure card payment</strong>
+                  <p>After your final review, Stripe opens securely to complete your card payment.</p>
+                </div>
+                <span className={`paymentReadiness ${paymentReady ? "isReady" : ""}`}>
+                  {config === null ? "Checking" : paymentReady ? "Ready" : "Unavailable"}
+                </span>
+              </div>
+              <ul className="paymentPromises" aria-label="Secure payment details">
+                <li><span>01</span><div><strong>Details stay private</strong><p>Your card information is handled by Stripe, not stored by us.</p></div></li>
+                <li><span>02</span><div><strong>Nothing changes unexpectedly</strong><p>The final amount is shown beside the payment button before you continue.</p></div></li>
+                <li><span>03</span><div><strong>Confirmation follows</strong><p>Once payment is confirmed, we email your order summary and reference.</p></div></li>
+              </ul>
+            </div>
+          </section>
         </div>
 
-        <aside className="checkoutSummary"><div className="summaryHeading"><div><span>Your order</span><strong>{lines.length} {lines.length === 1 ? "line" : "lines"}</strong></div><Link href="/menu">Add dishes</Link></div><div className="summaryLines">{lines.map((line) => <article key={line.id}><div><strong>{line.menuItem.name}</strong><span>{line.menuItem.description}</span>{line.note && <small>Note: {line.note}</small>}</div><b>{formatPrice(line.lineTotalPence)}</b><div className="quantityControl"><button type="button" onClick={() => setQuantity(line.id, line.quantity - 1)}>−</button><span>{line.quantity}</span><button type="button" onClick={() => setQuantity(line.id, line.quantity + 1)}>+</button><button type="button" className="removeLine" onClick={() => removeItem(line.id)}>Remove</button></div></article>)}</div><div className="summaryTotals"><p><span>Subtotal</span><b>{formatPrice(subtotalPence)}</b></p><p><span>Delivery</span><b>{deliveryFee ? formatPrice(deliveryFee) : "—"}</b></p><strong><span>Total</span><b>{formatPrice(totalPence)}</b></strong></div>{error && <div className="checkoutError" role="alert">{error}</div>}<button className="payButton" type="submit" disabled={submitting || !selectedProviderAvailable}>{submitting ? "Starting secure payment…" : `Pay ${formatPrice(totalPence)}`}<span>→</span></button><button className="clearOrder" type="button" onClick={clearCart}>Clear order</button><small>Totals are checked again on the server. By placing an order you confirm the details above are correct.</small></aside>
+        <aside className="checkoutSummary" aria-label="Order summary">
+          <div className="summaryHeading">
+            <div><span>Your order</span><strong>{lines.length} {lines.length === 1 ? "line" : "lines"}</strong></div>
+            <Link href="/menu">Add dishes</Link>
+          </div>
+          <div className="summaryLines">
+            {lines.map((line) => (
+              <article key={line.id}>
+                <div>
+                  <strong>{line.menuItem.name}</strong>
+                  <span>{line.menuItem.description}</span>
+                  {line.note && <small>Note: {line.note}</small>}
+                </div>
+                <b>{formatPrice(line.lineTotalPence)}</b>
+                <div className="quantityControl">
+                  <button type="button" aria-label={`Decrease ${line.menuItem.name} quantity`} onClick={() => setQuantity(line.id, line.quantity - 1)}>−</button>
+                  <span aria-label={`Quantity ${line.quantity}`}>{line.quantity}</span>
+                  <button type="button" aria-label={`Increase ${line.menuItem.name} quantity`} onClick={() => setQuantity(line.id, line.quantity + 1)}>+</button>
+                  <button type="button" className="removeLine" onClick={() => removeItem(line.id)}>Remove</button>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="summaryTotals">
+            <p><span>Subtotal</span><b>{formatPrice(subtotalPence)}</b></p>
+            <p><span>Delivery</span><b>{deliveryFee ? formatPrice(deliveryFee) : "—"}</b></p>
+            <strong><span>Total to pay</span><b>{formatPrice(totalPence)}</b></strong>
+          </div>
+          {error && <div className="checkoutError" role="alert" aria-live="assertive">{error}</div>}
+          <button className="payButton" type="submit" disabled={submitting || !paymentReady} aria-busy={submitting}>
+            <span>{paymentButtonLabel}</span><b aria-hidden="true">→</b>
+          </button>
+          <div className="summarySecurityNote">
+            <span aria-hidden="true">✓</span>
+            <p><strong>Secure Stripe checkout</strong>Your card details never pass through this website.</p>
+          </div>
+          <button className="clearOrder" type="button" onClick={clearCart}>Clear order</button>
+          <small>Totals and item availability are checked again securely before payment begins.</small>
+        </aside>
       </form>
     </main>
   );
