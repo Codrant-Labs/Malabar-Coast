@@ -3,12 +3,15 @@ import {HomeExperience, type HomeCmsContent} from "./home-experience";
 import {getMenuContent} from "@/sanity/lib/menu";
 import {getTestimonials} from "@/sanity/lib/testimonials";
 import {getActivePromotions} from "@/sanity/lib/promotions";
+import {getActiveDailySpecials} from "@/sanity/lib/daily-specials";
+import {getBookingSettings} from "./lib/booking-store";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [page, {items: menuItems}, testimonials, promotions] = await Promise.all([getMarketingPage("home"), getMenuContent(), getTestimonials(), getActivePromotions()]);
+  const [page, {items: menuItems}, testimonials, promotions, dailySpecials, bookingSettings] = await Promise.all([getMarketingPage("home"), getMenuContent(), getTestimonials(), getActivePromotions(), getActiveDailySpecials(), getBookingSettings()]);
   const overview = getPageSection(page, "home-overview");
+  const menu = getPageSection(page, "home-menu");
   const reservations = getPageSection(page, "home-reservations");
   const content: HomeCmsContent = page ? {
     heroEyebrow: page.eyebrow,
@@ -20,6 +23,9 @@ export default async function HomePage() {
     overviewEyebrow: overview?.eyebrow,
     overviewHeading: overview?.heading,
     overviewText: portableTextToPlainText(overview?.body),
+    menuEyebrow: menu?.eyebrow,
+    menuHeading: menu?.heading,
+    menuText: portableTextToPlainText(menu?.body),
     reservationEyebrow: reservations?.eyebrow,
     reservationHeading: reservations?.heading,
     reservationText: reservations?.text,
@@ -27,5 +33,5 @@ export default async function HomePage() {
     reservationSecondaryLink: reservations?.secondaryLink,
     testimonials,
   } : {};
-  return <HomeExperience content={content} menuItems={menuItems} promotions={promotions} />;
+  return <HomeExperience content={content} menuItems={menuItems} promotions={promotions} dailySpecials={dailySpecials} bookingSettings={bookingSettings} />;
 }

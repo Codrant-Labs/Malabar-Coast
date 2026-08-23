@@ -142,7 +142,7 @@
 .storyFilmFooter i { display: block; width: 2.5rem; height: 1px; background: var(--story-brass); }
 
 .storyManifesto {
-  padding: clamp(5.5rem, 8vw, 9rem) clamp(1.25rem, 4vw, 4.5rem) clamp(6rem, 9vw, 10rem);
+  padding: clamp(3.75rem, 5.5vw, 6rem) clamp(1.25rem, 4vw, 4.5rem) clamp(4rem, 6vw, 6.5rem);
   background: var(--story-paper);
   color: #10201c;
 }
@@ -162,7 +162,7 @@
   display: flex;
   justify-content: space-between;
   gap: 2vw;
-  margin: clamp(3rem, 7vw, 7rem) 0;
+  margin: clamp(2.25rem, 4vw, 4rem) 0;
   font-family: "Bodoni 72", Didot, "Iowan Old Style", serif;
   font-size: clamp(5.5rem, 13vw, 13rem);
   font-weight: 400;
@@ -176,9 +176,9 @@
 .storyManifestoCopy {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
-  gap: clamp(3rem, 10vw, 12rem);
+  gap: clamp(2rem, 5vw, 6rem);
   align-items: start;
-  margin-left: clamp(0rem, 15vw, 16rem);
+  margin-left: clamp(0rem, 7vw, 8rem);
 }
 
 .storyManifestoCopy > p {
@@ -260,8 +260,8 @@
 .storyChapterLink:focus-visible { outline: 1px solid var(--story-brass); outline-offset: 5px; }
 
 .storyAtlasVisuals { padding: 5vh clamp(1.25rem, 4vw, 4rem); }
-.storyAtlasScene { min-height: 72vh; margin: 0 0 4vh; }
-.storyAtlasImage { position: relative; height: 62vh; min-height: 30rem; overflow: hidden; background: var(--story-deep); }
+.storyAtlasScene { min-height: 64vh; margin: 0 0 3vh; }
+.storyAtlasImage { position: relative; height: 56vh; min-height: 27rem; overflow: hidden; background: var(--story-deep); }
 .storyAtlasImage img { object-fit: cover; will-change: transform; }
 .storyAtlasShade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(3, 10, 8, .5)); }
 .storyAtlasScene figcaption { display: flex; justify-content: space-between; padding-top: .9rem; color: rgba(239, 230, 212, .58); font-size: .51rem; letter-spacing: .18em; text-transform: uppercase; }
@@ -290,7 +290,7 @@
 .influenceCell h3 { margin: 3.5rem 0 .5rem; font-family: "Bodoni 72", Didot, serif; font-size: clamp(2.5rem, 4vw, 4.4rem); font-weight: 400; line-height: .9; }
 .influenceCell p { margin: 0; color: rgba(239, 230, 212, .5); font-size: .53rem; letter-spacing: .17em; text-transform: uppercase; }
 
-.storyConnect { min-height: 78vh; padding: clamp(5.5rem, 8vw, 8rem) clamp(1.25rem, 4vw, 4.5rem) 2rem; background: var(--story-brass); color: #071310; }
+.storyConnect { min-height: 64vh; padding: clamp(4rem, 6vw, 6rem) clamp(1.25rem, 4vw, 4.5rem) 2rem; background: var(--story-brass); color: #071310; }
 .storyConnect > p { margin: 0; font-size: .57rem; letter-spacing: .23em; text-transform: uppercase; }
 .storyConnect h2 { margin: clamp(3rem, 6vh, 5rem) 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(5rem, 10vw, 10rem); font-weight: 400; line-height: .7; letter-spacing: -.065em; text-transform: uppercase; }
 .storyConnect h2 em { margin-left: clamp(1rem, 12vw, 13rem); color: transparent; font-style: normal; -webkit-text-stroke: 1px rgba(7, 19, 16, .7); }
@@ -299,10 +299,10 @@
 .storyConnectBottom a { position: relative; display: flex; justify-content: space-between; padding: 1.2rem 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(1.8rem, 4vw, 4.5rem); }
 .storyConnectBottom a::after { content: ""; position: absolute; right: 100%; bottom: 0; left: 0; height: 2px; background: currentColor; transition: right .45s cubic-bezier(.2,.7,.2,1); }
 .storyConnectBottom a:hover::after, .storyConnectBottom a:focus-visible::after { right: 0; }
-.storyConnectCompact { min-height: 76vh; }
+.storyConnectCompact { min-height: 62vh; }
 .storyConnectCompact h2 { margin-block: clamp(3rem, 6vh, 5rem); font-size: clamp(4.5rem, 9vw, 9rem); }
 
-.storyTable { padding: clamp(5.5rem, 9vw, 10rem) clamp(1.25rem, 4vw, 4.5rem); background: #e6dcc7; color: #10201c; }
+.storyTable { padding: clamp(4rem, 6vw, 6.5rem) clamp(1.25rem, 4vw, 4.5rem); background: #e6dcc7; color: #10201c; }
 .storyTableIntro { display: grid; grid-template-columns: .55fr 1.25fr .7fr; gap: clamp(2rem, 5vw, 6rem); align-items: start; margin-bottom: clamp(3.5rem, 6vw, 6rem); }
 .storyTableIntro > p { margin: .6rem 0 0; color: #805621; font-size: .55rem; letter-spacing: .2em; text-transform: uppercase; }
 .storyTableIntro h2 { margin: 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(4rem, 7vw, 8rem); font-weight: 400; line-height: .8; letter-spacing: -.055em; text-transform: uppercase; }
@@ -383,8 +383,8 @@
   .storyAtlasPanel > span { max-width: 80%; font-size: .88rem; line-height: 1.5; }
   .storyChapterLink { margin-top: 1rem; padding: .65rem 0; }
   .storyAtlasVisuals { padding: 2rem 1.25rem 8rem; }
-  .storyAtlasScene { min-height: 70vh; margin-bottom: 5rem; }
-  .storyAtlasImage { height: 63vh; min-height: 28rem; }
+  .storyAtlasScene { min-height: 62vh; margin-bottom: 3.5rem; }
+  .storyAtlasImage { height: 56vh; min-height: 26rem; }
   .storyQuote { grid-template-columns: 1fr; }
   .storyQuote > span { grid-column: 1; }
   .storyInfluencesHead { grid-template-columns: 1fr; }
@@ -399,7 +399,8 @@
 }
 
 @media (max-width: 600px) {
-  .storyTable { padding-block: 5rem; }
+  .storyManifesto { padding-block: 3.75rem 4.25rem; }
+  .storyTable { padding-block: 4rem; }
   .storyTableIntro { gap: 1.5rem; }
   .storyTableIntro h2 { font-size: 17vw; }
   .storyTableGrid { display: block; }
@@ -409,8 +410,10 @@
   .storyFilmHero, .calicutHero { min-height: 42rem; }
   .storyFilmCopy { top: 49%; left: 1rem; width: calc(100% - 2rem); }
   .storyHeroMeta { flex-direction: column; gap: .55rem; }
-  .storyFilmCopy h1 { font-size: clamp(4rem,19vw,6.5rem); line-height: .75; }
-  .storyHeroLineOffset { margin-left: 6vw; }
+  .storyFilmCopy h1 { font-size: clamp(3.3rem,16.5vw,6rem); line-height: .8; letter-spacing: -.055em; }
+  .storyHeroLine { max-width: 100%; padding: .04em .04em .22em 0; }
+  .storyHeroLine > span { max-width: 100%; overflow-wrap: anywhere; }
+  .storyHeroLineOffset { margin-left: 3vw; }
   .storyFilmFooter { right: 1rem; left: 1rem; }
   .storyFilmFooter > span:first-child { max-width: 8rem; line-height: 1.5; }
   .storyFilmFooter div span { display: none; }
@@ -422,7 +425,7 @@
   .storyAtlasPanel > p { margin-bottom: 1rem; }
   .storyAtlasPanel > strong { right: 1rem; }
   .storyAtlasPanel h2 { max-width: 82%; font-size: 2.4rem; }
-  .storyAtlasPanel > span { max-width: 95%; display: -webkit-box; overflow: hidden; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+  .storyAtlasPanel > span { display: block; max-width: 100%; overflow: visible; font-size: .82rem; line-height: 1.42; -webkit-line-clamp: unset; }
   .storyChapterLink { font-size: .53rem; }
   .storyQuote blockquote { font-size: 2.75rem; }
   .storyInfluenceGrid { grid-template-columns: 1fr; }
@@ -432,7 +435,8 @@
   .storyConnectBottom a { font-size: 1.75rem; }
   .storyTransition { flex-direction: column; }
   .calicutHeroMeta { top: 7rem; flex-direction: column; gap: .5rem; }
-  .calicutHero h1 { bottom: 10rem; left: 1rem; font-size: 31vw; line-height: .52; }
+  .calicutHero h1 { bottom: 10rem; left: 1rem; font-size: 31vw; line-height: .62; }
+  .calicutTitleLine { overflow: visible; padding: .08em .08em .18em 0; }
   .calicutTitleOffset { margin-left: 10vw; }
   .calicutPlateWide > div, .calicutPlateTall > div { height: 62vh; min-height: 30rem; }
   .calicutPlateTall { width: 88%; }

@@ -325,6 +325,7 @@ body:has(.adminShell) { margin: 0; background: #f2efe7; }
 .adminContentLowerGrid { grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); }
 .adminPromotionAdmin .adminPanelHeading > a { color: var(--admin-brass); font-size: .57rem; font-weight: 800; text-transform: uppercase; }
 .adminPromotionRows,.adminSurfaceRows { display: grid; gap: .4rem; margin-top: 1rem; }
+.adminContentSubheading { margin: 1.25rem 0 0; color: var(--admin-brass); font-size: .56rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .adminPromotionRows > a { display: grid; grid-template-columns: 3.5rem minmax(0,1fr) auto; gap: .75rem; align-items: center; min-height: 4.25rem; padding: .4rem .65rem .4rem .4rem; border: 1px solid var(--admin-line); border-radius: .45rem; background: #fff; }
 .adminPromotionRows > a:hover,.adminSurfaceRows > a:hover { border-color: var(--admin-brass); }
 .adminPromotionThumb { position: relative; display: grid; width: 3.5rem; height: 3.5rem; place-items: center; overflow: hidden; border-radius: .3rem; background: #e8e3d8; }
@@ -346,6 +347,10 @@ body:has(.adminShell) { margin: 0; background: #f2efe7; }
 .adminBookingSettings .adminCheckField input { width: 1rem; min-height: 1rem; accent-color: var(--admin-green); }
 .adminInlineUpdate { display: grid; width: min(16rem,100%); gap: .35rem; }
 .adminInlineUpdate button { min-height: 2.5rem; border: 0; border-radius: .3rem; background: var(--admin-ink); color: #fff; font-size: .55rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+.adminEntryActions,.adminRowActions { display: grid; gap: .4rem; }
+.adminRowActions { min-width: 5rem; }
+.adminDeleteButton { width: 100%; min-height: 2.4rem; padding: .45rem .6rem; border: 1px solid #c9928d; border-radius: .3rem; background: #fff6f5; color: #8d342f; cursor: pointer; font-size: .52rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.adminDeleteButton:hover,.adminDeleteButton:focus-visible { border-color: #8d342f; background: #8d342f; color: #fff; outline: none; }
 .booking_confirmed,.hall_approved { border-color: #8cb6a4; background: #edf5f1; color: #226047; }
 .booking_cancelled,.booking_no_show,.hall_declined { border-color: #d4a09b; background: #fbefed; color: #913a34; }
 .hall_new { border-color: #d4ad72; background: #fbf4e8; color: #875619; }

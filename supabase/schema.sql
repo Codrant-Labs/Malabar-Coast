@@ -11,6 +11,8 @@ create table if not exists public.orders (
 
 alter table public.orders add column if not exists idempotency_key_hash text;
 alter table public.orders add column if not exists request_fingerprint text;
+alter table public.orders add column if not exists deleted_at timestamptz;
+alter table public.orders add column if not exists deleted_by uuid references auth.users(id) on delete set null;
 
 update public.orders
 set
@@ -21,6 +23,7 @@ where idempotency_key_hash is null or request_fingerprint is null;
 create index if not exists orders_status_created_at_idx on public.orders (status, created_at desc);
 
 create index if not exists orders_created_at_idx on public.orders (created_at desc);
+create index if not exists orders_active_created_at_idx on public.orders (created_at desc) where deleted_at is null;
 -- Support lookups by customer contact, without exposing a separate PII column.
 create index if not exists orders_customer_email_idx on public.orders ((lower(data->'customer'->>'email')));
 create unique index if not exists orders_idempotency_key_hash_uidx
@@ -784,7 +787,10 @@ create table if not exists public.table_reservations (
   created_at timestamptz not null default now(), updated_at timestamptz not null default now(),
   constraint table_reservation_time_range check (end_time > start_time)
 );
+alter table public.table_reservations add column if not exists deleted_at timestamptz;
+alter table public.table_reservations add column if not exists deleted_by uuid references auth.users(id) on delete set null;
 create index if not exists table_reservations_slot_idx on public.table_reservations (booking_date, start_time, end_time) where status = 'confirmed';
+create index if not exists table_reservations_active_created_idx on public.table_reservations (created_at desc) where deleted_at is null;
 revoke all on table public.table_reservations from anon, authenticated;
 
 create table if not exists public.hall_enquiries (
@@ -796,7 +802,10 @@ create table if not exists public.hall_enquiries (
   message text not null, contact_preference text not null default 'phone' check (contact_preference in ('phone', 'email')),
   admin_notes text not null default '', created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
+alter table public.hall_enquiries add column if not exists deleted_at timestamptz;
+alter table public.hall_enquiries add column if not exists deleted_by uuid references auth.users(id) on delete set null;
 create index if not exists hall_enquiries_status_created_idx on public.hall_enquiries (status, created_at desc);
+create index if not exists hall_enquiries_active_created_idx on public.hall_enquiries (created_at desc) where deleted_at is null;
 revoke all on table public.hall_enquiries from anon, authenticated;
 
 create table if not exists public.email_delivery_log (
@@ -838,7 +847,7 @@ begin
   if (p_data->>'endTime')::time <= (p_data->>'startTime')::time then raise exception 'INVALID_TIME'; end if;
   perform pg_advisory_xact_lock(hashtext(p_data->>'bookingDate'));
   select coalesce(sum(party_size), 0) into occupied from public.table_reservations
-    where booking_date = (p_data->>'bookingDate')::date and status = 'confirmed'
+    where booking_date = (p_data->>'bookingDate')::date and status = 'confirmed' and deleted_at is null
       and start_time < (p_data->>'endTime')::time and end_time > (p_data->>'startTime')::time;
   if occupied + (p_data->>'partySize')::integer > s.capacity then raise exception 'CAPACITY_EXCEEDED'; end if;
   insert into public.table_reservations (id, reference, name, email, phone, booking_date, start_time, end_time, party_size, occasion, accessibility_needs, dietary_requirements, notes)
@@ -854,12 +863,26 @@ begin
   select email,role into actor_email,actor_role from public.admin_profiles where user_id=p_actor_user_id and is_active and role in ('owner','admin','manager');
   if not found then return null; end if;
   if p_status not in ('confirmed','cancelled','completed','no_show') then return null; end if;
-  update public.table_reservations set status=p_status, admin_notes=left(coalesce(p_admin_notes,''),1000), updated_at=now() where id=p_reservation_id returning * into r;
+  update public.table_reservations set status=p_status, admin_notes=left(coalesce(p_admin_notes,''),1000), updated_at=now() where id=p_reservation_id and deleted_at is null returning * into r;
   if r.id is null then return null; end if;
   insert into public.admin_audit_log(actor_user_id,actor_email,actor_role,action,target_type,target_id,metadata) values(p_actor_user_id,actor_email,actor_role,'reservation.updated','table_reservation',r.id,jsonb_build_object('status',p_status));
   return jsonb_build_object('id',r.id,'reference',r.reference,'status',r.status,'name',r.name,'email',r.email,'phone',r.phone,'bookingDate',r.booking_date,'startTime',to_char(r.start_time,'HH24:MI'),'endTime',to_char(r.end_time,'HH24:MI'),'partySize',r.party_size,'adminNotes',r.admin_notes);
 end $$;
 revoke all on function public.update_table_reservation(text,text,text,uuid) from public; grant execute on function public.update_table_reservation(text,text,text,uuid) to service_role;
+
+create or replace function public.admin_delete_table_reservation(p_reservation_id text,p_actor_user_id uuid)
+returns boolean language plpgsql security definer set search_path=public as $$
+declare actor_email text; actor_role text; affected integer;
+begin
+  select email,role into actor_email,actor_role from public.admin_profiles where user_id=p_actor_user_id and is_active and role in ('owner','admin');
+  if not found then return false; end if;
+  update public.table_reservations set deleted_at=now(),deleted_by=p_actor_user_id,updated_at=now() where id=p_reservation_id and deleted_at is null;
+  get diagnostics affected = row_count;
+  if affected=0 then return false; end if;
+  insert into public.admin_audit_log(actor_user_id,actor_email,actor_role,action,target_type,target_id,metadata) values(p_actor_user_id,actor_email,actor_role,'reservation.deleted','table_reservation',p_reservation_id,jsonb_build_object('retained',true));
+  return true;
+end $$;
+revoke all on function public.admin_delete_table_reservation(text,uuid) from public; grant execute on function public.admin_delete_table_reservation(text,uuid) to service_role;
 
 create or replace function public.update_restaurant_booking_settings(p_settings jsonb, p_actor_user_id uuid)
 returns jsonb language plpgsql security definer set search_path = public as $$
@@ -890,15 +913,43 @@ begin
   select email,role into actor_email,actor_role from public.admin_profiles where user_id=p_actor_user_id and is_active and role in ('owner','admin','manager');
   if not found then return null; end if;
   if p_status not in ('new','contacted','approved','declined') then return null; end if;
-  update public.hall_enquiries set status=p_status,admin_notes=left(coalesce(p_admin_notes,''),1000),updated_at=now() where id=p_enquiry_id returning * into h;
+  update public.hall_enquiries set status=p_status,admin_notes=left(coalesce(p_admin_notes,''),1000),updated_at=now() where id=p_enquiry_id and deleted_at is null returning * into h;
   if h.id is null then return null; end if;
   insert into public.admin_audit_log(actor_user_id,actor_email,actor_role,action,target_type,target_id,metadata) values(p_actor_user_id,actor_email,actor_role,'hall.enquiry.updated','hall_enquiry',h.id,jsonb_build_object('status',p_status));
   return jsonb_build_object('id',h.id,'reference',h.reference,'status',h.status,'name',h.name,'email',h.email,'phone',h.phone,'preferredDate',h.preferred_date,'preferredTime',h.preferred_time,'guestCount',h.guest_count,'occasion',h.occasion,'message',h.message,'contactPreference',h.contact_preference,'adminNotes',h.admin_notes);
 end $$;
 revoke all on function public.update_hall_enquiry(text,text,text,uuid) from public; grant execute on function public.update_hall_enquiry(text,text,text,uuid) to service_role;
 
+create or replace function public.admin_delete_hall_enquiry(p_enquiry_id text,p_actor_user_id uuid)
+returns boolean language plpgsql security definer set search_path=public as $$
+declare actor_email text; actor_role text; affected integer;
+begin
+  select email,role into actor_email,actor_role from public.admin_profiles where user_id=p_actor_user_id and is_active and role in ('owner','admin');
+  if not found then return false; end if;
+  update public.hall_enquiries set deleted_at=now(),deleted_by=p_actor_user_id,updated_at=now() where id=p_enquiry_id and deleted_at is null;
+  get diagnostics affected = row_count;
+  if affected=0 then return false; end if;
+  insert into public.admin_audit_log(actor_user_id,actor_email,actor_role,action,target_type,target_id,metadata) values(p_actor_user_id,actor_email,actor_role,'hall.enquiry.deleted','hall_enquiry',p_enquiry_id,jsonb_build_object('retained',true));
+  return true;
+end $$;
+revoke all on function public.admin_delete_hall_enquiry(text,uuid) from public; grant execute on function public.admin_delete_hall_enquiry(text,uuid) to service_role;
+
+create or replace function public.admin_delete_order(p_order_id text,p_actor_user_id uuid)
+returns boolean language plpgsql security definer set search_path=public as $$
+declare actor_email text; actor_role text; affected integer;
+begin
+  select email,role into actor_email,actor_role from public.admin_profiles where user_id=p_actor_user_id and is_active and role in ('owner','admin');
+  if not found then return false; end if;
+  update public.orders set deleted_at=now(),deleted_by=p_actor_user_id,updated_at=now() where id=p_order_id and deleted_at is null;
+  get diagnostics affected = row_count;
+  if affected=0 then return false; end if;
+  insert into public.admin_audit_log(actor_user_id,actor_email,actor_role,action,target_type,target_id,metadata) values(p_actor_user_id,actor_email,actor_role,'order.deleted','order',p_order_id,jsonb_build_object('paymentRecordRetained',true));
+  return true;
+end $$;
+revoke all on function public.admin_delete_order(text,uuid) from public; grant execute on function public.admin_delete_order(text,uuid) to service_role;
+
 insert into public.app_schema_versions (version, description)
-values ('2026-08-22-bookings-v4', 'Stripe-only orders, table reservation capacity and hall enquiry operations')
+values ('2026-08-23-admin-delete-v5', 'Recoverable audited admin deletion and newest-first booking registers')
 on conflict (version) do nothing;
 
 -- Readiness contract. Keep this last: if applying any required table or function above
@@ -911,7 +962,7 @@ security definer
 set search_path = public
 as $$
   select jsonb_build_object(
-    'version', '2026-08-22-bookings-v4',
+    'version', '2026-08-23-admin-delete-v5',
     'ordersTable', to_regclass('public.orders') is not null,
     'paymentEventsTable', to_regclass('public.order_payment_events') is not null,
     'adminProfilesTable', to_regclass('public.admin_profiles') is not null,

@@ -81,12 +81,12 @@ const pageSeeds = () => [
     heroText: "Kerala's pepper, coconut, curry leaf and hospitality, served at 33 Main Street in Holytown.",
     heroImage: image("hero", "A Kerala-inspired restaurant table with coastal dishes in a warm dining room"),
     heroPrimaryLink: {_type: "link", label: "Explore the menu", href: "/menu", openInNewTab: false},
-    heroSecondaryLink: {_type: "link", label: "Plan your visit", href: "/#reservations", openInNewTab: false},
+    heroSecondaryLink: {_type: "link", label: "Book your table", href: "/book-a-table", openInNewTab: false},
     sections: [
       {_type: "contentSection", _key: "home-overview", internalName: "What is Malabar Coast?", eyebrow: "Our restaurant", heading: "What is Malabar Coast?", body: [block("Malabar Coast is a Southern Indian coastal restaurant in Holytown, rooted in Kerala's food, welcome and Indian Ocean history.", "overview-copy")], image: image("diningRoom", "The warmly lit Malabar Coast dining room")},
       {_type: "contentSection", _key: "home-menu", internalName: "Signature menu", eyebrow: "From our kitchen", heading: "Come to the table.", body: [block("Pepper warmed over fire, coconut softened with lime and dishes prepared for sharing.", "menu-copy")], image: image("calicutPrawns", "A coastal prawn dish with curry leaf")},
       {_type: "contentSection", _key: "home-story", internalName: "Coastal story", eyebrow: "Our story", heading: "A coast that changed the table.", body: [block("Follow the old sea road from Calicut to the new coast in Scotland.", "story-copy")], image: image("storyPort", "A rain-washed historic spice port on the Malabar Coast")},
-      {_type: "callToAction", _key: "home-reservations", eyebrow: "Reservations", heading: "Your table by the coast.", text: "Reservation details and opening hours can be updated here when confirmed by the restaurant.", primaryLink: {_type: "link", label: "Get directions", href: "https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+North+Lanarkshire+ML1+4TH", openInNewTab: true}, image: image("tableForTwo", "An intimate table for two at Malabar Coast")},
+      {_type: "callToAction", _key: "home-reservations", eyebrow: "Book your table", heading: "Your table by the coast.", text: "Choose your date, arrival time and party size online, with live capacity checked before confirmation.", primaryLink: {_type: "link", label: "Book your table", href: "/book-a-table", openInNewTab: false}, secondaryLink: {_type: "link", label: "Get directions", href: "https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+North+Lanarkshire+ML1+4TH", openInNewTab: true}, image: image("tableForTwo", "An intimate table for two at Malabar Coast")},
     ],
     seo: {title: "Malabar Coast | Southern Indian Restaurant in Holytown", description: "Southern Indian coastal cooking from Malabar to Scotland."},
   },
@@ -115,6 +115,18 @@ const pageSeeds = () => [
       {_type: "contentSection", _key: "hall-intro", internalName: "Gather by the coast", eyebrow: "The private hall", heading: "Gather by the coast.", body: [block("The room can move from an open reception to seated arrangements without losing its warm, understated character. Capacity, packages, catering choices and pricing remain subject to restaurant confirmation.", "hall-copy")], image: image("hallOne", "Open floor and built-in bar in the private hall")},
       {_type: "contentSection", _key: "hall-stage", internalName: "The stage", eyebrow: "A natural focal point", heading: "A natural focal point.", body: [block("The raised stage anchors the far end of the room for speeches, presentations and moments shared together.", "stage-copy")], image: image("hallTwo", "Wide view of the event hall showing its open floor and raised stage")},
       {_type: "contentSection", _key: "hall-gallery", internalName: "Set the scene", eyebrow: "The room", heading: "Set the scene.", image: image("hallThree", "The raised stage with chairs arranged across the hall floor")},
+      {_type: "contentSection", _key: "hall-occasions", internalName: "Occasions", eyebrow: "Made for your people", heading: "One room. Many reasons.", body: [block("Shape the hall around the occasion, from a lively family celebration to a calm community gathering. Tell us what matters and we will help you find the right setup.", "hall-occasions-copy")], items: [
+        {_type: "object", _key: "milestones", shortLabel: "01", title: "Milestones", text: "Birthdays, anniversaries and family celebrations"},
+        {_type: "object", _key: "receptions", shortLabel: "02", title: "Receptions", text: "A flexible floor for welcoming, dining and dancing"},
+        {_type: "object", _key: "community", shortLabel: "03", title: "Community", text: "Meetings, presentations and shared occasions"},
+        {_type: "object", _key: "private-dining", shortLabel: "04", title: "Private dining", text: "A more intimate room with Malabar Coast catering"},
+      ]},
+      {_type: "contentSection", _key: "hall-planning", internalName: "Planning journey", eyebrow: "From idea to occasion", heading: "A simple way to begin.", body: [block("No polished plan is needed. Share the date, guest estimate and the feeling you want; our team will take it from there.", "hall-planning-copy")], items: [
+        {_type: "object", _key: "send", shortLabel: "01", title: "Send the basics", text: "Date, time, guest estimate and occasion."},
+        {_type: "object", _key: "shape", shortLabel: "02", title: "Shape it together", text: "Discuss layout, catering, stage and access needs."},
+        {_type: "object", _key: "confirm", shortLabel: "03", title: "Confirm with confidence", text: "The team confirms availability, details and price directly."},
+      ]},
+      {_type: "contentSection", _key: "hall-enquiry", internalName: "Hall enquiry", eyebrow: "Your occasion · Holytown", heading: "Bring people together.", body: [block("Tell us the basics now. The team will review your request and call or email you before anything is confirmed.", "hall-enquiry-copy")]},
     ],
     seo: {title: "Private Event Hall in Holytown", description: "A private event hall at Malabar Coast with a bar, stage and flexible floor."},
   },
@@ -193,28 +205,28 @@ async function seed() {
   }
 
   const voyageSeeds = [
-    ["malabar-coast-signature-konju-coconut-fry", "Calicut", "Malabar Coast · India", "11.2588° N · 75.7804° E", "The point of origin", "House signature", "calicutPrawns", "A coastal prawn dish with curry leaf", "Coastal spice, coconut and the bright heat of the Malabar shore."],
-    ["malabar-coast-signature-masala-grilled-fish", "Malindi", "Swahili Coast · Kenya", "3.2192° S · 40.1169° E", "Across the monsoon", "From the sea", "malindiFish", "Masala grilled fish with herbs and citrus", "Malabar seasoning meets the fire-led cooking of the Swahili coast."],
-    ["malabar-coast-signature-prawn-moilee", "Mozambique", "Mozambique Island", "15.0360° S · 40.7327° E", "The chilli passage", "Coastal curry", "mozambiqueShellfish", "Coastal shellfish with fragrant rice and lime", "A coconut-led curry remembering the old Indian Ocean passage."],
-    ["malabar-coast-signature-aattirachi-kurumulak", "The Cape", "Cape of Good Hope", "34.3568° S · 18.4740° E", "Where two oceans meet", "From the land", "capeLamb", "Pepper-spiced lamb with flaky porotta", "Lamb and black pepper carried around the Cape in a deeply warming plate."],
-    ["desserts-malabar-coast-special-dessert", "Lisbon", "Tagus · Portugal", "38.7223° N · 9.1393° W", "Landfall in Europe", "Sweet passage", "lisbonDessert", "A warm spiced dessert", "A sweet finish shaped by the same spice route."],
-    ["malabar-coast-signature-meen-moilee", "Holytown", "Scotland · The new coast", "55.8207° N · 3.9735° W", "The voyage continues", "Our coast", "scotlandFish", "Fish in a golden coconut moilee", "Kerala coconut and Scottish hospitality brought to one table."],
+    ["malabar-coast-signature-masala-grilled-fish", "Kannur", "North Kerala coast", "11.8745° N · 75.3704° E", "Fire and coast", "Chargrilled fish", "malindiFish", "Masala grilled fish representing the fire-led cooking of Kannur", "Kannur's northern shoreline brings together fresh fish, warm spice and fire-led cooking with the confidence of North Malabar."],
+    ["malabar-coast-signature-konju-coconut-fry", "Kozhikode", "North Malabar", "11.2588° N · 75.7804° E", "Coconut and coast", "Coastal fry", "calicutPrawns", "Prawns cooked with coconut and curry leaves in the style of Kozhikode", "Prawns, coconut and curry leaves carry the bold savoury character of Kozhikode and Kerala's Arabian Sea shore."],
+    ["desserts-malabar-coast-special-dessert", "Palakkad", "The Kerala gap", "10.7867° N · 76.6548° E", "Rice and harvest", "Festive sweet", "lisbonDessert", "A warm spiced dessert representing Kerala's festive table", "Palakkad's harvest landscape inspires a gentle, spice-warmed finish rooted in Kerala's traditions of rice, milk and celebration."],
+    ["malabar-coast-signature-prawn-moilee", "Kochi", "Central Kerala coast", "9.9312° N · 76.2673° E", "Harbour kitchen", "Coconut curry", "mozambiqueShellfish", "Prawns in a golden coconut moilee with curry leaves", "A harbour-side style of mild coconut curry, bright with ginger, green chilli and curry leaf around tender prawns."],
+    ["malabar-coast-signature-aattirachi-kurumulak", "Kottayam", "Central Travancore", "9.5916° N · 76.5222° E", "Pepper country", "Pepper-spiced lamb", "capeLamb", "Pepper-spiced lamb representing the kitchens of Kottayam", "Black pepper, shallots and curry leaves echo the robust Syrian-Christian kitchens of Kottayam and central Travancore."],
+    ["malabar-coast-signature-meen-moilee", "Alappuzha", "Backwater coast", "9.4981° N · 76.3388° E", "Backwater kitchen", "Golden fish curry", "scotlandFish", "Fish in a golden coconut moilee representing Alappuzha's backwaters", "Alappuzha's backwater cooking meets tender fish, coconut milk, ginger and curry leaf in a gentle golden moilee."],
   ] as const;
   await client.createOrReplace({
     _id: "menuPage",
     _type: "menuPage",
-    eyebrow: "The culinary passage · East to West",
-    headingLineOne: "Six ports.",
-    headingLineTwo: "One table.",
-    introduction: "A menu plotted across the old sea road. Each port leaves something on the plate: pepper, coconut, fire, smoke — and finally, Scotland.",
-    journeyLinkLabel: "Begin the voyage",
+    eyebrow: "A taste of Kerala · North to South",
+    headingLineOne: "Six regions.",
+    headingLineTwo: "One Kerala.",
+    introduction: "Travel through six Kerala food landscapes, from North Malabar's fire and coconut to the backwater curries of Alappuzha.",
+    journeyLinkLabel: "Explore Kerala",
     manifestEyebrow: "The full menu",
     manifestHeading: "What we carry to the table.",
     manifestIntroduction: "The current Malabar Coast menu, prepared for sharing and available to order online where shown.",
     dietaryNotice: "Dietary labels are based on the supplied menu names and still require confirmation from the restaurant. Please tell the team about allergies before ordering; the kitchen handles all 14 regulated allergens and cross-contact may occur.",
     alcoholNotice: "Alcoholic-drink prices are not published online. Please ask the restaurant team for the current bar price list. Alcohol is not available through online ordering.",
-    voyageStops: voyageSeeds.map(([itemId, port, region, coordinates, yearLabel, courseLabel, imageKey, alt, description], index) => ({
-      _type: "object", _key: `voyage-${index + 1}`, dish: {_type: "reference", _ref: itemIds.get(itemId)!}, port, region, coordinates, yearLabel, courseLabel, image: image(imageKey, alt), description,
+    voyageStops: voyageSeeds.map(([itemId, area, region, coordinates, yearLabel, courseLabel, imageKey, alt, description], index) => ({
+      _type: "object", _key: `voyage-${index + 1}`, dish: {_type: "reference", _ref: itemIds.get(itemId)!}, area, region, coordinates, yearLabel, courseLabel, image: image(imageKey, alt), description,
     })),
     seo: {title: "South Indian Menu", description: "The current Malabar Coast menu with food prices, ordering availability and carefully reviewed dietary status."},
   });
@@ -239,10 +251,11 @@ async function seed() {
     primaryNavigation: [
       {_type: "link", _key: "story", label: "Our story", href: "/story", openInNewTab: false},
       {_type: "link", _key: "menu", label: "The menu", href: "/menu", openInNewTab: false},
+      {_type: "link", _key: "offers", label: "Offers & specials", href: "/offers", openInNewTab: false},
+      {_type: "link", _key: "book", label: "Book a table", href: "/book-a-table", openInNewTab: false},
       {_type: "link", _key: "restaurant", label: "Our restaurant", href: "/restaurant", openInNewTab: false},
       {_type: "link", _key: "hall", label: "Private hall", href: "/hall", openInNewTab: false},
       {_type: "link", _key: "faq", label: "Good to know", href: "/faq", openInNewTab: false},
-      {_type: "link", _key: "visit", label: "Plan your visit", href: "/#reservations", openInNewTab: false},
       {_type: "link", _key: "order", label: "Your order", href: "/checkout", openInNewTab: false},
     ],
     footerNavigation: [
@@ -264,6 +277,39 @@ async function seed() {
     {name: "Uber Eats guests", source: "Independent delivery platform", rating: 5, quote: "The first two ratings arrived as a perfect 5.0 out of 5, carrying the earliest taste of the kitchen beyond our doors."},
   ];
   for (const [index, testimonial] of testimonials.entries()) await upsertByField("testimonial", "name", testimonial.name, {...testimonial, displayOrder: index, published: true});
+
+  const specialMenuItem = menuItems.find((item) => item.id === "malabar-coast-signature-konju-coconut-fry");
+  const specialMenuItemId = itemIds.get("malabar-coast-signature-konju-coconut-fry");
+  if (specialMenuItem && specialMenuItemId && specialMenuItem.pricePence != null) {
+    await upsertByField("dailySpecial", "slug.current", "coastal-kitchen-pick", {
+      title: specialMenuItem.name,
+      slug: {_type: "slug", current: "coastal-kitchen-pick"},
+      status: "active",
+      image: image("calicutPrawns", "A coastal prawn dish with curry leaf and charred lime"),
+      badge: "Today from the kitchen",
+      description: specialMenuItem.description || "A bright coastal plate of pepper, coconut and curry leaf.",
+      pricePence: specialMenuItem.pricePence,
+      priceNote: "While today's batch lasts",
+      dietaryNote: "Please tell the team about allergies before ordering.",
+      menuItem: {_type: "reference", _ref: specialMenuItemId},
+      activeDays: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+      displayOrder: 10,
+    });
+  }
+
+  await upsertByField("promotion", "slug.current", "next-offer-template", {
+    title: "Your next Malabar Coast offer",
+    slug: {_type: "slug", current: "next-offer-template"},
+    status: "paused",
+    poster: image("hero", "Malabar Coast dining table used as a placeholder offer poster"),
+    badge: "Offer template",
+    summary: "Replace this poster and copy, choose the live dates, then switch the status to Active.",
+    validityLabel: "Paused until the team publishes it",
+    showOnHomepage: false,
+    callToAction: {_type: "link", label: "Explore the menu", href: "/menu", openInNewTab: false},
+    terms: "Add the confirmed offer conditions before publishing.",
+    displayOrder: 100,
+  });
 
   const legalSeeds = [
     {pageKey: "privacy", title: "Privacy Policy", summary: "How Malabar Coast collects, uses, shares and protects personal data under UK data protection law.", body: [block("The complete checked-in privacy policy remains the website fallback. Update and legally review the CMS version before publishing substantial policy changes.", "privacy-body")]},

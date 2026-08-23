@@ -39,18 +39,24 @@ export function HomeStoryScroll() {
       return;
     }
 
+    const compactMotion = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches;
+
     const context = gsap.context(() => {
-      gsap.fromTo(
-        ".homeStoryHeading > span",
-        { yPercent: 110 },
-        {
-          yPercent: 0,
-          duration: 1,
-          stagger: .1,
-          ease: "power4.out",
-          scrollTrigger: { trigger: ".homeStoryIntro", start: "top 72%", once: true },
-        },
-      );
+      if (compactMotion) {
+        gsap.set(".homeStoryHeading > span", { yPercent: 0 });
+      } else {
+        gsap.fromTo(
+          ".homeStoryHeading > span",
+          { yPercent: 110 },
+          {
+            yPercent: 0,
+            duration: 1,
+            stagger: .1,
+            ease: "power4.out",
+            scrollTrigger: { trigger: ".homeStoryIntro", start: "top 72%", once: true },
+          },
+        );
+      }
 
       gsap.fromTo(
         ".homeStoryIntroMeta, .homeStoryIntroCopy",

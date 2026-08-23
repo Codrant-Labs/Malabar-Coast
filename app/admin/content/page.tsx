@@ -47,13 +47,14 @@ export default async function AdminContentPage({searchParams}: {searchParams: Pr
   const search = String(query.q || "").trim().toLocaleLowerCase("en-GB");
   const menuItems = (overview?.menuItems ?? []).filter((item) => !search || `${item.name} ${item.category || ""}`.toLocaleLowerCase("en-GB").includes(search));
   const orderableItems = overview?.menuItems.filter((item) => item.available && item.onlineOrdering && item.pricePence != null && !item.isAlcoholic) ?? [];
-  const unavailableItems = overview?.menuItems.filter((item) => !item.available) ?? [];
   const activePromotions = overview?.promotions.filter((promotion) => promotion.status === "active") ?? [];
+  const activeSpecials = overview?.dailySpecials.filter((special) => special.status === "active") ?? [];
   const menuIssues = overview?.menuItems.map((item) => ({item, issue: menuIssue(item)})).filter((entry) => entry.issue) ?? [];
   const promotionIssues = overview?.promotions.filter((promotion) => !promotion.poster?.url || !promotion.poster.alt) ?? [];
   const projectReady = Boolean(overview && studioUrl);
   const createDish = studioIntent(studioUrl, "create", "menuItem");
   const createPromotion = studioIntent(studioUrl, "create", "promotion");
+  const createSpecial = studioIntent(studioUrl, "create", "dailySpecial");
 
   return <AdminFrame active="/admin/content" session={session}>
     <AdminPageHeader
@@ -70,7 +71,7 @@ export default async function AdminContentPage({searchParams}: {searchParams: Pr
     <section className="adminMetrics" aria-label="Published content summary">
       <MetricCard label="Published dishes" value={overview?.menuItems.length ?? 0} detail={`${overview?.categoryCount ?? 0} menu categories`} tone={overview?.menuItems.length ? "good" : undefined}/>
       <MetricCard label="Orderable now" value={orderableItems.length} detail="Available with a valid online price" tone={orderableItems.length ? "good" : undefined}/>
-      <MetricCard label="Paused dishes" value={unavailableItems.length} detail="Kept in CMS, hidden from ordering" tone={unavailableItems.length ? "attention" : undefined}/>
+      <MetricCard label="Today's specials" value={activeSpecials.length} detail={`${overview?.dailySpecials.length ?? 0} prepared in CMS`} tone={activeSpecials.length ? "good" : undefined}/>
       <MetricCard label="Active offers" value={activePromotions.length} detail={`${activePromotions.filter((promotion) => promotion.showOnHomepage).length} in homepage popup`}/>
     </section>
 
@@ -79,7 +80,7 @@ export default async function AdminContentPage({searchParams}: {searchParams: Pr
     </section>}
 
     <section className="adminContentWorkflow" aria-label="Content workflow">
-      <article><span>01 · Create</span><h2>Start with the right record.</h2><p>Add a dish, category, promotion, FAQ or guest testimonial using its purpose-built Studio form.</p><div>{createDish && <a href={createDish} target="_blank" rel="noreferrer">New dish</a>}{createPromotion && <a href={createPromotion} target="_blank" rel="noreferrer">New promotion</a>}</div></article>
+      <article><span>01 · Create</span><h2>Start with the right record.</h2><p>Add a dish, today&apos;s special, promotion, FAQ or guest testimonial using its purpose-built Studio form.</p><div>{createDish && <a href={createDish} target="_blank" rel="noreferrer">New dish</a>}{createSpecial && <a href={createSpecial} target="_blank" rel="noreferrer">New special</a>}{createPromotion && <a href={createPromotion} target="_blank" rel="noreferrer">New promotion</a>}</div></article>
       <article><span>02 · Read</span><h2>Know what is live.</h2><p>This dashboard reads the same published catalogue used by guests and checkout, including current prices and availability.</p><div><Link href="/menu" target="_blank">Public menu</Link><Link href="/offers" target="_blank">Public offers</Link></div></article>
       <article><span>03 · Update</span><h2>Edit with context.</h2><p>Open any record directly from the tables below, publish it, and return here to verify the guest-facing result.</p></article>
       <article><span>04 · Retire</span><h2>Pause before deleting.</h2><p>Mark dishes unavailable or promotions paused for a recoverable change. Studio also provides unpublish and delete when removal is genuinely required.</p></article>
@@ -114,7 +115,14 @@ export default async function AdminContentPage({searchParams}: {searchParams: Pr
 
     <section className="adminSplitGrid adminContentLowerGrid">
       <article className="adminPanel adminPromotionAdmin">
-        <div className="adminPanelHeading"><div><p>Offers and posters</p><h2>Promotion library</h2></div>{createPromotion && <a href={createPromotion} target="_blank" rel="noreferrer">Create offer</a>}</div>
+        <div className="adminPanelHeading"><div><p>Offers, posters and kitchen board</p><h2>Live content library</h2></div><div>{createSpecial && <a href={createSpecial} target="_blank" rel="noreferrer">Create special</a>} {createPromotion && <a href={createPromotion} target="_blank" rel="noreferrer">Create offer</a>}</div></div>
+        <p className="adminContentSubheading">Today&apos;s specials</p>
+        {!overview?.dailySpecials.length ? <EmptyState title="No specials yet" detail="Create a priced daily special for the homepage kitchen board."/> : <div className="adminPromotionRows">{overview.dailySpecials.map((special) => <a href={studioIntent(studioUrl, "edit", "dailySpecial", special._id) || studioUrl || "#"} target="_blank" rel="noreferrer" key={special._id}>
+          <span className="adminPromotionThumb">{special.image?.url ? <Image src={special.image.url} alt="" fill sizes="64px"/> : <b>No image</b>}</span>
+          <span><strong>{special.title}</strong><small>{special.pricePence == null ? "Price needed" : money(special.pricePence)} · Homepage kitchen board</small></span>
+          <b className={`adminContentState ${special.status === "active" ? "isLive" : "isPaused"}`}>{special.status}</b>
+        </a>)}</div>}
+        <p className="adminContentSubheading">Posters and offers</p>
         {!overview?.promotions.length ? <EmptyState title="No promotions yet" detail="Create a poster-led offer and publish it when the restaurant is ready."/> : <div className="adminPromotionRows">{overview.promotions.map((promotion) => <a href={studioIntent(studioUrl, "edit", "promotion", promotion._id) || studioUrl || "#"} target="_blank" rel="noreferrer" key={promotion._id}>
           <span className="adminPromotionThumb">{promotion.poster?.url ? <Image src={promotion.poster.url} alt="" fill sizes="64px"/> : <b>No poster</b>}</span>
           <span><strong>{promotion.title}</strong><small>{promotion.showOnHomepage ? "Offers page · homepage popup" : "Offers page only"}</small></span>

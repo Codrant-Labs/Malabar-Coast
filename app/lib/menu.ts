@@ -232,7 +232,7 @@ export const menuItems: MenuItem[] = definitions.flatMap((category) =>
       description: options.description ?? "",
       subheading: options.subheading,
       pricePence,
-      priceLabel: isAlcoholic ? "Ask our team" : undefined,
+      priceLabel: isAlcoholic ? "Ask the coast crew" : undefined,
       hidePrice: isAlcoholic,
       isAlcoholic,
       dietaryStatus: isAlcoholic ? "notApplicable" : dietaryStatus,
@@ -252,7 +252,7 @@ export function getMenuItem(id: string) {
   return menuItems.find((menuItem) => menuItem.id === id);
 }
 
-export function formatPrice(pence: number | null, fallback = "Ask our team") {
+export function formatPrice(pence: number | null, fallback = "Ask the coast crew") {
   if (pence === null) return fallback;
   return new Intl.NumberFormat("en-GB", {style: "currency", currency: "GBP"}).format(pence / 100);
 }

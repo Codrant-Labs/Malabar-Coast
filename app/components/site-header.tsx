@@ -9,6 +9,14 @@ import type { SiteSettings } from "@/sanity/lib/site";
 
 const NAV_REVEAL_SCROLL_THRESHOLD = 4;
 
+const navigationDescriptions: Record<string, string> = {
+  "/story": "From Malabar's coast to Scotland",
+  "/offers": "Today's specials, posters and offers",
+  "/restaurant": "The room, the team and how to find us",
+  "/faq": "Helpful answers before you visit",
+  "/checkout": "Review your basket and continue",
+};
+
 export function SiteHeader({settings}: {settings: SiteSettings}) {
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -92,8 +100,9 @@ export function SiteHeader({settings}: {settings: SiteSettings}) {
   return (
     <>
       <header className={`nav siteHeader ${navMinimal ? "navMinimal" : ""}`} aria-label="Primary navigation">
-        <Link className="bookButton" href="/#reservations" inert={navMinimal}>
-          <span>Plan your visit</span>
+        <Link className="bookButton" href="/book-a-table" inert={navMinimal}>
+          <span className="bookButtonLabel">Book your table</span>
+          <span className="bookButtonMobile" aria-hidden="true">Book</span>
           <span className="arrow" aria-hidden="true">↗</span>
         </Link>
 
@@ -139,15 +148,25 @@ export function SiteHeader({settings}: {settings: SiteSettings}) {
         inert={!isMenuOpen}
       >
         <div className="menuInner">
-          <p>Navigate the coast</p>
+          <p>Everything, one tap away</p>
+          <div className="menuQuickLinks" aria-label="Popular choices">
+            <Link href="/menu" onClick={() => setMenuOpenedOnPath(null)}><small>Food &amp; drink</small><strong>Menu</strong><span aria-hidden="true">↗</span></Link>
+            <Link href="/book-a-table" onClick={() => setMenuOpenedOnPath(null)}><small>Reservations</small><strong>Book a table</strong><span aria-hidden="true">→</span></Link>
+            <Link href="/hall" onClick={() => setMenuOpenedOnPath(null)}><small>Private events</small><strong>Private hall</strong><span aria-hidden="true">↗</span></Link>
+          </div>
           <nav aria-label="Menu">
-            {settings.primaryNavigation.map((link, index) => (
+            {settings.primaryNavigation.filter((link) => !["/menu", "/book-a-table", "/hall"].includes(link.href)).map((link, index) => (
               <Link href={link.href} key={`${link.href}-${link.label}`} target={link.openInNewTab ? "_blank" : undefined} rel={link.openInNewTab ? "noreferrer" : undefined} onClick={() => setMenuOpenedOnPath(null)}>
-                <span>{String(index + 1).padStart(2, "0")}</span>{link.label}
+                <span className="menuNavIndex">{String(index + 1).padStart(2, "0")}</span>
+                <span className="menuNavCopy"><strong>{link.label}</strong><small>{navigationDescriptions[link.href] || "Explore Malabar Coast"}</small></span>
+                <span className="menuNavArrow" aria-hidden="true">↗</span>
               </Link>
             ))}
           </nav>
-          <small>{settings.address.streetAddress} · {settings.address.locality} · {settings.address.postalCode}</small>
+          <div className="siteMenuFooter">
+            <small className="menuAddress">{settings.address.streetAddress} · {settings.address.locality} · {settings.address.postalCode}</small>
+            <a className="menuAskLink" href={`mailto:${settings.reservationEmail}`}>Need a hand? <strong>Ask our team</strong><span aria-hidden="true">→</span></a>
+          </div>
         </div>
       </aside>
     </>

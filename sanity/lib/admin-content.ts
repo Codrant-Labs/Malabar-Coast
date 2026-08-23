@@ -25,6 +25,15 @@ export type AdminPromotionRecord = {
   poster?: {url?: string; alt?: string};
 };
 
+export type AdminDailySpecialRecord = {
+  _id: string;
+  title: string;
+  status: "active" | "soldOut" | "paused";
+  pricePence?: number;
+  updatedAt: string;
+  image?: {url?: string; alt?: string};
+};
+
 export type AdminPageRecord = {
   _id: string;
   _type: "marketingPage" | "legalPage";
@@ -36,6 +45,7 @@ export type AdminPageRecord = {
 export type AdminContentOverview = {
   menuItems: AdminMenuRecord[];
   promotions: AdminPromotionRecord[];
+  dailySpecials: AdminDailySpecialRecord[];
   pages: AdminPageRecord[];
   categoryCount: number;
   faqCount: number;
@@ -66,6 +76,14 @@ export const adminContentOverviewQuery = defineQuery(`{
     endsAt,
     "updatedAt": _updatedAt,
     poster {alt, "url": asset->url}
+  },
+  "dailySpecials": *[_type == "dailySpecial"] | order(displayOrder asc, _updatedAt desc) {
+    _id,
+    title,
+    "status": coalesce(status, "paused"),
+    pricePence,
+    "updatedAt": _updatedAt,
+    image {alt, "url": asset->url}
   },
   "pages": *[_type in ["marketingPage", "legalPage"]] | order(_type asc, pageKey asc) {
     _id,

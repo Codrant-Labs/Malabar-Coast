@@ -71,7 +71,10 @@ export function MenuExperience({categories, items, page}: {categories: MenuCateg
         <p className="menuKicker">{page.eyebrow}</p>
         <h1 id="menu-title"><span>{page.headingLineOne}</span><span>{page.headingLineTwo}</span></h1>
         <p className="prologueCopy">{page.introduction}</p>
-        {voyageStops.length > 0 && <a className="beginVoyage" href="#voyage">{page.journeyLinkLabel} <span aria-hidden="true">↓</span></a>}
+        <div className="menuPrologueActions">
+          <a className="browseMenu" href="#manifest-title">Browse the full menu <span aria-hidden="true">↓</span></a>
+          {voyageStops.length > 0 && <a className="beginVoyage" href="#voyage">Explore the food story <span aria-hidden="true">→</span></a>}
+        </div>
         <div className="prologueCoordinates" aria-hidden="true"><span>11.2588° N</span><i /><span>55.8207° N</span></div>
       </section>
 
@@ -107,7 +110,7 @@ export function MenuExperience({categories, items, page}: {categories: MenuCateg
           <div><input id="menu-search" type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search by dish, ingredient or category" autoComplete="off" /><span aria-hidden="true">⌕</span>{searchQuery && <button type="button" onClick={() => setSearchQuery("")}>Clear</button>}</div>
           <p aria-live="polite">{normalisedSearch ? `${filteredItems.length} ${filteredItems.length === 1 ? "dish" : "dishes"} found` : "Search the full menu"}</p>
         </div>
-        {visibleCategories.length > 0 && <nav className="menuCategoryNav" aria-label="Menu categories">{visibleCategories.map((category) => <a href={`#${category.slug}`} key={category.slug}>{category.note}</a>)}</nav>}
+        {visibleCategories.length > 0 && <nav className="menuCategoryNav" aria-label="Jump to a menu category"><span>Jump to</span>{visibleCategories.map((category) => <a href={`#${category.slug}`} key={category.slug}>{category.title}</a>)}</nav>}
         {normalisedSearch && filteredItems.length === 0 && <div className="menuSearchEmpty"><p>No dishes match “{searchQuery.trim()}”.</p><span>Try a dish name, ingredient or category—or clear the search to see the full menu.</span><button type="button" onClick={() => setSearchQuery("")}>Show the full menu</button></div>}
         <div className="manifestGrid">
           {visibleCategories.map((category) => {
@@ -133,7 +136,7 @@ export function MenuExperience({categories, items, page}: {categories: MenuCateg
                           {!dish.available && <small>Temporarily unavailable</small>}
                         </div>
                       </div>
-                      <div className="manifestOrder"><b>{dish.hidePrice ? dish.priceLabel || "Ask our team" : formatPrice(dish.pricePence, dish.priceLabel)}</b>{dish.onlineOrdering && dish.available && <AddToOrder id={dish.id} compact />}</div>
+                      <div className="manifestOrder">{dish.hidePrice ? <a className="manifestAskTeam" href={`mailto:reservations@malabarcoast.co.uk?subject=${encodeURIComponent(`A quick question about ${dish.name}`)}`}>{dish.priceLabel || "Ask the coast crew"} <span aria-hidden="true">↗</span></a> : <b>{formatPrice(dish.pricePence, dish.priceLabel)}</b>}{dish.onlineOrdering && dish.available && <AddToOrder id={dish.id} compact />}</div>
                     </li>
                   );
                 })}</ul>
@@ -145,7 +148,7 @@ export function MenuExperience({categories, items, page}: {categories: MenuCateg
         <div className="dietaryKey"><DietaryMarker status="vegan" /><DietaryMarker status="vegetarian" /><DietaryMarker status="nonVegetarian" /><DietaryMarker status="unconfirmed" /></div>
       </section>
 
-      <footer className="menuFooter"><div><p>End of the chart</p><h2>Arrive hungry.</h2></div><div className="menuFooterActions"><Link href="/checkout">Review your order <span aria-hidden="true">→</span></Link><Link href="/#reservations">Reserve your table <span aria-hidden="true">↗</span></Link></div><small>33 Main Street · Holytown · ML1 4TH</small></footer>
+      <footer className="menuFooter"><div><p>End of the chart</p><h2>Arrive hungry.</h2></div><div className="menuFooterActions"><Link href="/checkout">Review your order <span aria-hidden="true">→</span></Link><Link href="/book-a-table">Book your table <span aria-hidden="true">↗</span></Link><Link href="/hall">Reserve the private hall <span aria-hidden="true">↗</span></Link></div><small>33 Main Street · Holytown · ML1 4TH</small></footer>
     </main>
   );
 }

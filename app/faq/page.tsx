@@ -72,7 +72,6 @@ export default async function FaqPage() {
             </summary>
             <div>
               <p>{item.answer}</p>
-              <a href={`#${item.id}`} aria-label={`Permanent link to ${item.question}`}>Permanent answer link</a>
             </div>
           </details>
         ))}
@@ -84,7 +83,7 @@ export default async function FaqPage() {
         <div>
           <Link href="/menu">Explore the menu <span aria-hidden="true">↗</span></Link>
           <Link href="/hall">Explore the private hall <span aria-hidden="true">↗</span></Link>
-          <Link href="/restaurant#location">Plan your visit <span aria-hidden="true">→</span></Link>
+          <Link href="/book-a-table">Book your table <span aria-hidden="true">→</span></Link>
         </div>
       </footer>
     </main>

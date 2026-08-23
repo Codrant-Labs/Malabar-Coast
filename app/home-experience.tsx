@@ -10,6 +10,9 @@ import type {MenuItem} from "./lib/menu";
 import type {TestimonialRecord} from "@/sanity/lib/testimonials";
 import type {Promotion} from "@/sanity/lib/promotions";
 import {PromotionPopup} from "./components/promotion-popup";
+import type {DailySpecial} from "@/sanity/lib/daily-specials";
+import type {BookingSettings} from "./lib/bookings";
+import {TableBookingForm} from "./components/table-booking-form";
 
 const REDUCED_MOTION_INTRO_DELAY_MS = 120;
 const REPLAY_INTRO_EVENT = "malabar:replay-intro";
@@ -29,6 +32,9 @@ export type HomeCmsContent = {
   overviewEyebrow?: string;
   overviewHeading?: string;
   overviewText?: string;
+  menuEyebrow?: string;
+  menuHeading?: string;
+  menuText?: string;
   reservationEyebrow?: string;
   reservationHeading?: string;
   reservationText?: string;
@@ -47,7 +53,7 @@ function CompassMark() {
   );
 }
 
-export function HomeExperience({content, menuItems, promotions}: {content: HomeCmsContent; menuItems: MenuItem[]; promotions: Promotion[]}) {
+export function HomeExperience({content, menuItems, promotions, dailySpecials, bookingSettings}: {content: HomeCmsContent; menuItems: MenuItem[]; promotions: Promotion[]; dailySpecials: DailySpecial[]; bookingSettings: BookingSettings}) {
   const [introActive, setIntroActive] = useState(true);
   const [heroFooterRevealed, setHeroFooterRevealed] = useState(false);
 
@@ -170,7 +176,7 @@ export function HomeExperience({content, menuItems, promotions}: {content: HomeC
             </p>
             <div className="heroActions">
               <Link href={content.heroPrimaryLink?.href || "/menu"}>{content.heroPrimaryLink?.label || "Explore the menu"} <span aria-hidden="true">↗</span></Link>
-              <Link href={content.heroSecondaryLink?.href || "/restaurant#location"}>{content.heroSecondaryLink?.label || "Plan your visit"} <span aria-hidden="true">→</span></Link>
+              <Link href={content.heroSecondaryLink?.href || "/book-a-table"}>{content.heroSecondaryLink?.label || "Book your table"} <span aria-hidden="true">→</span></Link>
             </div>
           </div>
         </div>
@@ -233,7 +239,21 @@ export function HomeExperience({content, menuItems, promotions}: {content: HomeC
         </dl>
       </section>
 
-      <HomeSignatures items={menuItems} />
+      <HomeSignatures items={menuItems} specials={dailySpecials} eyebrow={content.menuEyebrow} heading={content.menuHeading} introduction={content.menuText} />
+
+      <section className="homeBooking" id="book-your-table" aria-labelledby="home-booking-title">
+        <div className="homeBookingIntro">
+          <span>Book your table · Holytown</span>
+          <h2 id="home-booking-title">A seat in<br />the story.</h2>
+          <p>Choose your date, arrival time and party size right here. We check live capacity before your table is confirmed.</p>
+          <nav aria-label="Book your table and explore">
+            <Link href="/menu">Browse the menu <span aria-hidden="true">↗</span></Link>
+            <Link href="/hall">Planning a gathering? <span aria-hidden="true">↗</span></Link>
+            <Link href="/book-a-table">Open the full booking page <span aria-hidden="true">→</span></Link>
+          </nav>
+        </div>
+        <div className="homeBookingForm"><TableBookingForm settings={bookingSettings} compact /></div>
+      </section>
 
       <HomeStoryScroll />
 
@@ -241,7 +261,7 @@ export function HomeExperience({content, menuItems, promotions}: {content: HomeC
 
       <footer className="homeReservations" id="reservations" aria-labelledby="reservations-title">
         <div className="homeReservationsMeta">
-          <span>{content.reservationEyebrow || "Plan your visit"}</span>
+          <span>{content.reservationEyebrow || "Book your table"}</span>
           <span>Holytown · Scotland</span>
         </div>
         <div className="homeReservationsGrid">
@@ -251,7 +271,7 @@ export function HomeExperience({content, menuItems, promotions}: {content: HomeC
               {content.reservationText || "Join us at 33 Main Street for Southern Indian coastal cooking, warm hospitality, and a table shaped by the journey from Malabar to Scotland."}
             </p>
             <div className="homeReservationsActions">
-              <Link href={content.reservationPrimaryLink?.href || "/restaurant#location"}>{content.reservationPrimaryLink?.label || "Plan your visit"} <span aria-hidden="true">→</span></Link>
+              <Link href={content.reservationPrimaryLink?.href || "/book-a-table"}>{content.reservationPrimaryLink?.label || "Book your table"} <span aria-hidden="true">→</span></Link>
               <Link href={content.reservationSecondaryLink?.href || "/menu"}>{content.reservationSecondaryLink?.label || "Explore the menu"} <span aria-hidden="true">↗</span></Link>
               <Link href="/hall">See the private hall <span aria-hidden="true">↗</span></Link>
             </div>

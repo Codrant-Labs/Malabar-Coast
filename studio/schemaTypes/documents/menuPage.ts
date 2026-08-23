@@ -1,5 +1,14 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
+const keralaFoodAreas = [
+  {title: 'Kannur', value: 'Kannur'},
+  {title: 'Kozhikode', value: 'Kozhikode'},
+  {title: 'Palakkad', value: 'Palakkad'},
+  {title: 'Kochi', value: 'Kochi'},
+  {title: 'Kottayam', value: 'Kottayam'},
+  {title: 'Alappuzha', value: 'Alappuzha'},
+]
+
 export const menuPage = defineType({
   name: 'menuPage',
   title: 'Menu page',
@@ -22,7 +31,7 @@ export const menuPage = defineType({
       type: 'array',
       of: [defineArrayMember({type: 'object', fields: [
         defineField({name: 'dish', title: 'Dish', type: 'reference', to: [{type: 'menuItem'}], validation: (rule) => rule.required()}),
-        defineField({name: 'area', title: 'Kerala area', type: 'string', validation: (rule) => rule.required()}),
+        defineField({name: 'area', title: 'Kerala area', type: 'string', options: {list: keralaFoodAreas, layout: 'dropdown'}, validation: (rule) => rule.required()}),
         defineField({name: 'port', title: 'Former port name', type: 'string', deprecated: {reason: 'Use Kerala area instead.'}, readOnly: true, hidden: ({value}) => value === undefined, initialValue: undefined}),
         defineField({name: 'region', title: 'Food landscape', type: 'string'}),
         defineField({name: 'coordinates', title: 'Coordinates', type: 'string'}),
@@ -34,7 +43,7 @@ export const menuPage = defineType({
         select: {area: 'area', formerPort: 'port', subtitle: 'dish.name', media: 'image'},
         prepare: ({area, formerPort, subtitle, media}) => ({title: area || formerPort || 'Kerala area', subtitle, media}),
       }})],
-      validation: (rule) => rule.max(6).warning('Keep this journey to six Kerala regions.'),
+      validation: (rule) => rule.required().length(6).error('Add exactly six Kerala food regions.'),
     }),
     defineField({name: 'seo', title: 'Search and sharing', type: 'seo'}),
   ],

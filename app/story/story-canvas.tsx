@@ -26,20 +26,25 @@ export function StoryCanvas({ children }: StoryCanvasProps) {
 
     const context = gsap.context(() => {
       const heroTimeline = gsap.timeline({ defaults: { ease: "power3.out" } });
-      heroTimeline
-        .fromTo(".storyFilmHeroImage", { scale: 1.13 }, { scale: 1, duration: 2.1 })
-        .fromTo(
+      heroTimeline.fromTo(".storyFilmHeroImage", { scale: 1.13 }, { scale: 1, duration: 2.1 });
+
+      if (compactMotion) {
+        gsap.set(".storyHeroLine > span", { yPercent: 0, rotate: 0 });
+      } else {
+        heroTimeline.fromTo(
           ".storyHeroLine > span",
           { yPercent: 112, rotate: 1.5 },
           { yPercent: 0, rotate: 0, duration: 1.05, stagger: 0.12 },
           0.18,
-        )
-        .fromTo(
-          ".storyHeroMeta > *",
-          { autoAlpha: 0, y: 16 },
-          { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 },
-          0.85,
         );
+      }
+
+      heroTimeline.fromTo(
+        ".storyHeroMeta > *",
+        { autoAlpha: 0, y: 16 },
+        { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 },
+        compactMotion ? 0.18 : 0.85,
+      );
 
       if (!compactMotion) {
         gsap.to(".storyFilmHeroImage", {
