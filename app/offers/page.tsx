@@ -2,20 +2,30 @@ import type {Metadata} from "next";
 import Image from "next/image";
 import Link from "next/link";
 import {getActivePromotions} from "@/sanity/lib/promotions";
+import {getMarketingPage, getMarketingPageMetadata} from "@/sanity/lib/pages";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: "Offers & Promotions",
   description: "See the current dining, collection and seasonal offers from Malabar Coast in Holytown.",
   alternates: {canonical: "/offers"},
 };
 
+export function generateMetadata() {
+  return getMarketingPageMetadata("offers", "/offers", fallbackMetadata);
+}
+
 export default async function OffersPage() {
-  const promotions = await getActivePromotions();
+  const [promotions, page] = await Promise.all([getActivePromotions(), getMarketingPage("offers")]);
 
   return (
     <main className="offersPage">
+      <header className="offersHero">
+        <p>{page?.eyebrow || "Current offers · From the coast"}</p>
+        <h1>{page?.heroHeading || "Offers & specials."}</h1>
+        <span>{page?.heroText || "Seasonal plates, dining offers and moments worth gathering for. Every live offer and its terms are shown below."}</span>
+      </header>
       {promotions.length > 0 ? <section className="offersGrid" aria-label="Current promotions">
         {promotions.map((promotion, index) => (
           <article className="offerCard" key={promotion._id}>

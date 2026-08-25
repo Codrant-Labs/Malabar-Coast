@@ -28,6 +28,7 @@ export type MenuPageContent = {
   dietaryNotice: string;
   alcoholNotice: string;
   voyageStops: MenuVoyageStop[];
+  seo?: {title?: string; description?: string; noIndex?: boolean; image?: {url: string; alt?: string}};
 };
 
 const fallbackMenuPage: MenuPageContent = {

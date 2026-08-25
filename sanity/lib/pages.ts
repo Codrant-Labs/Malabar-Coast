@@ -3,6 +3,7 @@ import type {CmsImage} from "./menu";
 import {marketingPageQuery} from "./queries";
 import type {SiteLink} from "./site";
 import {sanitisePublicLink} from "./links";
+import type {Metadata} from "next";
 
 type PortableTextSpan = {_type?: string; text?: string};
 type PortableTextBlock = {_type?: string; children?: PortableTextSpan[]};
@@ -36,6 +37,12 @@ export type MarketingPage = {
   heroPrimaryLink?: SiteLink;
   heroSecondaryLink?: SiteLink;
   sections?: MarketingSection[];
+  seo?: {
+    title?: string;
+    description?: string;
+    noIndex?: boolean;
+    image?: CmsImage;
+  };
 };
 
 export async function getMarketingPage(pageKey: string): Promise<MarketingPage | null> {
@@ -67,4 +74,26 @@ export function getPageSection(page: MarketingPage | null, key: string) {
 
 export function portableTextToPlainText(blocks?: PortableTextBlock[]) {
   return blocks?.map((block) => block.children?.map((child) => child.text || "").join("") || "").filter(Boolean).join("\n\n") || "";
+}
+
+export async function getMarketingPageMetadata(pageKey: string, canonical: string, fallback: Metadata): Promise<Metadata> {
+  const page = await getMarketingPage(pageKey);
+  const seo = page?.seo;
+  const title = seo?.title || fallback.title;
+  const description = seo?.description || fallback.description;
+  const image = seo?.image?.url;
+  return {
+    ...fallback,
+    title,
+    description,
+    alternates: {canonical},
+    robots: seo?.noIndex ? {index: false, follow: false} : fallback.robots,
+    openGraph: {
+      ...fallback.openGraph,
+      title: typeof title === "string" ? title : undefined,
+      description: typeof description === "string" ? description : undefined,
+      url: canonical,
+      images: image ? [{url: image, alt: seo?.image?.alt || page?.title || ""}] : fallback.openGraph?.images,
+    },
+  };
 }

@@ -21,9 +21,15 @@ export type SiteSettings = {
   primaryNavigation: SiteLink[];
   footerNavigation: SiteLink[];
   announcement: string;
+  footerEyebrow: string;
+  footerHeading: string;
+  footerText: string;
+  footerCreditLabel: string;
+  footerCreditUrl: string;
   copyrightText: string;
   logo: {url: string; alt: string};
   lightLogo: {url: string; alt: string};
+  defaultSeo?: {title?: string; description?: string; noIndex?: boolean; image?: {url: string; alt?: string}};
 };
 
 export const fallbackSiteSettings: SiteSettings = {
@@ -63,9 +69,19 @@ export const fallbackSiteSettings: SiteSettings = {
     {label: "Privacy", href: "/privacy"},
   ],
   announcement: "",
+  footerEyebrow: "Stay close to the coast",
+  footerHeading: "Our socials",
+  footerText: "Follow the kitchen, new dishes and moments from Malabar Coast.",
+  footerCreditLabel: "Made by Codrantlabs.in",
+  footerCreditUrl: "https://codrantlabs.in/",
   copyrightText: "© Malabar Coast 2026. All rights reserved.",
   logo: {url: "/malabar af.svg", alt: "Malabar Coast"},
   lightLogo: {url: "/logo-white.png", alt: "Malabar Coast"},
+  defaultSeo: {
+    title: "Malabar Coast | Southern Indian Restaurant in Holytown",
+    description: site.description,
+    image: {url: "/malabar-restaurant-hero-v2.jpg", alt: "A Kerala-inspired restaurant table with coastal dishes"},
+  },
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {

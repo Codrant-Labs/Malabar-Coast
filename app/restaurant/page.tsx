@@ -6,10 +6,10 @@ import { JsonLd } from "../components/json-ld";
 import { Reveal } from "../components/reveal";
 import { formatPrice } from "../lib/menu";
 import { absoluteUrl } from "../lib/site";
-import {getMarketingPage, getPageSection, portableTextToPlainText} from "@/sanity/lib/pages";
+import {getMarketingPage, getMarketingPageMetadata, getPageSection, portableTextToPlainText} from "@/sanity/lib/pages";
 import {getMenuContent} from "@/sanity/lib/menu";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: "Restaurant in Holytown",
   description:
     "Coastal South Indian cooking, warm hospitality and a dining room shaped by Kerala at Malabar Coast in Holytown, Scotland.",
@@ -22,6 +22,10 @@ export const metadata: Metadata = {
     images: ["/restaurant/dining-room.png"],
   },
 };
+
+export function generateMetadata() {
+  return getMarketingPageMetadata("restaurant", "/restaurant", fallbackMetadata);
+}
 
 const breadcrumbSchema = {
   "@context": "https://schema.org",

@@ -11,21 +11,39 @@ export type StripeCheckoutSession = {
   metadata?: { orderId?: string };
 };
 
+export function hasPublicHttpsSiteOrigin() {
+  try {
+    const url = new URL(process.env.NEXT_PUBLIC_SITE_URL?.trim() || "");
+    const loopback = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "::1";
+    return url.protocol === "https:" && !loopback;
+  } catch {
+    return false;
+  }
+}
+
+function isLiveSecret(secret: string) {
+  return /^(?:sk|rk)_live_/.test(secret);
+}
+
 export function isStripeConfigured() {
   const secret = process.env.STRIPE_SECRET_KEY?.trim();
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
-  return Boolean(secret && /^(?:sk|rk)_(?:test|live)_/.test(secret) && webhookSecret?.startsWith("whsec_"));
+  return Boolean(secret
+    && /^(?:sk|rk)_(?:test|live)_/.test(secret)
+    && webhookSecret?.startsWith("whsec_")
+    && (!isLiveSecret(secret) || hasPublicHttpsSiteOrigin()));
 }
 
 export function isStripeProductionReady() {
   const secret = process.env.STRIPE_SECRET_KEY?.trim();
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
-  return Boolean(secret && /^(?:sk|rk)_live_/.test(secret) && webhookSecret?.startsWith("whsec_"));
+  return Boolean(secret && isLiveSecret(secret) && webhookSecret?.startsWith("whsec_") && hasPublicHttpsSiteOrigin());
 }
 
 export async function createStripeCheckout(order: OrderRecord, baseUrl: string) {
   const secret = process.env.STRIPE_SECRET_KEY;
   if (!secret) throw new Error("Stripe is not configured.");
+  if (isLiveSecret(secret) && !hasPublicHttpsSiteOrigin()) throw new Error("Live Stripe checkout requires a public HTTPS site origin.");
 
   const params = new URLSearchParams({
     mode: "payment",

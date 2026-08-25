@@ -51,6 +51,8 @@ test("production readiness requires live Stripe credentials", async () => {
   ]);
   assert.match(readiness, /stripePayments: isStripeProductionReady\(\)/);
   assert.match(stripe, /\(\?:sk\|rk\)_live_/);
+  assert.match(stripe, /hasPublicHttpsSiteOrigin/);
+  assert.match(stripe, /Live Stripe checkout requires a public HTTPS site origin/);
 });
 
 test("CMS-only dishes carry their category into server-side checkout validation", async () => {

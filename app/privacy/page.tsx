@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LegalPage, type LegalSection } from "../components/legal-page";
+import { ManagedLegalPage, type LegalSection } from "../components/legal-page";
+import {getLegalPageMetadata} from "@/sanity/lib/legal";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: "Privacy Policy",
   description: "How Malabar Coast collects, uses, shares and protects personal data under UK data protection law.",
   alternates: { canonical: "/privacy" },
 };
+
+export function generateMetadata() {
+  return getLegalPageMetadata("privacy", "/privacy", fallbackMetadata);
+}
 
 const sections: LegalSection[] = [
   {
@@ -132,5 +137,5 @@ const sections: LegalSection[] = [
 ];
 
 export default function PrivacyPage() {
-  return <LegalPage eyebrow="Personal data · UK GDPR" title="Privacy policy" summary="How Malabar Coast collects, uses, shares and protects personal data when you browse, order or contact us." sections={sections} />;
+  return <ManagedLegalPage pageKey="privacy" eyebrow="Personal data · UK GDPR" title="Privacy policy" summary="How Malabar Coast collects, uses, shares and protects personal data when you browse, order or contact us." sections={sections} />;
 }

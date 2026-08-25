@@ -6,6 +6,8 @@ export const link = defineType({
   type: 'object',
   fields: [
     defineField({name: 'label', title: 'Label', type: 'string', validation: (rule) => rule.required()}),
+    defineField({name: 'eyebrow', title: 'Short context label', type: 'string', description: 'Optional. For example “Reservations” or “Private events”.'}),
+    defineField({name: 'description', title: 'Short description', type: 'string', validation: (rule) => rule.max(120)}),
     defineField({
       name: 'href',
       title: 'URL or site path',
@@ -24,5 +26,5 @@ export const link = defineType({
     }),
     defineField({name: 'openInNewTab', title: 'Open in a new tab', type: 'boolean', initialValue: false}),
   ],
-  preview: {select: {title: 'label', subtitle: 'href'}},
+  preview: {select: {title: 'label', subtitle: 'description'}},
 })

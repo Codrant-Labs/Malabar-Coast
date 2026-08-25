@@ -8,7 +8,7 @@ export const menuContentQuery = defineQuery(`{
     "description": coalesce(description, ""),
     orderRank
   },
-  "items": *[_type == "menuItem"] | order(category->orderRank asc, displayOrder asc, name asc) {
+  "items": *[_type == "menuItem" && published != false] | order(category->orderRank asc, displayOrder asc, name asc) {
     "id": coalesce(sourceKey, _id),
     "category": category->slug.current,
     name,
@@ -60,7 +60,12 @@ export const menuContentQuery = defineQuery(`{
         "dimensions": asset->metadata.dimensions
       }
     },
-    seo
+    seo {
+      title,
+      description,
+      noIndex,
+      image {alt, "url": asset->url}
+    }
   }
 }`);
 
@@ -91,8 +96,18 @@ export const siteSettingsQuery = defineQuery(`*[_id == "siteSettings"][0] {
   primaryNavigation,
   footerNavigation,
   announcement,
+  footerEyebrow,
+  footerHeading,
+  footerText,
+  footerCreditLabel,
+  footerCreditUrl,
   copyrightText,
-  defaultSeo,
+  defaultSeo {
+    title,
+    description,
+    noIndex,
+    image {alt, "url": asset->url}
+  },
   logo {alt, "url": asset->url},
   lightLogo {alt, "url": asset->url},
   favicon {alt, "url": asset->url}
@@ -125,7 +140,36 @@ export const marketingPageQuery = defineQuery(`*[_type == "marketingPage" && pag
     note,
     theme
   },
-  seo
+  seo {
+    title,
+    description,
+    noIndex,
+    image {alt, "url": asset->url, "dimensions": asset->metadata.dimensions}
+  }
+}`);
+
+export const legalPageQuery = defineQuery(`*[_type == "legalPage" && pageKey == $pageKey][0] {
+  pageKey,
+  title,
+  eyebrow,
+  summary,
+  lastUpdated,
+  sections[] {
+    _key,
+    "id": sectionId.current,
+    title,
+    body[] {
+      ...,
+      children[] {...},
+      markDefs[] {...}
+    }
+  },
+  seo {
+    title,
+    description,
+    noIndex,
+    image {alt, "url": asset->url}
+  }
 }`);
 
 export const faqItemsQuery = defineQuery(`*[_type == "faqItem" && published != false] | order(displayOrder asc) {

@@ -1,10 +1,21 @@
-import {getMarketingPage, getPageSection, portableTextToPlainText} from "@/sanity/lib/pages";
+import {getMarketingPage, getMarketingPageMetadata, getPageSection, portableTextToPlainText} from "@/sanity/lib/pages";
 import {HomeExperience, type HomeCmsContent} from "./home-experience";
 import {getMenuContent} from "@/sanity/lib/menu";
 import {getTestimonials} from "@/sanity/lib/testimonials";
 import {getActivePromotions} from "@/sanity/lib/promotions";
 import {getActiveDailySpecials} from "@/sanity/lib/daily-specials";
 import {getBookingSettings} from "./lib/booking-store";
+import type {Metadata} from "next";
+
+const fallbackMetadata: Metadata = {
+  title: "Malabar Coast | Southern Indian Restaurant in Holytown",
+  description: "Southern Indian coastal cooking from Malabar to Scotland.",
+  alternates: {canonical: "/"},
+};
+
+export function generateMetadata() {
+  return getMarketingPageMetadata("home", "/", fallbackMetadata);
+}
 
 export const revalidate = 60;
 
