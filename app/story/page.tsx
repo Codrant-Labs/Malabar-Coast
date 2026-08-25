@@ -5,9 +5,9 @@ import { StoryCanvas } from "./story-canvas";
 import { StoryTransitionLink } from "./story-transition-link";
 import { JsonLd } from "../components/json-ld";
 import { absoluteUrl } from "../lib/site";
-import {getMarketingPage, getPageSection, portableTextToPlainText} from "@/sanity/lib/pages";
+import {getMarketingPage, getMarketingPageMetadata, getPageSection, portableTextToPlainText} from "@/sanity/lib/pages";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: "Our Story: From Malabar to Scotland",
   description: "Follow the food story from Calicut's spice ports and Kerala's monsoon landscape to the Malabar Coast table in Holytown, Scotland.",
   alternates: { canonical: "/story" },
@@ -19,6 +19,10 @@ export const metadata: Metadata = {
     images: ["/story/calicut-spice-port.png"],
   },
 };
+
+export function generateMetadata() {
+  return getMarketingPageMetadata("story", "/story", fallbackMetadata);
+}
 
 const storySchema = {
   "@context": "https://schema.org",

@@ -3,7 +3,7 @@ import { JsonLd } from "../components/json-ld";
 import { absoluteUrl, site } from "../lib/site";
 import { getMenuContent } from "@/sanity/lib/menu";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: "South Indian Menu",
   description:
     "Explore Malabar Coast's current Southern Indian menu in Holytown, with Kerala seafood, curries, biriyani, vegetarian choices and published food prices.",
@@ -16,6 +16,24 @@ export const metadata: Metadata = {
     images: ["/menu/calicut-pepper-prawns.png"],
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const {page} = await getMenuContent();
+  const title = page.seo?.title || fallbackMetadata.title;
+  const description = page.seo?.description || fallbackMetadata.description;
+  return {
+    ...fallbackMetadata,
+    title,
+    description,
+    robots: page.seo?.noIndex ? {index: false, follow: false} : fallbackMetadata.robots,
+    openGraph: {
+      ...fallbackMetadata.openGraph,
+      title: typeof title === "string" ? title : undefined,
+      description: typeof description === "string" ? description : undefined,
+      images: page.seo?.image?.url ? [{url: page.seo.image.url, alt: page.seo.image.alt || "Malabar Coast menu"}] : fallbackMetadata.openGraph?.images,
+    },
+  };
+}
 
 const breadcrumbSchema = {
   "@context": "https://schema.org",

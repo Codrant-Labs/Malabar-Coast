@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LegalPage, type LegalSection } from "../components/legal-page";
+import { ManagedLegalPage, type LegalSection } from "../components/legal-page";
+import {getLegalPageMetadata} from "@/sanity/lib/legal";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: "Payments & Website Terms",
   description: "Malabar Coast terms for online ordering, payments, website use and related services.",
   alternates: { canonical: "/payments" },
 };
+
+export function generateMetadata() {
+  return getLegalPageMetadata("payments", "/payments", fallbackMetadata);
+}
 
 const sections: LegalSection[] = [
   {
@@ -221,5 +226,5 @@ const sections: LegalSection[] = [
 ];
 
 export default function PaymentsPage() {
-  return <LegalPage eyebrow="Secure checkout · Website terms" title="Payments & terms" summary="The terms governing online ordering, hosted card payments, use of this website and related customer services." sections={sections} />;
+  return <ManagedLegalPage pageKey="payments" eyebrow="Secure checkout · Website terms" title="Payments & terms" summary="The terms governing online ordering, hosted card payments, use of this website and related customer services." sections={sections} />;
 }

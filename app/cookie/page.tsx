@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LegalPage, type LegalSection } from "../components/legal-page";
+import { ManagedLegalPage, type LegalSection } from "../components/legal-page";
+import {getLegalPageMetadata} from "@/sanity/lib/legal";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: "Cookie Policy",
   description: "How Malabar Coast uses cookies and similar storage technologies on malabarcoast.co.uk.",
   alternates: { canonical: "/cookie" },
 };
+
+export function generateMetadata() {
+  return getLegalPageMetadata("cookie", "/cookie", fallbackMetadata);
+}
 
 const sections: LegalSection[] = [
   {
@@ -66,5 +71,5 @@ const sections: LegalSection[] = [
 ];
 
 export default function CookiePage() {
-  return <LegalPage eyebrow="Your device · Your choice" title="Cookie policy" summary="What the site stores on your device, why essential storage is needed, and how consent will work before any optional tracking is enabled." sections={sections} />;
+  return <ManagedLegalPage pageKey="cookie" eyebrow="Your device · Your choice" title="Cookie policy" summary="What the site stores on your device, why essential storage is needed, and how consent will work before any optional tracking is enabled." sections={sections} />;
 }

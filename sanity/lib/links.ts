@@ -1,4 +1,4 @@
-export type PublicContentLink = {label: string; href: string; openInNewTab?: boolean}
+export type PublicContentLink = {label: string; href: string; openInNewTab?: boolean; eyebrow?: string; description?: string}
 
 export function isSafePublicHref(value: unknown): value is string {
   if (typeof value !== 'string') return false
@@ -16,5 +16,11 @@ export function isSafePublicHref(value: unknown): value is string {
 
 export function sanitisePublicLink(value: Partial<PublicContentLink> | null | undefined): PublicContentLink | undefined {
   if (!value || typeof value.label !== 'string' || !value.label.trim() || !isSafePublicHref(value.href)) return undefined
-  return {label: value.label.trim(), href: value.href.trim(), openInNewTab: value.openInNewTab === true}
+  return {
+    label: value.label.trim(),
+    href: value.href.trim(),
+    openInNewTab: value.openInNewTab === true,
+    eyebrow: typeof value.eyebrow === 'string' && value.eyebrow.trim() ? value.eyebrow.trim() : undefined,
+    description: typeof value.description === 'string' && value.description.trim() ? value.description.trim() : undefined,
+  }
 }

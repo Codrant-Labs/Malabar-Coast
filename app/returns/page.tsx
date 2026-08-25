@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { LegalPage, type LegalSection } from "../components/legal-page";
+import { ManagedLegalPage, type LegalSection } from "../components/legal-page";
+import {getLegalPageMetadata} from "@/sanity/lib/legal";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: "Returns & Cancellations",
   description: "Malabar Coast policy for fresh food cancellations, order issues, delivery problems and refunds.",
   alternates: { canonical: "/returns" },
 };
+
+export function generateMetadata() {
+  return getLegalPageMetadata("returns", "/returns", fallbackMetadata);
+}
 
 const sections: LegalSection[] = [
   {
@@ -41,5 +46,5 @@ const sections: LegalSection[] = [
 ];
 
 export default function ReturnsPage() {
-  return <LegalPage eyebrow="Customer care · Fresh food" title="Returns & cancellations" summary="A clear guide to cancellations, missing items, delivery problems and how eligible refunds are returned to you." sections={sections} />;
+  return <ManagedLegalPage pageKey="returns" eyebrow="Customer care · Fresh food" title="Returns & cancellations" summary="A clear guide to cancellations, missing items, delivery problems and how eligible refunds are returned to you." sections={sections} />;
 }

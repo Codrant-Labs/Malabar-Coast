@@ -19,9 +19,9 @@ export function SiteFooter({settings}: {settings: SiteSettings}) {
     <footer className="siteFooter" aria-label={`${settings.restaurantName} footer`}>
       <div className="siteFooterLead">
         <div className="siteFooterIntro">
-          <p>Stay close to the coast</p>
-          <h2>Our socials</h2>
-          <span>Follow the kitchen, new dishes and moments from Malabar Coast.</span>
+          <p>{settings.footerEyebrow}</p>
+          <h2>{settings.footerHeading}</h2>
+          <span>{settings.footerText}</span>
           {instagram && <a className="siteFooterInstagram" href={instagram.url} target="_blank" rel="noreferrer" aria-label={`Follow ${settings.restaurantName} on ${instagram.platform}`}>
             <i><InstagramIcon /></i>
             <span><small>Follow us on {instagram.platform}</small><strong>{instagram.url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</strong></span>
@@ -58,8 +58,8 @@ export function SiteFooter({settings}: {settings: SiteSettings}) {
         <p>{settings.copyrightText}</p>
       </div>
 
-      <a className="siteFooterCredit" href="https://codrantlabs.in/" target="_blank" rel="noreferrer" aria-label="Website made by Codrant Labs">
-        Made by <span> Codrantlabs.in</span>
+      <a className="siteFooterCredit" href={settings.footerCreditUrl} target="_blank" rel="noreferrer" aria-label={settings.footerCreditLabel}>
+        {settings.footerCreditLabel}
       </a>
     </footer>
   );

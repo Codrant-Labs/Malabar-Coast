@@ -4,8 +4,9 @@ import { StoryTransitionLink } from "../story-transition-link";
 import { DetailCanvas } from "./detail-canvas";
 import { JsonLd } from "../../components/json-ld";
 import { absoluteUrl } from "../../lib/site";
+import {getMarketingPage, getMarketingPageMetadata, getPageSection, portableTextToPlainText} from "@/sanity/lib/pages";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: "Calicut: The First Spice Port",
   description: "Enter the historic spice port of Calicut, where pepper, monsoon winds and cultures met.",
   alternates: { canonical: "/story/calicut" },
@@ -17,6 +18,10 @@ export const metadata: Metadata = {
     images: ["/story/calicut-spice-port.png"],
   },
 };
+
+export function generateMetadata() {
+  return getMarketingPageMetadata("story-calicut", "/story/calicut", fallbackMetadata);
+}
 
 const calicutSchema = {
   "@context": "https://schema.org",
@@ -43,15 +48,21 @@ const calicutSchema = {
   ],
 };
 
-export default function CalicutStoryPage() {
+export default async function CalicutStoryPage() {
+  const page = await getMarketingPage("story-calicut");
+  const introduction = getPageSection(page, "calicut-intro");
+  const pepper = getPageSection(page, "calicut-pepper");
+  const monsoon = getPageSection(page, "calicut-monsoon");
+  const exchange = getPageSection(page, "calicut-exchange");
+  const next = getPageSection(page, "calicut-next");
   return (
     <DetailCanvas>
       <JsonLd data={calicutSchema} />
       <section className="calicutHero" aria-labelledby="calicut-title">
         <Image
           className="calicutHeroImage"
-          src="/story/calicut-spice-port.png"
-          alt="The historic spice port of Calicut opening onto the Arabian Sea"
+          src={page?.heroImage?.url || "/story/calicut-spice-port.png"}
+          alt={page?.heroImage?.alt || "The historic spice port of Calicut opening onto the Arabian Sea"}
           fill
           sizes="100vw"
           priority
@@ -59,12 +70,14 @@ export default function CalicutStoryPage() {
         <div className="calicutHeroShade" />
         <div className="calicutHeroGrid" aria-hidden="true" />
         <div className="calicutHeroMeta">
-          <span>Archive 01 · The first port</span>
+          <span>{page?.eyebrow || "Archive 01 · The first port"}</span>
           <span>Calicut · Malabar Coast</span>
         </div>
-        <h1 id="calicut-title" aria-label="Calicut">
+        <h1 id="calicut-title" aria-label={page?.heroHeading || "Calicut"}>
+          {page?.heroHeading ? <span className="calicutTitleLine"><span>{page.heroHeading}</span></span> : <>
           <span className="calicutTitleLine"><span>Cali</span></span>
           <span className="calicutTitleLine calicutTitleOffset"><span>cut.</span></span>
+          </>}
         </h1>
         <div className="calicutHeroFooter">
           <span>11.2588° N</span><i /><span>75.7804° E</span>
@@ -73,12 +86,12 @@ export default function CalicutStoryPage() {
 
       <section className="calicutIntro" aria-labelledby="calicut-intro-title">
         <div data-detail-reveal>
-          <span>01 / The beginning</span>
-          <p>Arabian Sea · Monsoon season</p>
+          <span>{introduction?.eyebrow || "01 / The beginning"}</span>
+          <p>{introduction?.note || "Arabian Sea · Monsoon season"}</p>
         </div>
-        <h2 id="calicut-intro-title" data-detail-reveal>The harbour where flavour became history.</h2>
+        <h2 id="calicut-intro-title" data-detail-reveal>{introduction?.heading || "The harbour where flavour became history."}</h2>
         <p data-detail-reveal>
-          Long before it appeared in a recipe book, Malabar pepper was measured here by hand, loaded into wooden vessels and carried by the turning winds. Calicut was less a border than a threshold—the place where soil, sea and distant tables met.
+          {portableTextToPlainText(introduction?.body) || page?.heroText || "Long before it appeared in a recipe book, Malabar pepper was measured here by hand, loaded into wooden vessels and carried by the turning winds. Calicut was less a border than a threshold—the place where soil, sea and distant tables met."}
         </p>
       </section>
 
@@ -86,8 +99,8 @@ export default function CalicutStoryPage() {
         <figure className="calicutPlate calicutPlateWide" data-cursor-label="BLACK GOLD">
           <div>
             <Image
-              src="/story/pepper-balance.png"
-              alt="Peppercorns weighed on a brass merchant's balance"
+              src={pepper?.image?.url || "/story/pepper-balance.png"}
+              alt={pepper?.image?.alt || "Peppercorns weighed on a brass merchant's balance"}
               fill
               sizes="(max-width: 800px) 100vw, 68vw"
             />
@@ -96,18 +109,18 @@ export default function CalicutStoryPage() {
         </figure>
 
         <aside data-detail-reveal>
-          <span>The black gold of Malabar</span>
-          <blockquote>Small enough to hold between two fingers. Valuable enough to redraw the world.</blockquote>
+          <span>{pepper?.eyebrow || "The black gold of Malabar"}</span>
+          <blockquote>{pepper?.heading || "Small enough to hold between two fingers. Valuable enough to redraw the world."}</blockquote>
           <p>
-            Pepper thrived in the wet shade of the Western Ghats. Its heat was clean, floral and enduring—qualities that made it currency, medicine and obsession in ports thousands of miles away.
+            {portableTextToPlainText(pepper?.body) || "Pepper thrived in the wet shade of the Western Ghats. Its heat was clean, floral and enduring—qualities that made it currency, medicine and obsession in ports thousands of miles away."}
           </p>
         </aside>
 
         <figure className="calicutPlate calicutPlateTall" data-cursor-label="FOLLOW THE MONSOON">
           <div>
             <Image
-              src="/story/western-ghats.png"
-              alt="Pepper vines climbing through the monsoon forest of the Western Ghats"
+              src={monsoon?.image?.url || "/story/western-ghats.png"}
+              alt={monsoon?.image?.alt || "Pepper vines climbing through the monsoon forest of the Western Ghats"}
               fill
               sizes="(max-width: 800px) 100vw, 46vw"
             />
@@ -118,21 +131,23 @@ export default function CalicutStoryPage() {
 
       <section className="calicutLedger" aria-labelledby="ledger-title">
         <div data-detail-reveal>
-          <p>Port ledger · A living exchange</p>
-          <h2 id="ledger-title">What arrived.<br />What remained.</h2>
+          <p>{exchange?.eyebrow || "Port ledger · A living exchange"}</p>
+          <h2 id="ledger-title">{exchange?.heading || <>What arrived.<br />What remained.</>}</h2>
         </div>
         <dl>
-          <div data-detail-reveal><dt>Arabia</dt><dd>Rice, perfume, a language of hospitality</dd><span>01</span></div>
-          <div data-detail-reveal><dt>China</dt><dd>Ceramics, fishing nets, quiet craft</dd><span>02</span></div>
-          <div data-detail-reveal><dt>Portugal</dt><dd>Chilli, vinegar, a new kind of heat</dd><span>03</span></div>
-          <div data-detail-reveal><dt>Malabar</dt><dd>Pepper, coconut, generosity without end</dd><span>04</span></div>
+          {(exchange?.items?.length ? exchange.items : [
+            {_key: "arabia", title: "Arabia", text: "Rice, perfume, a language of hospitality", shortLabel: "01"},
+            {_key: "china", title: "China", text: "Ceramics, fishing nets, quiet craft", shortLabel: "02"},
+            {_key: "portugal", title: "Portugal", text: "Chilli, vinegar, a new kind of heat", shortLabel: "03"},
+            {_key: "malabar", title: "Malabar", text: "Pepper, coconut, generosity without end", shortLabel: "04"},
+          ]).map((item, index) => <div data-detail-reveal key={item._key}><dt>{item.title}</dt><dd>{item.text}</dd><span>{item.shortLabel || String(index + 1).padStart(2, "0")}</span></div>)}
         </dl>
       </section>
 
       <footer className="calicutNext">
-        <p>Return to the full journey</p>
+        <p>{next?.eyebrow || "Return to the full journey"}</p>
         <StoryTransitionLink href="/story" data-cursor-label="BACK TO OUR STORY">
-          <span>Our story</span><i>↗</i>
+          <span>{next?.heading || "Our story"}</span><i>↗</i>
         </StoryTransitionLink>
         <small>Malabar Coast · India to Scotland</small>
       </footer>

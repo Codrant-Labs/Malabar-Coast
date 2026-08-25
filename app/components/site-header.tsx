@@ -9,7 +9,7 @@ import type { SiteSettings } from "@/sanity/lib/site";
 
 const NAV_REVEAL_SCROLL_THRESHOLD = 4;
 
-const navigationDescriptions: Record<string, string> = {
+const fallbackNavigationDescriptions: Record<string, string> = {
   "/story": "From Malabar's coast to Scotland",
   "/offers": "Today's specials, posters and offers",
   "/restaurant": "The room, the team and how to find us",
@@ -150,15 +150,16 @@ export function SiteHeader({settings}: {settings: SiteSettings}) {
         <div className="menuInner">
           <p>Everything, one tap away</p>
           <div className="menuQuickLinks" aria-label="Popular choices">
-            <Link href="/menu" onClick={() => setMenuOpenedOnPath(null)}><small>Food &amp; drink</small><strong>Menu</strong><span aria-hidden="true">↗</span></Link>
-            <Link href="/book-a-table" onClick={() => setMenuOpenedOnPath(null)}><small>Reservations</small><strong>Book a table</strong><span aria-hidden="true">→</span></Link>
-            <Link href="/hall" onClick={() => setMenuOpenedOnPath(null)}><small>Private events</small><strong>Private hall</strong><span aria-hidden="true">↗</span></Link>
+            {["/menu", "/book-a-table", "/hall"].map((href) => {
+              const link = settings.primaryNavigation.find((entry) => entry.href === href) || {href, label: href === "/menu" ? "Menu" : href === "/hall" ? "Private hall" : "Book a table"};
+              return <Link href={href} key={href} onClick={() => setMenuOpenedOnPath(null)}><small>{link.eyebrow || (href === "/menu" ? "Food & drink" : href === "/hall" ? "Private events" : "Reservations")}</small><strong>{link.label}</strong><span aria-hidden="true">{href === "/book-a-table" ? "→" : "↗"}</span></Link>;
+            })}
           </div>
           <nav aria-label="Menu">
             {settings.primaryNavigation.filter((link) => !["/menu", "/book-a-table", "/hall"].includes(link.href)).map((link, index) => (
               <Link href={link.href} key={`${link.href}-${link.label}`} target={link.openInNewTab ? "_blank" : undefined} rel={link.openInNewTab ? "noreferrer" : undefined} onClick={() => setMenuOpenedOnPath(null)}>
                 <span className="menuNavIndex">{String(index + 1).padStart(2, "0")}</span>
-                <span className="menuNavCopy"><strong>{link.label}</strong><small>{navigationDescriptions[link.href] || "Explore Malabar Coast"}</small></span>
+                <span className="menuNavCopy"><strong>{link.label}</strong><small>{link.description || fallbackNavigationDescriptions[link.href] || "Explore Malabar Coast"}</small></span>
                 <span className="menuNavArrow" aria-hidden="true">↗</span>
               </Link>
             ))}

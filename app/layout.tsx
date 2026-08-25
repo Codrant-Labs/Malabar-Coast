@@ -15,7 +15,7 @@ import { absoluteUrl, site } from "./lib/site";
 import { getMenuContent } from "@/sanity/lib/menu";
 import { getSiteSettings } from "@/sanity/lib/site";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
     default: "Malabar Coast | Southern Indian Restaurant in Holytown",
@@ -77,39 +77,82 @@ export const metadata: Metadata = {
   formatDetection: { address: false, email: false, telephone: false },
 };
 
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const canonical = (() => {
+    try { return new URL(settings.siteUrl); } catch { return new URL(site.url); }
+  })();
+  const seo = settings.defaultSeo;
+  const title = seo?.title || "Malabar Coast | Southern Indian Restaurant in Holytown";
+  const description = seo?.description || settings.description || site.description;
+  const image = seo?.image?.url || "/malabar-restaurant-hero-v2.jpg";
+  return {
+    ...fallbackMetadata,
+    metadataBase: canonical,
+    title: {default: title, template: "%s | Malabar Coast"},
+    description,
+    applicationName: settings.restaurantName,
+    creator: settings.restaurantName,
+    publisher: settings.restaurantName,
+    robots: seo?.noIndex ? {index: false, follow: false} : fallbackMetadata.robots,
+    openGraph: {
+      ...fallbackMetadata.openGraph,
+      siteName: settings.restaurantName,
+      title,
+      description,
+      images: [{url: image, alt: seo?.image?.alt || settings.restaurantName}],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
+
 export const viewport: Viewport = {
   themeColor: "#071310",
   colorScheme: "dark",
 };
 
-const globalSchema = {
+function globalSchema(settings: Awaited<ReturnType<typeof getSiteSettings>>) {
+  const address = {
+    streetAddress: settings.address.streetAddress,
+    addressLocality: settings.address.locality,
+    addressRegion: settings.address.region,
+    postalCode: settings.address.postalCode,
+    addressCountry: settings.address.country,
+  };
+  return {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "Restaurant",
       "@id": `${site.url}/#restaurant`,
-      name: site.name,
-      legalName: site.legalName,
-      url: site.url,
-      logo: absoluteUrl("/malabar af.svg"),
+      name: settings.restaurantName,
+      legalName: settings.legalName,
+      url: settings.siteUrl,
+      logo: settings.logo.url,
       image: [
         absoluteUrl("/restaurant/dining-room.png"),
         absoluteUrl("/menu/calicut-pepper-prawns.png"),
         absoluteUrl("/restaurant/table-for-two.png"),
         absoluteUrl("/Hall1.jpeg"),
       ],
-      description: site.description,
+      description: settings.description,
       priceRange: site.priceRange,
       servesCuisine: site.cuisine,
       hasMenu: absoluteUrl("/menu"),
-      hasMap: "https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+North+Lanarkshire+ML1+4TH",
+      hasMap: settings.mapUrl,
       address: {
         "@type": "PostalAddress",
-        ...site.address,
+        ...address,
       },
       geo: {
         "@type": "GeoCoordinates",
-        ...site.geo,
+        latitude: settings.coordinates.latitude,
+        longitude: settings.coordinates.longitude,
       },
       areaServed: ["Holytown", "North Lanarkshire"],
       containsPlace: {
@@ -122,9 +165,9 @@ const globalSchema = {
     {
       "@type": "WebSite",
       "@id": `${site.url}/#website`,
-      url: site.url,
-      name: site.name,
-      description: site.shortDescription,
+      url: settings.siteUrl,
+      name: settings.restaurantName,
+      description: settings.shortDescription,
       inLanguage: "en-GB",
       publisher: { "@id": `${site.url}/#restaurant` },
       creator: { "@id": "https://codrantlabs.in/#organization" },
@@ -137,14 +180,15 @@ const globalSchema = {
       description: "Website design and development studio credited with creating the Malabar Coast website.",
     },
   ],
-};
+  };
+}
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const [{items: currentMenuItems}, siteSettings] = await Promise.all([getMenuContent(), getSiteSettings()]);
   return (
     <html lang="en">
       <body>
-        <JsonLd data={globalSchema} />
+        <JsonLd data={globalSchema(siteSettings)} />
         <SmoothScroll />
         <CartProvider catalogue={currentMenuItems}>
           <SiteHeader settings={siteSettings} />
