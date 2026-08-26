@@ -4,6 +4,14 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { formatPrice } from "../lib/menu";
 import type { FulfilmentMethod } from "../lib/orders";
+import {
+  checkoutAttemptForPayload,
+  clearCheckoutAttempt,
+  isSafeStripeCheckoutUrl,
+  readCheckoutAttempt,
+  saveCheckoutAttempt,
+  type CheckoutAttempt,
+} from "../lib/checkout-recovery";
 import { useCart } from "./cart-provider";
 import { SmartDateInput } from "./smart-date-input";
 
@@ -15,8 +23,14 @@ export function CheckoutForm() {
   const [fulfilment, setFulfilment] = useState<FulfilmentMethod>("collection");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [recovery, setRecovery] = useState<CheckoutAttempt | null>(null);
 
   useEffect(() => {
+    const storedAttempt = readCheckoutAttempt();
+    const recoveryFrame = storedAttempt?.orderId && storedAttempt.redirectUrl
+      ? window.requestAnimationFrame(() => setRecovery(storedAttempt))
+      : undefined;
+
     let active = true;
     fetch("/api/payment-config")
       .then((response) => response.json())
@@ -26,6 +40,7 @@ export function CheckoutForm() {
       .catch(() => active && setError("Secure payment could not be prepared. Please refresh and try again."));
     return () => {
       active = false;
+      if (recoveryFrame !== undefined) window.cancelAnimationFrame(recoveryFrame);
     };
   }, []);
 
@@ -50,32 +65,59 @@ export function CheckoutForm() {
     setSubmitting(true);
     setError("");
     const data = new FormData(event.currentTarget);
+    const requestPayload = JSON.stringify({
+      provider: "stripe",
+      fulfilment,
+      cart: items,
+      customer: { name: data.get("name"), email: data.get("email"), phone: data.get("phone") },
+      requestedTime: data.get("requestedTime"),
+      orderNote: data.get("orderNote"),
+      deliveryAddress: {
+        line1: data.get("line1"),
+        line2: data.get("line2"),
+        city: data.get("city"),
+        postcode: data.get("postcode"),
+      },
+    });
+    const attempt = checkoutAttemptForPayload(requestPayload, readCheckoutAttempt() || recovery);
+    saveCheckoutAttempt(attempt);
+    setRecovery(attempt);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20_000);
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
-        body: JSON.stringify({
-          provider: "stripe",
-          fulfilment,
-          cart: items,
-          customer: { name: data.get("name"), email: data.get("email"), phone: data.get("phone") },
-          requestedTime: data.get("requestedTime"),
-          orderNote: data.get("orderNote"),
-          deliveryAddress: {
-            line1: data.get("line1"),
-            line2: data.get("line2"),
-            city: data.get("city"),
-            postcode: data.get("postcode"),
-          },
-        }),
+        headers: { "Content-Type": "application/json", "Idempotency-Key": attempt.key },
+        body: requestPayload,
+        signal: controller.signal,
       });
-      const result = await response.json() as { error?: string; redirectUrl?: string };
-      if (!response.ok) throw new Error(result.error || "Payment could not be started.");
-      if (result.redirectUrl) window.location.assign(result.redirectUrl);
-      else throw new Error("The payment provider did not return a checkout destination.");
+      const result = await response.json() as { error?: string; orderId?: string; redirectUrl?: string };
+      if (!response.ok) {
+        if (response.status === 409) {
+          clearCheckoutAttempt();
+          setRecovery(null);
+        }
+        throw new Error(result.error || "Payment could not be started.");
+      }
+      if (!result.orderId || !result.redirectUrl || !isSafeStripeCheckoutUrl(result.redirectUrl)) {
+        throw new Error("The payment provider did not return a safe checkout destination.");
+      }
+
+      const preparedAttempt = { ...attempt, orderId: result.orderId, redirectUrl: result.redirectUrl };
+      saveCheckoutAttempt(preparedAttempt);
+      setRecovery(preparedAttempt);
+      window.location.assign(result.redirectUrl);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Checkout could not be started.");
+      if (caught instanceof DOMException && caught.name === "AbortError") {
+        setError("The connection timed out. Your payment may already be prepared, so retrying will safely resume the same checkout.");
+      } else if (caught instanceof TypeError) {
+        setError("The connection was interrupted. Check your internet and retry; the same checkout will be resumed safely.");
+      } else {
+        setError(caught instanceof Error ? caught.message : "Checkout could not be started.");
+      }
       setSubmitting(false);
+    } finally {
+      window.clearTimeout(timeout);
     }
   }
 
@@ -105,6 +147,21 @@ export function CheckoutForm() {
         </div>
         <p>Share your details, choose collection or delivery, then review everything once before paying securely.</p>
       </header>
+
+      {recovery?.orderId && recovery.redirectUrl && (
+        <section className="checkoutRecovery" aria-labelledby="checkout-recovery-heading">
+          <div>
+            <span>Payment recovery</span>
+            <h2 id="checkout-recovery-heading">A secure checkout is already waiting.</h2>
+            <p>If the connection dropped or the payment window was closed, resume the same checkout. This avoids creating a duplicate order.</p>
+          </div>
+          <nav aria-label="Payment recovery actions">
+            <a href={recovery.redirectUrl}>Resume secure payment <b>→</b></a>
+            <Link href={`/order/${recovery.orderId}`}>Check payment status <b>→</b></Link>
+            <button type="button" onClick={() => { clearCheckoutAttempt(); setRecovery(null); }}>Start a new payment</button>
+          </nav>
+        </section>
+      )}
 
       <form className="checkoutLayout" onSubmit={handleSubmit}>
         <div className="checkoutDetails">

@@ -9,7 +9,7 @@ import {
 } from "../../../lib/payments/stripe";
 import { isValidOrderId, noStoreJson, readLimitedText, RequestBodyTooLargeError } from "../../../lib/security";
 import { publishPaymentCompletionEvent } from "@/app/lib/publishEvent";
-import { notifyPaidOrder } from "@/app/lib/email/notifications";
+import { notifyPaidOrder, notifyPaymentException, notifyPaymentUpdate } from "@/app/lib/email/notifications";
 
 export const runtime = "nodejs";
 
@@ -105,6 +105,7 @@ export async function POST(request: Request) {
   }
   const paymentStatus = paymentStatusFor(event.type, object, session);
   if (paymentStatus && session.id && session.amount_total !== undefined && session.currency) {
+    const existingPaymentStatus = inferPaymentStatus(order);
     const applied = await applyPaymentEvent({
       provider: "stripe",
       eventId: event.id,
@@ -115,10 +116,29 @@ export async function POST(request: Request) {
       amountPence: session.amount_total,
       currency: session.currency,
     });
-    if (applied && paymentStatus==="paid" && inferPaymentStatus(order) !== "paid"){
-      await publishPaymentCompletionEvent(orderId);
-      await notifyPaidOrder(order);
+    const recordedOrRetryingNotification = applied || existingPaymentStatus === paymentStatus;
+    if (recordedOrRetryingNotification) {
+      if (paymentStatus === "paid") {
+        if (applied && existingPaymentStatus !== "paid") {
+          await publishPaymentCompletionEvent(orderId);
+        }
+        await notifyPaidOrder(order);
+      } else if (["partially_refunded", "refunded", "disputed", "reversed"].includes(paymentStatus)) {
+        await notifyPaymentUpdate(order, {
+          eventId: event.id,
+          eventType: event.type,
+          paymentStatus: paymentStatus as "partially_refunded" | "refunded" | "disputed" | "reversed",
+          amountPence: event.type === "charge.refunded" ? object.amount_refunded : undefined,
+        });
+      }
     }
+  }
+  if (event.type === "refund.failed" || event.type === "charge.dispute.funds_reinstated") {
+    await notifyPaymentException(order, {
+      eventId: event.id,
+      eventType: event.type,
+      amountPence: object.amount,
+    });
   }
   return noStoreJson({ received: true });
 }

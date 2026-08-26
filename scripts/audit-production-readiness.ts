@@ -3,18 +3,8 @@ import {checkBrevoConnection} from "../app/lib/email/brevo";
 import {isProductionOrderAccessConfigured} from "../app/lib/order-access";
 import {checkDurableOrderStorage} from "../app/lib/order-store";
 import {isStripeProductionReady} from "../app/lib/payments/stripe";
+import {requiredStripeWebhookEvents} from "../app/lib/payments/stripe-events";
 import {supabaseServerRpc} from "../app/lib/supabase/server";
-
-const requiredStripeEvents = [
-  "checkout.session.completed",
-  "checkout.session.async_payment_succeeded",
-  "checkout.session.async_payment_failed",
-  "checkout.session.expired",
-  "payment_intent.canceled",
-  "charge.refunded",
-  "charge.dispute.created",
-  "charge.dispute.closed",
-] as const;
 
 async function stripeReadiness() {
   const secret = process.env.STRIPE_SECRET_KEY?.trim();
@@ -59,14 +49,14 @@ async function stripeReadiness() {
     currency: account.default_currency?.toUpperCase(),
     deploymentWebhookPresent: Boolean(endpoint),
     deploymentWebhookEnabled: endpoint?.status === "enabled",
-    requiredEventsPresent: requiredStripeEvents.every((event) => enabled.has(event) || enabled.has("*")),
-    missingEvents: requiredStripeEvents.filter((event) => !enabled.has(event) && !enabled.has("*")),
+    requiredEventsPresent: requiredStripeWebhookEvents.every((event) => enabled.has(event) || enabled.has("*")),
+    missingEvents: requiredStripeWebhookEvents.filter((event) => !enabled.has(event) && !enabled.has("*")),
     webhookCandidates: webhookCandidates.map((entry) => {
       const endpointEvents = new Set(entry.enabled_events || []);
       return {
         origin: new URL(entry.url!).origin,
         enabled: entry.status === "enabled",
-        requiredEventsPresent: requiredStripeEvents.every((event) => endpointEvents.has(event) || endpointEvents.has("*")),
+        requiredEventsPresent: requiredStripeWebhookEvents.every((event) => endpointEvents.has(event) || endpointEvents.has("*")),
       };
     }),
   };

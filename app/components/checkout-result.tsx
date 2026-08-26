@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { clearCheckoutAttempt } from "../lib/checkout-recovery";
 import { useCart } from "./cart-provider";
 
 export function CheckoutResult({ kind, orderId }: { kind: "success" | "pending" | "cancelled" | "failure" | "expired"; orderId?: string }) {
   const { clearCart } = useCart();
   useEffect(() => {
+    if (kind !== "pending") clearCheckoutAttempt();
     if (kind === "success") {
       const frame = window.requestAnimationFrame(clearCart);
       return () => window.cancelAnimationFrame(frame);
