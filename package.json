@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "test": "tsx --test tests/**/*.test.ts",
     "test:realtime": "tsx scripts/test-realtime.ts",
+    "stripe:webhook:sync": "tsx scripts/sync-stripe-webhook-events.ts",
     "sanity:seed": "tsx scripts/seed-sanity.ts",
     "sanity:typegen": "npm --prefix studio run typegen"
   },

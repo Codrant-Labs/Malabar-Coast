@@ -1,5 +1,5 @@
 import type { HallEnquiry, TableReservation } from "../bookings";
-import type { OrderRecord } from "../orders";
+import type { OrderRecord, PaymentStatus } from "../orders";
 import { ownerEmail, sendBrevoEmail } from "./brevo";
 
 type EmailCta = { label: string; href: string };
@@ -218,6 +218,134 @@ export async function notifyPaidOrder(order: OrderRecord) {
       text: `MALABAR COAST · NEW PAID ORDER\n\nACTION NEEDED\nOpen the order, confirm the requested fulfilment time, then advance it through the kitchen workflow.\n\nReference: ${reference}\nCustomer: ${order.customer.name}\nPhone: ${order.customer.phone}\nEmail: ${order.customer.email}\nFulfilment: ${fulfilment}\nRequested for: ${requested}\nTotal paid: ${money(order.totalPence)}\n\nORDER DETAILS\n${plainItems}${order.deliveryAddress ? `\n\nDelivery address: ${[order.deliveryAddress.line1, order.deliveryAddress.line2, order.deliveryAddress.city, order.deliveryAddress.postcode].filter(Boolean).join(", ")}` : ""}${order.orderNote ? `\n\nOrder note: ${order.orderNote}` : ""}\n\nAdmin: ${siteOrigin()}/admin/orders/${order.id}`,
     }),
   ]);
+}
+
+export async function notifyPaymentUpdate(order: OrderRecord, input: {
+  eventId: string;
+  eventType: string;
+  paymentStatus: Extract<PaymentStatus, "partially_refunded" | "refunded" | "disputed" | "reversed">;
+  amountPence?: number;
+}) {
+  const reference = shortReference(order.id);
+  const refunded = input.paymentStatus === "partially_refunded" || input.paymentStatus === "refunded";
+  const amount = Math.max(0, input.amountPence ?? order.totalPence);
+  const fullRefund = input.paymentStatus === "refunded";
+  const customerTitle = fullRefund ? "Your refund has been recorded." : "A partial refund has been recorded.";
+  const customerIntro = fullRefund
+    ? `${order.customer.name}, Stripe has confirmed a refund of ${money(amount)} for order ${reference}.`
+    : `${order.customer.name}, Stripe has confirmed that ${money(amount)} has been refunded so far for order ${reference}.`;
+  const statusLabel = input.paymentStatus.replaceAll("_", " ");
+  const ownerAction = refunded
+    ? "Review the provider record and the order history. Confirm the refund amount and contact the customer if any further action is required."
+    : "Do not fulfil or manually reopen this order. Review the dispute in Stripe and retain the order and delivery evidence for follow-up.";
+
+  const messages = [
+    sendBrevoEmail({
+      eventKey: `order:${order.id}:payment:${input.eventId}:owner`,
+      category: "payment_update_owner",
+      to: { email: ownerEmail(), name: "Malabar Coast team" },
+      subject: `${refunded ? "Refund update" : "Payment dispute"} · ${reference} · ${order.customer.name}`,
+      html: emailFrame({
+        preheader: `${statusLabel} payment update for order ${reference}.`,
+        eyebrow: refunded ? "Refund update · Review" : "Payment issue · Action required",
+        title: refunded ? "A refund has been recorded." : "A payment needs review.",
+        intro: refunded
+          ? `${money(amount)} has been recorded against ${order.customer.name}'s order. The payment state is now ${statusLabel}.`
+          : `Stripe reported a ${statusLabel} payment state for ${order.customer.name}'s order. Fulfilment is locked until the issue is reviewed.`,
+        body: noteBlock("Team action", ownerAction, "action") + detailTable([
+          { label: "Order reference", value: reference },
+          { label: "Payment state", value: statusLabel },
+          { label: refunded ? "Refund recorded" : "Order total", value: money(refunded ? amount : order.totalPence) },
+          { label: "Customer", value: order.customer.name },
+        ]),
+        cta: { label: "Review this order", href: `${siteOrigin()}/admin/orders/${encodeURIComponent(order.id)}` },
+        footerNote: "Provider events establish payment state; staff fulfilment remains a separate decision.",
+      }),
+      text: `MALABAR COAST · PAYMENT UPDATE\n\nACTION REQUIRED\n${ownerAction}\n\nReference: ${reference}\nCustomer: ${order.customer.name}\nPayment state: ${statusLabel}\n${refunded ? `Refund recorded: ${money(amount)}` : `Order total: ${money(order.totalPence)}`}\nProvider event: ${input.eventType}\n\nAdmin: ${siteOrigin()}/admin/orders/${order.id}`,
+    }),
+  ];
+
+  if (refunded) {
+    messages.push(sendBrevoEmail({
+      eventKey: `order:${order.id}:payment:${input.eventId}:customer`,
+      category: "refund_update_customer",
+      to: { email: order.customer.email, name: order.customer.name },
+      subject: `${fullRefund ? "Refund confirmed" : "Partial refund confirmed"} · ${reference} · ${money(amount)}`,
+      html: emailFrame({
+        preheader: `${money(amount)} ${fullRefund ? "has been refunded" : "has been refunded so far"} for order ${reference}.`,
+        eyebrow: fullRefund ? "Refund confirmed" : "Partial refund confirmed",
+        title: customerTitle,
+        intro: customerIntro,
+        body: detailTable([
+          { label: "Order reference", value: reference },
+          { label: "Refund recorded", value: money(amount) },
+          { label: "Original order total", value: money(order.totalPence) },
+          { label: "Payment state", value: fullRefund ? "Refunded" : "Partially refunded" },
+        ]) + noteBlock("When will it arrive?", "Your bank controls when the refunded amount appears. If it does not appear after the timeframe shown by your bank, contact the restaurant with this order reference."),
+        cta: { label: "View order status", href: `${siteOrigin()}/order/${encodeURIComponent(order.id)}` },
+        footerNote: "Keep this message as your refund update.",
+      }),
+      text: `MALABAR COAST · ${fullRefund ? "REFUND CONFIRMED" : "PARTIAL REFUND CONFIRMED"}\n\nHello ${order.customer.name},\n${customerIntro}\n\nOrder reference: ${reference}\nRefund recorded: ${money(amount)}\nOriginal order total: ${money(order.totalPence)}\n\nYour bank controls when the amount appears. Contact the restaurant with this reference if it is not visible after your bank's stated timeframe.\n\n${restaurantAddress}`,
+    }));
+  }
+
+  await Promise.allSettled(messages);
+}
+
+export async function notifyPaymentException(order: OrderRecord, input: {
+  eventId: string;
+  eventType: "refund.failed" | "charge.dispute.funds_reinstated";
+  amountPence?: number;
+}) {
+  const reference = shortReference(order.id);
+  const failedRefund = input.eventType === "refund.failed";
+  const amount = Math.max(0, input.amountPence ?? order.totalPence);
+  const ownerAction = failedRefund
+    ? "The refund did not complete. Review the failure reason in Stripe, correct the issue, and contact the customer before retrying."
+    : "Stripe reports that disputed funds were reinstated. Review the case and order history before deciding whether any manual state change is appropriate.";
+  const messages = [
+    sendBrevoEmail({
+      eventKey: `order:${order.id}:exception:${input.eventId}:owner`,
+      category: "payment_exception_owner",
+      to: { email: ownerEmail(), name: "Malabar Coast team" },
+      subject: `${failedRefund ? "Refund failed" : "Disputed funds reinstated"} · ${reference}`,
+      html: emailFrame({
+        preheader: `${failedRefund ? "Refund failure" : "Dispute update"} for order ${reference}.`,
+        eyebrow: "Payment exception · Action required",
+        title: failedRefund ? "A refund did not complete." : "Disputed funds were reinstated.",
+        intro: ownerAction,
+        body: noteBlock("Team action", ownerAction, "action") + detailTable([
+          { label: "Order reference", value: reference },
+          { label: failedRefund ? "Attempted refund" : "Order total", value: money(amount) },
+          { label: "Customer", value: order.customer.name },
+          { label: "Provider event", value: input.eventType },
+        ]),
+        cta: { label: "Review this order", href: `${siteOrigin()}/admin/orders/${encodeURIComponent(order.id)}` },
+        footerNote: "Do not change fulfilment until the provider record has been reviewed.",
+      }),
+      text: `MALABAR COAST · PAYMENT EXCEPTION\n\n${ownerAction}\n\nReference: ${reference}\nCustomer: ${order.customer.name}\nAmount: ${money(amount)}\nProvider event: ${input.eventType}\n\nAdmin: ${siteOrigin()}/admin/orders/${order.id}`,
+    }),
+  ];
+
+  if (failedRefund) {
+    messages.push(sendBrevoEmail({
+      eventKey: `order:${order.id}:exception:${input.eventId}:customer`,
+      category: "refund_failure_customer",
+      to: { email: order.customer.email, name: order.customer.name },
+      subject: `Refund update · ${reference}`,
+      html: emailFrame({
+        preheader: `There is an issue processing the refund for order ${reference}.`,
+        eyebrow: "Refund update",
+        title: "Your refund needs attention.",
+        intro: `${order.customer.name}, the payment provider could not complete the ${money(amount)} refund for order ${reference}. The Malabar Coast team has been alerted.`,
+        body: noteBlock("What happens next", "You do not need to place or pay for the order again. Our team will review the provider response and contact you if anything is needed."),
+        footerNote: "Please keep this message and your order reference.",
+      }),
+      text: `MALABAR COAST · REFUND UPDATE\n\nHello ${order.customer.name},\nThe payment provider could not complete the ${money(amount)} refund for order ${reference}. Our team has been alerted.\n\nYou do not need to place or pay for the order again. We will review the issue and contact you if anything is needed.\n\n${restaurantAddress}`,
+    }));
+  }
+
+  await Promise.allSettled(messages);
 }
 
 export async function notifyReservation(reservation: TableReservation) {

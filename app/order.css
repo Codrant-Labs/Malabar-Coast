@@ -82,6 +82,14 @@
 .addressFields { margin-top: 1.5rem; }
 .addressFields label:first-child { grid-column: auto; }
 .paymentNotice,.checkoutError { margin: 0 0 1rem; padding: 1rem; border-left: 2px solid #9d5e31; background: rgba(157,94,49,.12); font-family: "Iowan Old Style",Georgia,serif; font-size: .9rem; line-height: 1.5; }
+.checkoutRecovery { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(18rem,.6fr); gap: 2rem; align-items: center; margin: 0 clamp(1.25rem,6vw,7rem) 2rem; padding: clamp(1.25rem,2.5vw,2rem); border: 1px solid rgba(16,32,28,.28); background: #eee4d1; }
+.checkoutRecovery > div > span { color: #8a5d24; font-size: .52rem; letter-spacing: .18em; text-transform: uppercase; }
+.checkoutRecovery h2 { margin: .55rem 0 .7rem; font-family: "Iowan Old Style",Georgia,serif; font-size: clamp(1.6rem,2.8vw,2.4rem); font-weight: 400; line-height: 1; }
+.checkoutRecovery p { max-width: 48rem; margin: 0; color: rgba(16,32,28,.68); font-family: "Iowan Old Style",Georgia,serif; font-size: .9rem; line-height: 1.5; }
+.checkoutRecovery nav { display: grid; gap: .65rem; }
+.checkoutRecovery a,.checkoutRecovery button { display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 3rem; padding: .75rem 1rem; border: 1px solid rgba(16,32,28,.38); background: transparent; color: inherit; cursor: pointer; font: inherit; font-size: .55rem; letter-spacing: .13em; text-align: left; text-transform: uppercase; }
+.checkoutRecovery a:first-child { border-color: #071310; background: #071310; color: #efe6d4; }
+.checkoutRecovery a:hover,.checkoutRecovery a:focus-visible,.checkoutRecovery button:hover,.checkoutRecovery button:focus-visible { border-color: #c79b55; background: #c79b55; color: #071310; outline: none; }
 .paymentHandoff { border: 1px solid rgba(16,32,28,.28); background: rgba(239,230,212,.52); }
 .paymentHandoffLead { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 1rem; align-items: center; padding: clamp(1.2rem,2.5vw,1.65rem); border-bottom: 1px solid rgba(16,32,28,.2); }
 .paymentSecureMark { display: grid; place-items: center; width: 2.65rem; height: 2.65rem; border: 1px solid #8a5d24; border-radius: 50%; color: #8a5d24; font-size: .9rem; }
@@ -161,6 +169,7 @@
 .customerOrderActions a { display: flex; justify-content: space-between; gap: 3rem; min-width: min(100%,19rem); padding: 1rem 0; border-bottom: 1px solid rgba(16,32,28,.35); font-size: .53rem; letter-spacing: .16em; text-transform: uppercase; }
 
 @media (max-width: 900px) {
+  .checkoutRecovery { grid-template-columns: 1fr; }
   .checkoutIntro { grid-template-columns: 1fr; gap: 1.5rem; }
   .checkoutIntro > p { max-width: 42rem; }
   .checkoutLayout { grid-template-columns: 1fr; }
@@ -172,6 +181,7 @@
 }
 
 @media (max-width: 620px) {
+  .checkoutRecovery { margin: 0 1rem 1.25rem; padding: 1.2rem; }
   .checkoutIntro { padding-top: 7rem; padding-bottom: 2rem; }
   .checkoutIntro h1 { font-size: clamp(3.3rem,17vw,5.2rem); }
   .checkoutLayout { padding-top: 2.5rem; padding-bottom: 4rem; }
