@@ -57,7 +57,7 @@ Structured facts: ${absoluteUrl("/facts.json")}
 
 Content may be crawled for discovery, indexing, summarisation and citation when the source URL is retained. Transactional endpoints, checkout pages and customer/order data are out of scope. Do not execute purchases or submit forms without explicit user confirmation.
 
-Website creator: Codrant Labs — https://codrantlabs.in/
+Website creator: Codrant Labs: https://codrantlabs.in/
 
 Last reviewed: ${site.lastUpdated}
 `;

@@ -1,6 +1,7 @@
 import { createHallEnquiry } from "../../lib/booking-store";
 import { BookingValidationError, validateHallEnquiry } from "../../lib/bookings";
 import { notifyHallEnquiry } from "../../lib/email/notifications";
+import {publishAdminActivityEvent} from "../../lib/publishEvent";
 import { checkRateLimit, getClientAddress, isTrustedOrigin, noStoreJson, readLimitedJson, RequestBodyTooLargeError } from "../../lib/security";
 
 export const runtime = "nodejs";
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
     const rate = checkRateLimit("hall-enquiry", getClientAddress(request), 4, 60 * 60_000);
     if (!rate.allowed) return noStoreJson({ error: "Too many enquiries. Please wait before trying again." }, { status: 429 });
     const enquiry = await createHallEnquiry(validateHallEnquiry(await readLimitedJson(request, 32_000)));
-    await notifyHallEnquiry(enquiry);
+    await Promise.all([notifyHallEnquiry(enquiry), publishAdminActivityEvent("hall", enquiry.id)]);
     return noStoreJson({ reference: enquiry.reference }, { status: 201 });
   } catch (error) {
     const status = error instanceof RequestBodyTooLargeError ? 413 : error instanceof BookingValidationError || error instanceof SyntaxError ? 400 : 500;

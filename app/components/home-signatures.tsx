@@ -40,7 +40,7 @@ export function HomeSignatures({items, specials, eyebrow, heading, introduction}
           <h2 id="home-signatures-title">{hasSpecials ? <>Today&apos;s<br />specials.</> : heading || <>Come to<br />the table.</>}</h2>
           <div>
             <p>
-              {hasSpecials ? "A little extra from the kitchen, available today while each batch lasts. Check back often—the board changes with the cooks and the coast." : introduction || "Pepper warmed over fire, coconut softened with lime and seafood from the Scottish coast. Three plates that tell our journey through flavour."}
+              {hasSpecials ? "A little extra from the kitchen, available today while each batch lasts. Check back often, the board changes with the cooks and the coast." : introduction || "Pepper warmed over fire, coconut softened with lime and seafood from the Scottish coast. Three plates that tell our journey through flavour."}
             </p>
             <Link className="homeSpecialsOfferLink" href="/offers">See posters &amp; offers <span aria-hidden="true">↗</span></Link>
           </div>

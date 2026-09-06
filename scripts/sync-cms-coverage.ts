@@ -26,7 +26,7 @@ const missingPages = [
     eyebrow: "Archive 01 · The first port", heroHeading: "Calicut.",
     heroText: "Long before it appeared in a recipe book, Malabar pepper was measured here by hand and carried by the turning winds.",
     sections: [
-      {_type: "contentSection", _key: "calicut-intro", internalName: "The beginning", eyebrow: "01 / The beginning", heading: "The harbour where flavour became history.", note: "Arabian Sea · Monsoon season", body: [block("Calicut was less a border than a threshold—the place where soil, sea and distant tables met.", "calicut-intro-copy")]},
+      {_type: "contentSection", _key: "calicut-intro", internalName: "The beginning", eyebrow: "01 / The beginning", heading: "The harbour where flavour became history.", note: "Arabian Sea · Monsoon season", body: [block("Calicut was less a border than a threshold, the place where soil, sea and distant tables met.", "calicut-intro-copy")]},
       {_type: "contentSection", _key: "calicut-pepper", internalName: "Black gold", eyebrow: "The black gold of Malabar", heading: "Small enough to hold between two fingers. Valuable enough to redraw the world.", body: [block("Pepper thrived in the wet shade of the Western Ghats. Its clean, floral heat made it currency, medicine and obsession in ports thousands of miles away.", "calicut-pepper-copy")]},
       {_type: "contentSection", _key: "calicut-exchange", internalName: "Living exchange", eyebrow: "Port ledger · A living exchange", heading: "What arrived. What remained.", items: [
         {_type: "object", _key: "arabia", shortLabel: "01", title: "Arabia", text: "Rice, perfume, a language of hospitality"},

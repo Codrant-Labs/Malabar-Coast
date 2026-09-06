@@ -36,6 +36,13 @@ export const siteSettings = defineType({
     }),
     defineField({name: 'mapUrl', title: 'Directions link', type: 'url'}),
     defineField({
+      name: 'mapEmbedUrl',
+      title: 'Embedded Google Map URL',
+      description: 'Use the src URL from the Google Maps embed code.',
+      type: 'url',
+      validation: (rule) => rule.uri({scheme: ['https']}),
+    }),
+    defineField({
       name: 'openingHours',
       title: 'Opening hours',
       type: 'array',

@@ -3,10 +3,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { armOrderNotificationSound, playOrderNotificationSound } from "./order-notification-sound";
 
 type ConnectionState = "connecting" | "live" | "unavailable";
-type BroadcastPayload = { orderId?: unknown };
+type BroadcastPayload = { kind?: unknown; recordId?: unknown };
 
 const orderIdPattern = /^ord_[A-Za-z0-9_-]{20,60}$/;
 
@@ -26,19 +25,14 @@ export function RealtimePageRefresh({
   useEffect(() => {
     if (!supabaseUrl || !publishableKey) return;
 
-    const armSound = () => {
-      void armOrderNotificationSound();
-    };
-    window.addEventListener("pointerdown", armSound, { once: true });
-    window.addEventListener("keydown", armSound, { once: true });
-
     const supabase = createClient(supabaseUrl, publishableKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
     const pendingRequests = new Set<string>();
     const scheduleRefresh = async (payload: BroadcastPayload) => {
-      const orderId = typeof payload.orderId === "string" ? payload.orderId : "";
+      if (payload.kind !== "order") return;
+      const orderId = typeof payload.recordId === "string" ? payload.recordId : "";
       if (!orderIdPattern.test(orderId) || pendingRequests.has(orderId)) return;
 
       // Broadcast channels use the public Supabase client in the browser. Treat the
@@ -54,7 +48,6 @@ export function RealtimePageRefresh({
         const body = await response.json() as { order?: { id?: string } };
         if (body.order?.id !== orderId) return;
 
-        playOrderNotificationSound();
         if (refreshTimer.current) clearTimeout(refreshTimer.current);
         refreshTimer.current = setTimeout(() => {
           router.refresh();
@@ -68,8 +61,8 @@ export function RealtimePageRefresh({
     };
 
     const channel = supabase
-      .channel("admin-orders")
-      .on("broadcast", { event: "orders-changed" }, ({ payload }) => {
+      .channel("admin-activity")
+      .on("broadcast", { event: "activity-changed" }, ({ payload }) => {
         void scheduleRefresh(payload as BroadcastPayload);
       })
       .subscribe((status, error) => {
@@ -81,8 +74,6 @@ export function RealtimePageRefresh({
       });
 
     return () => {
-      window.removeEventListener("pointerdown", armSound);
-      window.removeEventListener("keydown", armSound);
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
       pendingRequests.clear();
       void supabase.removeChannel(channel);

@@ -14,5 +14,5 @@ export const menuCategory = defineType({
     defineField({name: 'published', title: 'Show on menu', type: 'boolean', initialValue: true}),
   ],
   orderings: [{title: 'Menu order', name: 'menuOrder', by: [{field: 'orderRank', direction: 'asc'}]}],
-  preview: {select: {title: 'title', order: 'orderRank'}, prepare: ({title, order}) => ({title, subtitle: `Position ${order ?? '—'}`})},
+  preview: {select: {title: 'title', order: 'orderRank'}, prepare: ({title, order}) => ({title, subtitle: `Position ${order ?? 'Unranked'}`})},
 })

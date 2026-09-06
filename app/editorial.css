@@ -4,6 +4,7 @@
   --ed-ivory: #efe6d4;
   --ed-paper: #dfd3bc;
   --ed-brass: #c79a52;
+  --ed-page-gutter: max(clamp(1.25rem, 5vw, 6rem), calc((100vw - 108rem) / 2));
   min-height: 100vh;
   overflow: clip;
   background: var(--ed-ink);
@@ -100,10 +101,13 @@
 
 .restaurantHero > img { object-position: center center; }
 .restaurantHeroCopy { width: min(78vw,68rem); }
-.restaurantWelcome { display: grid; grid-template-columns: .7fr 1.6fr 1fr; gap: clamp(2rem,5vw,6rem); padding: clamp(5.5rem,8vw,9rem) clamp(1.25rem,6vw,7rem); background: #e5dac4; color: #10201c; }
-.restaurantWelcome h2 { margin: 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(3.8rem,6vw,6.5rem); font-weight: 400; line-height: .84; letter-spacing: -.05em; text-transform: uppercase; }
-.welcomeCopy p { margin: 0 0 1.25rem; color: rgba(16,32,28,.72); font-family: "Iowan Old Style", Georgia, serif; line-height: 1.65; }
-.welcomeCopy p:first-child { color: #10201c; font-size: 1.35rem; line-height: 1.35; }
+.restaurantWelcome { display: grid; grid-template-columns: repeat(12,minmax(0,1fr)); column-gap: clamp(2rem,4vw,5rem); row-gap: clamp(3rem,5vw,5.5rem); align-items: start; padding: clamp(5rem,7vw,8rem) var(--ed-page-gutter); background: #e5dac4; color: #10201c; }
+.restaurantWelcome + .restaurantWelcome { border-top: 1px solid rgba(16,32,28,.16); background: #ece2cf; }
+.restaurantWelcome .welcomeLabel { grid-column: 1 / -1; padding-bottom: 1.15rem; border-bottom: 1px solid rgba(16,32,28,.25); }
+.restaurantWelcome h2 { grid-column: 1 / 7; max-width: 9ch; margin: 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(3.8rem,5.5vw,6.25rem); font-weight: 400; line-height: .86; letter-spacing: -.05em; text-transform: uppercase; }
+.welcomeCopy { grid-column: 8 / -1; max-width: 42rem; padding-top: .25rem; }
+.welcomeCopy p { margin: 0 0 1.2rem; color: rgba(16,32,28,.72); font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(1rem,1.1vw,1.15rem); line-height: 1.68; }
+.welcomeCopy p:first-child { color: #10201c; font-size: clamp(1.3rem,1.5vw,1.6rem); line-height: 1.42; }
 
 .serviceNotes { display: grid; grid-template-columns: repeat(4,1fr); border-top: 1px solid rgba(16,32,28,.18); border-bottom: 1px solid rgba(16,32,28,.18); background: #e5dac4; color: #10201c; padding: 0 clamp(1.25rem,6vw,7rem); }
 .serviceNotes > div { display: flex; flex-direction: column; gap: .5rem; padding: 1.8rem 1.5rem; border-left: 1px solid rgba(16,32,28,.18); }
@@ -154,14 +158,16 @@
 .restaurantStoryBridge > div > strong { display: block; margin-top: 1.5rem; font-family: "Iowan Old Style", Georgia, serif; font-size: 1.4rem; font-weight: 400; line-height: 1.4; }
 .bridgeLinks a { border-color: rgba(16,32,28,.3); }
 
-.locationSection { isolation: isolate; position: relative; min-height: 78vh; padding: clamp(6rem,9vw,9rem) clamp(1.25rem,6vw,7rem); overflow: hidden; background: #071310; }
+.locationSection { isolation: isolate; position: relative; display: grid; grid-template-columns: repeat(12,minmax(0,1fr)); gap: clamp(2rem,4vw,5rem); align-items: start; min-height: clamp(38rem,68vh,52rem); padding: clamp(5rem,7vw,8rem) var(--ed-page-gutter); overflow: hidden; background: #071310; }
 .locationGrid { position: absolute; z-index: -1; inset: 0; opacity: .18; background-image: linear-gradient(rgba(199,154,82,.24) 1px,transparent 1px),linear-gradient(90deg,rgba(199,154,82,.24) 1px,transparent 1px); background-size: 6rem 6rem; mask-image: radial-gradient(circle at 70% 45%,black,transparent 65%); }
-.locationSection > h2 { margin: 2rem 0 3rem; font-family: "Bodoni 72", Didot, serif; font-size: clamp(5rem,10vw,10rem); font-weight: 400; line-height: .76; letter-spacing: -.06em; text-transform: uppercase; }
-.locationDetails { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: end; margin-left: 34%; }
+.locationLabel { grid-column: 1 / -1; padding-bottom: 1.15rem; border-bottom: 1px solid rgba(239,230,212,.22); }
+.locationSection > h2 { grid-column: 1 / 7; margin: clamp(2.75rem,5vw,5rem) 0 0; font-family: "Bodoni 72", Didot, serif; font-size: clamp(5rem,8vw,8.75rem); font-weight: 400; line-height: .78; letter-spacing: -.06em; text-transform: uppercase; }
+.locationDetails { grid-column: 8 / -1; display: flex; flex-direction: column; gap: 0; align-self: start; margin: clamp(2.75rem,5vw,5rem) 0 0; padding: clamp(2rem,3vw,3.25rem); border: 1px solid rgba(239,230,212,.2); background: rgba(239,230,212,.035); }
 .locationDetails address { display: flex; flex-direction: column; gap: .3rem; font-family: "Iowan Old Style",Georgia,serif; font-size: clamp(1.4rem,2.2vw,2.2rem); font-style: normal; line-height: 1.25; }
-.locationCoordinates { display: flex; align-items: center; gap: 1rem; margin-top: 2rem; color: rgba(239,230,212,.54); font-size: .51rem; letter-spacing: .18em; }
+.locationCoordinates { display: flex; align-items: center; gap: 1rem; margin-top: 2.25rem; padding-top: 1.25rem; border-top: 1px solid rgba(239,230,212,.16); color: rgba(239,230,212,.58); font-size: .51rem; letter-spacing: .18em; }
 .locationCoordinates i { flex: 1; height: 1px; background: rgba(239,230,212,.2); }
-.locationActions { display: flex; gap: .75rem; justify-content: flex-end; }
+.locationActions { display: flex; gap: .75rem; justify-content: flex-start; margin-top: 2rem; }
+.locationActions a { flex: 1; }
 
 @keyframes editorialLens { from { transform: scale(1.015); } to { transform: scale(1.07); } }
 
@@ -184,6 +190,7 @@
   .restaurantHero > img { object-position: 58% center; }
   .heroChapterMark { right: 1rem; bottom: 1.4rem; left: 1rem; }
   .storyPrelude,.restaurantWelcome,.restaurantStoryBridge { display: block; padding: 6rem 1.25rem; }
+  .restaurantWelcome .welcomeLabel { display: block; }
   .storyPrelude h2,.restaurantWelcome h2,.restaurantStoryBridge h2 { margin: 1.5rem 0 2rem; }
   .storyPrelude .preludeBody { margin-top: 2rem; }
   .storyChapters { display: block; }
@@ -218,10 +225,10 @@
   .hospitalityQuote { left: 1.25rem; width: calc(100% - 2.5rem); }
   .hospitalityQuote blockquote { font-size: 13vw; }
   .restaurantStoryBridge > div > p { color: rgba(16,32,28,.72); }
-  .locationSection { min-height: 72svh; padding: 6rem 1.25rem; }
+  .locationSection { display: block; min-height: 72svh; padding: 6rem 1.25rem; }
   .locationSection > h2 { margin: 2rem 0 3rem; font-size: clamp(4rem,17vw,6.5rem); }
-  .locationDetails { display: block; margin-left: 0; }
-  .locationActions { flex-direction: column; margin-top: 3rem; }
+  .locationDetails { display: block; margin: 0; padding: 1.5rem; }
+  .locationActions { flex-direction: column; margin-top: 2rem; }
   .locationActions a { justify-content: space-between; }
 }
 

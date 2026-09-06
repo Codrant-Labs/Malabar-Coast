@@ -100,7 +100,7 @@ async function main() {
   await publishPaymentCompletionEvent(orderId);
 
   console.log(`Created paid test order: ${orderId}`);
-  console.log("Published: admin-orders / orders-changed");
+  console.log("Published: admin-activity / activity-changed");
   console.log("The order should now appear in the open admin dashboard in real time.");
 }
 

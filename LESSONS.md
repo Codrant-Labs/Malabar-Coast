@@ -37,3 +37,17 @@
 - Day and month boundaries must follow the restaurant time zone, including daylight-saving offsets, rather than server-local or naive UTC midnight.
 - Readiness must verify the database contract version, not merely that one table is reachable; otherwise a partially applied schema can look healthy while administrator actions fail.
 - Audit touch targets at the shared shell level as well as on primary buttons. Brand, footer, table-reference and tab links are easy to leave below 44px even when the main flows are responsive.
+
+# Mobile PWA and map lessons
+
+- Treat an embedded venue map as managed content: validate its host and path, retain a trusted fallback, lazy-load it and keep a separate directions link when tiles cannot load.
+- A compact visual control can keep its small artwork while exposing a full 44px hit area; carousel dots are a common place where the visible mark and the interactive target should differ.
+- PWA interfaces need safe-area padding, dynamic viewport units and contained scrolling so modals and navigation remain usable around mobile browser chrome and device cut-outs.
+- Administrator tables should preserve reachable row actions on narrow screens; a sticky action column is more reliable than expecting staff to discover a long horizontal scroll.
+- Use 16px form text on mobile to avoid automatic input zoom, and test short landscape viewports separately from portrait breakpoints.
+
+# Public editorial layout lessons
+
+- Cap content gutters on ultra-wide screens so related headlines and supporting copy remain visually connected instead of drifting toward opposite edges.
+- Long editorial narratives can use two readable text columns on wide screens, but should return to one continuous column before tablet widths.
+- Treat venue address, coordinates and actions as one information group; a restrained panel gives them hierarchy without changing the content.

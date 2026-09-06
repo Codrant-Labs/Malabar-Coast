@@ -61,3 +61,19 @@
 - Kept Stripe on its full hosted Checkout page and added authenticated session reconciliation for delayed webhooks.
 - Added production readiness checks, updated environment/documentation contracts and hosted-checkout regression tests.
 - Verified 33 automated security/payment/database tests, ESLint, TypeScript, the production build and `git diff --check`.
+
+2026-09-06 - Exact venue map and mobile PWA refinement complete
+
+- Added the owner-supplied Google Maps place embed to the homepage, central site configuration and Sanity site settings, with strict URL validation and an exact coordinate fallback.
+- Synced and verified the new map settings in the live Sanity dataset.
+- Refined public and administrator mobile behavior with safe-area spacing, dynamic viewport modals, 44px touch controls, touch-friendly scrolling, sticky table actions and single-column compact kitchen boards.
+- Verified the homepage, menu, table booking, hall booking and administrator entry at 320px, 390px, landscape-phone and tablet widths with no body-level horizontal overflow or undersized actionable controls.
+- Verified the full automated test suite, TypeScript, ESLint, Sanity type generation, the Studio build and the Next.js production build.
+
+2026-09-06 - Public editorial layout refinement complete
+
+- Rebalanced the homepage restaurant overview, story manifesto, restaurant introduction, food narrative and Holytown location sections without changing their published wording.
+- Replaced ultra-wide empty channels with capped content gutters, aligned twelve-column editorial grids, clearer reading measures and more deliberate section rhythm.
+- Presented the location details as one cohesive information panel and preserved comfortable 44px actions on compact screens.
+- Verified the redesigned sections at desktop and 390px widths with no body-level horizontal overflow.
+- Verified 54 automated tests, ESLint, TypeScript, changed-file whitespace and the Next.js production build.

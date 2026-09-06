@@ -135,7 +135,7 @@ body:has(.adminShell) { margin: 0; background: #f2efe7; }
 .adminTopDishes li > b { color: var(--admin-muted); font-size: .62rem; font-weight: 700; text-align: right; text-transform: uppercase; }
 
 /* Tables, filters and pagination */
-.adminTableWrap { overflow-x: auto; margin: 0 -.2rem; }
+.adminTableWrap { overflow-x: auto; margin: 0 -.2rem; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
 .adminOrdersTable { width: 100%; min-width: 67rem; border-collapse: collapse; font-size: .75rem; }
 .adminOrdersTable th { padding: .9rem .7rem; color: var(--admin-muted); font-size: .57rem; font-weight: 700; letter-spacing: .11em; text-align: left; text-transform: uppercase; }
 .adminOrdersTable td { padding: .85rem .7rem; border-top: 1px solid var(--admin-line); vertical-align: middle; }
@@ -348,6 +348,30 @@ body:has(.adminShell) { margin: 0; background: #f2efe7; }
 .adminInlineUpdate { display: grid; width: min(16rem,100%); gap: .35rem; }
 .adminInlineUpdate button { min-height: 2.5rem; border: 0; border-radius: .3rem; background: var(--admin-ink); color: #fff; font-size: .55rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
 .adminEntryActions,.adminRowActions { display: grid; gap: .4rem; }
+.adminCreateRecord > summary,.adminEditRecord > summary { min-height: 2.5rem; display: flex; align-items: center; justify-content: center; padding: .55rem .75rem; border: 1px solid var(--admin-line); border-radius: .3rem; background: #fff; color: var(--admin-ink); cursor: pointer; font-size: .55rem; font-weight: 800; letter-spacing: .06em; list-style: none; text-transform: uppercase; }
+.adminCreateRecord > summary::-webkit-details-marker,.adminEditRecord > summary::-webkit-details-marker { display: none; }
+.adminCreateRecord[open] > summary,.adminEditRecord[open] > summary { border-color: var(--admin-green); color: var(--admin-green); }
+.adminRecordForm { display: grid; gap: 1rem; margin-top: 1rem; }
+.adminRecordGrid { display: grid; grid-template-columns: repeat(3,minmax(10rem,1fr)); gap: .8rem; }
+.adminRecordGrid label { display: grid; gap: .4rem; color: var(--admin-muted); font-size: .56rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.adminRecordGrid input,.adminRecordGrid select,.adminRecordGrid textarea { width: 100%; min-height: 2.75rem; padding: .55rem .7rem; border: 1px solid var(--admin-line); border-radius: .3rem; background: #fff; color: var(--admin-ink); font: 400 .86rem/1.4 Arial,sans-serif; letter-spacing: normal; text-transform: none; }
+.adminRecordGrid textarea { min-height: 5rem; resize: vertical; }
+.adminRecordWide { grid-column: span 2; }
+.adminRecordForm > .adminButton { justify-self: start; }
+.adminEditRecord[open]::before { content: ""; position: fixed; inset: 0; z-index: 80; background: rgba(7,19,16,.68); backdrop-filter: blur(4px); }
+.adminEditRecord[open] > summary { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 82; min-width: 5rem; border-color: #fff; background: var(--admin-ink); color: #fff; }
+.adminEditRecord[open] > .adminRecordForm { position: fixed; inset: 50% auto auto 50%; z-index: 81; width: min(62rem,calc(100vw - 2rem)); max-height: calc(100vh - 2rem); margin: 0; padding: 1.25rem; overflow: auto; transform: translate(-50%,-50%); border-radius: .55rem; background: var(--admin-paper); box-shadow: 0 1.5rem 5rem rgba(0,0,0,.28); }
+.adminNotificationRail { position: fixed; right: 1rem; bottom: 1rem; z-index: 70; width: min(24rem,calc(100vw - 2rem)); pointer-events: none; }
+.adminSoundButton { display: block; margin: 0 0 .55rem auto; padding: .65rem .8rem; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; background: var(--admin-ink); color: #fff; cursor: pointer; font-size: .56rem; font-weight: 800; letter-spacing: .08em; pointer-events: auto; text-transform: uppercase; box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.18); }
+.adminNotifications { display: grid; gap: .55rem; }
+.adminNotification { padding: 1rem; border: 1px solid rgba(183,144,63,.55); border-radius: .45rem; background: #fffdf7; color: var(--admin-ink); box-shadow: 0 1rem 2.5rem rgba(0,0,0,.2); pointer-events: auto; animation: adminNoticeIn .28s ease-out both; }
+.adminNotification > span { color: var(--admin-brass); font-size: .52rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.adminNotification > strong { display: block; margin-top: .25rem; font: 600 1.05rem/1.2 "Iowan Old Style",Georgia,serif; }
+.adminNotification > p { margin: .35rem 0 .75rem; color: var(--admin-muted); font-size: .72rem; line-height: 1.45; }
+.adminNotification > div { display: flex; gap: .5rem; }
+.adminNotification a,.adminNotification button { min-height: 2rem; padding: .45rem .65rem; border: 1px solid var(--admin-line); border-radius: .25rem; background: #fff; color: var(--admin-ink); cursor: pointer; font-size: .54rem; font-weight: 800; text-transform: uppercase; }
+.adminNotification a { background: var(--admin-green); border-color: var(--admin-green); color: #fff !important; }
+@keyframes adminNoticeIn { from { opacity: 0; transform: translateY(1rem); } }
 .adminRowActions { min-width: 5rem; }
 .adminDeleteButton { width: 100%; min-height: 2.4rem; padding: .45rem .6rem; border: 1px solid #c9928d; border-radius: .3rem; background: #fff6f5; color: #8d342f; cursor: pointer; font-size: .52rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .adminDeleteButton:hover,.adminDeleteButton:focus-visible { border-color: #8d342f; background: #8d342f; color: #fff; outline: none; }
@@ -360,6 +384,7 @@ body:has(.adminShell) { margin: 0; background: #f2efe7; }
   .adminContentWorkflow { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .adminOperationsGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .adminBookingSettings { grid-template-columns: repeat(2,minmax(8rem,1fr)); }
+  .adminRecordGrid { grid-template-columns: repeat(2,minmax(10rem,1fr)); }
   .adminPortal { grid-template-columns: 14rem minmax(0,1fr); }
   .adminSidebar { padding: 1rem; }
   .adminMetrics { grid-template-columns: repeat(2,1fr); }
@@ -372,12 +397,12 @@ body:has(.adminShell) { margin: 0; background: #f2efe7; }
 
 @media (max-width: 820px) {
   .adminPortal { display: block; }
-  .adminSidebar { position: static; width: 100%; height: auto; padding: .8rem 1rem; }
+  .adminSidebar { position: static; width: 100%; height: auto; padding: max(.8rem,env(safe-area-inset-top)) max(1rem,env(safe-area-inset-right)) .8rem max(1rem,env(safe-area-inset-left)); }
   .adminBrand { padding: 0; }
-  .adminSidebar nav { display: flex; gap: .35rem; margin-top: .8rem; overflow-x: auto; padding-bottom: .2rem; }
+  .adminSidebar nav { display: flex; gap: .35rem; margin-top: .8rem; overflow-x: auto; padding-bottom: .35rem; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; }
   .adminSidebar nav { scrollbar-width: none; }
   .adminSidebar nav::-webkit-scrollbar { display: none; }
-  .adminSidebar nav a { min-width: max-content; min-height: 2.75rem; padding: 0 .7rem; }
+  .adminSidebar nav a { min-width: max-content; min-height: 2.75rem; padding: 0 .7rem; scroll-snap-align: start; }
   .adminSidebarFooter { display: none; }
   .adminWorkspace { padding: 1.25rem; }
   .adminPageHeader { align-items: flex-start; flex-direction: column; }
@@ -389,6 +414,12 @@ body:has(.adminShell) { margin: 0; background: #f2efe7; }
   .adminSystemNotes > div:last-child { grid-template-columns: 1fr; }
   .adminContentGrid,.adminStudioStatus > div:last-child { grid-template-columns: 1fr; }
   .adminContentLowerGrid { grid-template-columns: 1fr; }
+  .adminOrdersTable th:last-child,.adminOrdersTable td:last-child { position: sticky; right: 0; z-index: 2; background: var(--admin-panel); box-shadow: -.65rem 0 .9rem rgba(243,239,230,.9); }
+  .adminOrdersTable thead th:last-child { z-index: 3; }
+  .adminEditRecord[open] > summary { top: max(.75rem,env(safe-area-inset-top)); right: max(.75rem,env(safe-area-inset-right)); }
+  .adminEditRecord[open] > .adminRecordForm { width: calc(100vw - 1rem); max-height: calc(100dvh - 1rem); padding: max(3.75rem,calc(env(safe-area-inset-top) + 3rem)) max(1rem,env(safe-area-inset-right)) max(1rem,env(safe-area-inset-bottom)) max(1rem,env(safe-area-inset-left)); }
+  .adminNotificationRail { right: max(.75rem,env(safe-area-inset-right)); bottom: max(.75rem,env(safe-area-inset-bottom)); width: min(24rem,calc(100vw - 1.5rem - env(safe-area-inset-left) - env(safe-area-inset-right))); }
+  .adminLoginCard input,.adminFilters input,.adminFilters select,.adminBookingSettings input,.adminBookingSettings select,.adminInlineUpdate input,.adminInlineUpdate select,.adminRecordGrid input,.adminRecordGrid select,.adminRecordGrid textarea,.adminNotesPanel textarea { font-size: 1rem; }
 }
 
 @media (max-width: 560px) {
@@ -401,6 +432,8 @@ body:has(.adminShell) { margin: 0; background: #f2efe7; }
   .adminContentIssueList a { grid-template-columns: 1fr; gap: .3rem; padding: .8rem; }
   .adminSurfaceRows { grid-template-columns: 1fr; }
   .adminBookingSettings { grid-template-columns: 1fr; }
+  .adminRecordGrid { grid-template-columns: 1fr; }
+  .adminRecordWide { grid-column: auto; }
   .adminWorkspace { padding: 1rem; }
   .adminPageHeader h1 { font-size: clamp(2.6rem,11vw,3.6rem); }
   .adminLoginCard h1 { font-size: clamp(2.6rem,11vw,3.3rem); overflow-wrap: anywhere; }
@@ -422,6 +455,14 @@ body:has(.adminShell) { margin: 0; background: #f2efe7; }
   .adminChecks article b { grid-column: 2; }
   .adminSystemScore > i { width: 5.5rem; height: 5.5rem; }
   .adminSystemScore > i::before { width: 4.4rem; height: 4.4rem; }
+  .adminNotification > div { display: grid; grid-template-columns: 1fr 1fr; }
+  .adminNotification a,.adminNotification button,.adminSoundButton,.adminDeleteButton,.adminInlineUpdate button,.adminCreateRecord > summary,.adminEditRecord > summary,.adminContentWorkflow a { min-height: 2.75rem; }
+  .adminSoundButton { max-width: 100%; margin-left: 0; }
+  .adminKitchenBoard { grid-template-columns: 1fr; overflow-x: visible; }
+}
+
+@media (max-width: 820px), (pointer: coarse) {
+  .adminNotification a,.adminNotification button,.adminSoundButton,.adminDeleteButton,.adminInlineUpdate button,.adminCreateRecord > summary,.adminEditRecord > summary,.adminContentWorkflow a { min-height: 2.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

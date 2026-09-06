@@ -259,17 +259,13 @@ export function CheckoutForm() {
           </div>
           <div className="summaryTotals">
             <p><span>Subtotal</span><b>{formatPrice(subtotalPence)}</b></p>
-            <p><span>Delivery</span><b>{deliveryFee ? formatPrice(deliveryFee) : "—"}</b></p>
+            <p><span>Delivery</span><b>{deliveryFee ? formatPrice(deliveryFee) : "Included"}</b></p>
             <strong><span>Total to pay</span><b>{formatPrice(totalPence)}</b></strong>
           </div>
           {error && <div className="checkoutError" role="alert" aria-live="assertive">{error}</div>}
           <button className="payButton" type="submit" disabled={submitting || !paymentReady} aria-busy={submitting}>
             <span>{paymentButtonLabel}</span><b aria-hidden="true">→</b>
           </button>
-          <div className="summarySecurityNote">
-            <span aria-hidden="true">✓</span>
-            <p><strong>Secure Stripe checkout</strong>Your card details never pass through this website.</p>
-          </div>
           <button className="clearOrder" type="button" onClick={clearCart}>Clear order</button>
           <small>Totals and item availability are checked again securely before payment begins.</small>
         </aside>

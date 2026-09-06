@@ -68,6 +68,9 @@ export type HallEnquiry = {
   adminNotes: string;
 };
 
+export type AdminReservationInput = Omit<TableReservation, "id" | "reference" | "createdAt" | "updatedAt">;
+export type AdminHallEnquiryInput = Omit<HallEnquiry, "id" | "reference" | "createdAt" | "updatedAt">;
+
 export class BookingValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -79,6 +82,12 @@ function text(value: unknown, label: string, max: number, required = true) {
   const result = typeof value === "string" ? value.trim().slice(0, max) : "";
   if (required && !result) throw new BookingValidationError(`${label} is required.`);
   return result;
+}
+
+function statusFromList<T extends string>(value: unknown, values: readonly T[], label: string): T {
+  const result = typeof value === "string" ? value : "";
+  if (!values.includes(result as T)) throw new BookingValidationError(`Choose a valid ${label.toLowerCase()}.`);
+  return result as T;
 }
 
 function email(value: unknown) {
@@ -181,5 +190,58 @@ export function validateHallEnquiry(input: unknown) {
     alternativeDate,
     guestCount, occasion: text(body.occasion, "Occasion", 100, false),
     message: text(body.message, "What are you planning", 1_000), contactPreference,
+  };
+}
+
+export function validateAdminReservation(input: unknown, settings: BookingSettings): AdminReservationInput {
+  if (!input || typeof input !== "object") throw new BookingValidationError("Booking details are missing.");
+  const body = input as Record<string, unknown>;
+  const bookingDate = date(body.bookingDate, "Booking date");
+  const startTime = time(body.startTime, "Start time");
+  const explicitEndTime = typeof body.endTime === "string" && body.endTime.trim()
+    ? time(body.endTime, "End time")
+    : timeFromMinutes(minutes(startTime) + settings.sittingMinutes);
+  if (minutes(explicitEndTime) <= minutes(startTime)) throw new BookingValidationError("End time must be after start time.");
+  const partySize = Number(body.partySize);
+  if (!Number.isInteger(partySize) || partySize < 1 || partySize > 100) {
+    throw new BookingValidationError("Party size must be between 1 and 100 guests.");
+  }
+  return {
+    status: statusFromList(body.status || "confirmed", reservationStatuses, "Reservation status"),
+    name: text(body.name, "Name", 100),
+    email: email(body.email),
+    phone: phone(body.phone),
+    bookingDate,
+    startTime,
+    endTime: explicitEndTime,
+    partySize,
+    occasion: text(body.occasion, "Occasion", 80, false),
+    accessibilityNeeds: text(body.accessibilityNeeds, "Accessibility requirements", 400, false),
+    dietaryRequirements: text(body.dietaryRequirements, "Dietary requirements", 400, false),
+    notes: text(body.notes, "Booking notes", 600, false),
+    adminNotes: text(body.adminNotes, "Staff notes", 1_000, false),
+  };
+}
+
+export function validateAdminHallEnquiry(input: unknown): AdminHallEnquiryInput {
+  if (!input || typeof input !== "object") throw new BookingValidationError("Enquiry details are missing.");
+  const body = input as Record<string, unknown>;
+  const guestCount = body.guestCount === "" || body.guestCount == null ? null : Number(body.guestCount);
+  if (guestCount !== null && (!Number.isInteger(guestCount) || guestCount < 1 || guestCount > 500)) {
+    throw new BookingValidationError("Estimated guests must be between 1 and 500.");
+  }
+  return {
+    status: statusFromList(body.status || "new", hallEnquiryStatuses, "Hall enquiry status"),
+    name: text(body.name, "Name", 100),
+    email: email(body.email),
+    phone: phone(body.phone),
+    preferredDate: date(body.preferredDate, "Preferred date"),
+    preferredTime: text(body.preferredTime, "Preferred time", 40, false),
+    alternativeDate: body.alternativeDate ? date(body.alternativeDate, "Alternative date") : "",
+    guestCount,
+    occasion: text(body.occasion, "Occasion", 100, false),
+    message: text(body.message, "What are you planning", 1_000),
+    contactPreference: body.contactPreference === "email" ? "email" : "phone",
+    adminNotes: text(body.adminNotes, "Staff notes", 1_000, false),
   };
 }

@@ -91,6 +91,7 @@ export const siteSettingsQuery = defineQuery(`*[_id == "siteSettings"][0] {
   address,
   coordinates,
   mapUrl,
+  mapEmbedUrl,
   openingHours,
   socialLinks,
   primaryNavigation,

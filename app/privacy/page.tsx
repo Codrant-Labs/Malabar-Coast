@@ -35,13 +35,13 @@ const sections: LegalSection[] = [
     title: "The personal data we collect",
     content: (
       <ul>
-        <li><strong>Order data</strong> — name, email, phone number, order details, collection or delivery information, and payment confirmation. We do not store full card details.</li>
-        <li><strong>Table reservation data</strong> — contact details, date, arrival time, party size, occasion, dietary information, accessibility requirements and booking notes.</li>
-        <li><strong>Hall enquiry data</strong> — contact details, preferred and alternative dates, estimated guest count, occasion, contact preference and the event information you provide.</li>
-        <li><strong>Communications & support data</strong> — messages you send us by email, phone or another available contact channel, plus feedback or reviews you provide.</li>
-        <li><strong>Marketing preferences</strong> — your consent choices and how you engage with messages, if marketing subscriptions are introduced.</li>
-        <li><strong>Device & usage data</strong> — technical request and security information. Additional analytics or advertising data would only be collected after valid consent.</li>
-        <li><strong>Delivery data</strong> — delivery address, chosen date or slot, and any delivery instructions you submit.</li>
+        <li><strong>Order data:</strong> name, email, phone number, order details, collection or delivery information, and payment confirmation. We do not store full card details.</li>
+        <li><strong>Table reservation data:</strong> contact details, date, arrival time, party size, occasion, dietary information, accessibility requirements and booking notes.</li>
+        <li><strong>Hall enquiry data:</strong> contact details, preferred and alternative dates, estimated guest count, occasion, contact preference and the event information you provide.</li>
+        <li><strong>Communications & support data:</strong> messages you send us by email, phone or another available contact channel, plus feedback or reviews you provide.</li>
+        <li><strong>Marketing preferences:</strong> your consent choices and how you engage with messages, if marketing subscriptions are introduced.</li>
+        <li><strong>Device & usage data:</strong> technical request and security information. Additional analytics or advertising data would only be collected after valid consent.</li>
+        <li><strong>Delivery data:</strong> delivery address, chosen date or slot, and any delivery instructions you submit.</li>
       </ul>
     ),
   },
@@ -75,11 +75,11 @@ const sections: LegalSection[] = [
       <>
         <p>We do not sell personal data. We share it only with trusted service providers acting on our instructions, where needed to provide the service, or where required by law. These may include:</p>
         <ul>
-          <li><strong>Stripe</strong> — secure hosted payment processing and payment-status confirmation.</li>
-          <li><strong>Supabase</strong> — secure database and application services used to store and process order records.</li>
-          <li><strong>Brevo</strong> — transactional email delivery for order, table reservation and hall enquiry messages.</li>
-          <li><strong>Delivery partners</strong> — where needed to fulfil a delivery order.</li>
-          <li><strong>Professional and regulatory recipients</strong> — where necessary to comply with law or establish, exercise or defend legal rights.</li>
+          <li><strong>Stripe:</strong> secure hosted payment processing and payment-status confirmation.</li>
+          <li><strong>Supabase:</strong> secure database and application services used to store and process order records.</li>
+          <li><strong>Brevo:</strong> transactional email delivery for order, table reservation and hall enquiry messages.</li>
+          <li><strong>Delivery partners:</strong> where needed to fulfil a delivery order.</li>
+          <li><strong>Professional and regulatory recipients:</strong> where necessary to comply with law or establish, exercise or defend legal rights.</li>
         </ul>
       </>
     ),
