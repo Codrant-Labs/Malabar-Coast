@@ -111,7 +111,7 @@ export function MenuExperience({categories, items, page}: {categories: MenuCateg
           <p aria-live="polite">{normalisedSearch ? `${filteredItems.length} ${filteredItems.length === 1 ? "dish" : "dishes"} found` : "Search the full menu"}</p>
         </div>
         {visibleCategories.length > 0 && <nav className="menuCategoryNav" aria-label="Jump to a menu category"><span>Jump to</span>{visibleCategories.map((category) => <a href={`#${category.slug}`} key={category.slug}>{category.title}</a>)}</nav>}
-        {normalisedSearch && filteredItems.length === 0 && <div className="menuSearchEmpty"><p>No dishes match “{searchQuery.trim()}”.</p><span>Try a dish name, ingredient or category—or clear the search to see the full menu.</span><button type="button" onClick={() => setSearchQuery("")}>Show the full menu</button></div>}
+        {normalisedSearch && filteredItems.length === 0 && <div className="menuSearchEmpty"><p>No dishes match “{searchQuery.trim()}”.</p><span>Try a dish name, ingredient or category, or clear the search to see the full menu.</span><button type="button" onClick={() => setSearchQuery("")}>Show the full menu</button></div>}
         <div className="manifestGrid">
           {visibleCategories.map((category) => {
             const categoryItems = filteredItems.filter((menuItem) => menuItem.category === category.slug);

@@ -198,7 +198,7 @@
 .menuSearch input::placeholder { color: rgba(16,32,28,.5); }
 .menuSearch input:focus { border-color: #805621; box-shadow: 0 0 0 3px rgba(140,96,40,.13); }
 .menuSearch > div > span { position: absolute; left: .9rem; color: #805621; font-size: 1.4rem; }
-.menuSearch button { position: absolute; right: .7rem; min-height: 2.3rem; padding: 0 .7rem; border: 0; background: #10201c; color: #e8dfcb; cursor: pointer; font: inherit; font-size: .52rem; letter-spacing: .12em; text-transform: uppercase; }
+.menuSearch button { position: absolute; right: .45rem; min-height: 2.75rem; padding: 0 .8rem; border: 0; background: #10201c; color: #e8dfcb; cursor: pointer; font: inherit; font-size: .52rem; letter-spacing: .12em; text-transform: uppercase; }
 .menuSearch > p { margin: 0; color: rgba(16,32,28,.58); font-size: .64rem; letter-spacing: .08em; text-align: right; text-transform: uppercase; }
 .menuSearchEmpty { grid-column: 1 / -1; padding: 4rem 0; border-bottom: 1px solid rgba(16,32,28,.25); text-align: center; }
 .menuSearchEmpty p { margin: 0; font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(1.8rem, 3vw, 3rem); }

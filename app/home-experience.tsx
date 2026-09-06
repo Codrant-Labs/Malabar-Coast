@@ -13,15 +13,12 @@ import {PromotionPopup} from "./components/promotion-popup";
 import type {DailySpecial} from "@/sanity/lib/daily-specials";
 import type {BookingSettings} from "./lib/bookings";
 import {TableBookingForm} from "./components/table-booking-form";
+import {malabarCoastIntroduction} from "./lib/brand-content";
+import {site} from "./lib/site";
 
 const REDUCED_MOTION_INTRO_DELAY_MS = 120;
 const REPLAY_INTRO_EVENT = "malabar:replay-intro";
 const HERO_FOOTER_SCROLL_THRESHOLD = 4;
-const GOOGLE_MAPS_URL =
-  "https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+North+Lanarkshire+ML1+4TH";
-const GOOGLE_MAPS_EMBED_URL =
-  "https://www.google.com/maps?q=33+Main+Street,+Holytown,+North+Lanarkshire,+ML1+4TH&output=embed";
-
 export type HomeCmsContent = {
   heroEyebrow?: string;
   heroHeading?: string;
@@ -40,6 +37,9 @@ export type HomeCmsContent = {
   reservationText?: string;
   reservationPrimaryLink?: {label: string; href: string};
   reservationSecondaryLink?: {label: string; href: string};
+  mapUrl?: string;
+  mapEmbedUrl?: string;
+  coordinates?: {latitude: number; longitude: number};
   testimonials?: TestimonialRecord[];
 };
 
@@ -56,6 +56,8 @@ function CompassMark() {
 export function HomeExperience({content, menuItems, promotions, dailySpecials, bookingSettings}: {content: HomeCmsContent; menuItems: MenuItem[]; promotions: Promotion[]; dailySpecials: DailySpecial[]; bookingSettings: BookingSettings}) {
   const [introActive, setIntroActive] = useState(true);
   const [heroFooterRevealed, setHeroFooterRevealed] = useState(false);
+  const latitude = content.coordinates?.latitude ?? site.geo.latitude;
+  const longitude = content.coordinates?.longitude ?? site.geo.longitude;
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -182,20 +184,20 @@ export function HomeExperience({content, menuItems, promotions, dailySpecials, b
         </div>
       </section>
 
-      <Link className="heroDish" href="/story" aria-label="Read the story behind Malabar Coast">
+      <Link className="heroDish" href="/offers" aria-label="Explore the latest Malabar Coast offers">
         <span className="heroDishImage">
           <Image
-            src="/malabar-hero.jpg"
-            alt="An uru vessel crossing the old Malabar spice route"
+            src={promotions[0]?.poster.url || "/malabar-hero.jpg"}
+            alt={promotions[0]?.poster.alt || "Malabar Coast offers and seasonal specials"}
             fill
             sizes="180px"
             priority
           />
         </span>
         <span className="heroDishCopy">
-          <small>The story behind the table</small>
-          <strong>From one coast to another</strong>
-          <i>Follow the voyage ↗</i>
+          <small>{promotions[0]?.badge || "Offers from the coast"}</small>
+          <strong>{promotions[0]?.title || "Discover our latest offers"}</strong>
+          <i>Explore all offers ↗</i>
         </span>
       </Link>
 
@@ -224,9 +226,7 @@ export function HomeExperience({content, menuItems, promotions, dailySpecials, b
         <div className="homeOverviewLead">
           <h2 id="home-overview-title">{content.overviewHeading || <>What is<br />Malabar Coast?</>}</h2>
           <div>
-            <p>
-              {content.overviewText || "Malabar Coast is a Southern Indian coastal restaurant at 33 Main Street in Holytown, Scotland. The kitchen connects Kerala's pepper, coconut, curry leaf and tamarind with Scottish seafood and produce in dishes designed for sharing."}
-            </p>
+            {(content.overviewText ? content.overviewText.split(/\n\s*\n/) : [...malabarCoastIntroduction]).map((paragraph)=><p key={paragraph}>{paragraph}</p>)}
             <Link href="/faq">Restaurant questions answered <span aria-hidden="true">↗</span></Link>
             <Link href="/hall">Discover the private hall <span aria-hidden="true">↗</span></Link>
           </div>
@@ -280,11 +280,13 @@ export function HomeExperience({content, menuItems, promotions, dailySpecials, b
         <div className="homeReservationsLocation">
           <div className="homeReservationsMap">
             <iframe
-              src={GOOGLE_MAPS_EMBED_URL}
+              src={content.mapEmbedUrl || site.maps.embedUrl}
+              width="600"
+              height="450"
               title="Map showing Malabar Coast at 33 Main Street in Holytown"
               loading="lazy"
               allowFullScreen
-              referrerPolicy="no-referrer-when-downgrade"
+              referrerPolicy="strict-origin-when-cross-origin"
             />
             <span aria-hidden="true">Map · Holytown</span>
           </div>
@@ -296,11 +298,11 @@ export function HomeExperience({content, menuItems, promotions, dailySpecials, b
               North Lanarkshire · ML1 4TH
             </address>
             <div className="homeReservationsCoordinates" aria-label="Restaurant coordinates">
-              <span>55.8207° N</span>
+              <span>{Math.abs(latitude).toFixed(4)}° {latitude >= 0 ? "N" : "S"}</span>
               <i aria-hidden="true" />
-              <span>3.9735° W</span>
+              <span>{Math.abs(longitude).toFixed(4)}° {longitude >= 0 ? "E" : "W"}</span>
             </div>
-            <a href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer">
+            <a href={content.mapUrl || site.maps.directionsUrl} target="_blank" rel="noreferrer">
               Get Directions <span aria-hidden="true">↗</span>
             </a>
           </div>

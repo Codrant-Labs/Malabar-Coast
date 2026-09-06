@@ -3,6 +3,8 @@ import {basename, join} from "node:path";
 import {createClient} from "next-sanity";
 import {faqItems} from "../app/lib/faq";
 import {menuCategories, menuItems} from "../app/lib/menu";
+import {foodOfMalabarContent, malabarCoastIntroduction, ourInspirationContent, ourRestaurantsContent} from "../app/lib/brand-content";
+import {site} from "../app/lib/site";
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID?.trim();
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET?.trim() || "production";
@@ -83,10 +85,10 @@ const pageSeeds = () => [
     heroPrimaryLink: {_type: "link", label: "Explore the menu", href: "/menu", openInNewTab: false},
     heroSecondaryLink: {_type: "link", label: "Book your table", href: "/book-a-table", openInNewTab: false},
     sections: [
-      {_type: "contentSection", _key: "home-overview", internalName: "What is Malabar Coast?", eyebrow: "Our restaurant", heading: "What is Malabar Coast?", body: [block("Malabar Coast is a Southern Indian coastal restaurant in Holytown, rooted in Kerala's food, welcome and Indian Ocean history.", "overview-copy")], image: image("diningRoom", "The warmly lit Malabar Coast dining room")},
+      {_type: "contentSection", _key: "home-overview", internalName: "What is Malabar Coast?", eyebrow: "Our restaurant", heading: "What is Malabar Coast?", body: malabarCoastIntroduction.map((paragraph,index)=>block(paragraph, `overview-copy-${index+1}`)), image: image("diningRoom", "The warmly lit Malabar Coast dining room")},
       {_type: "contentSection", _key: "home-menu", internalName: "Signature menu", eyebrow: "From our kitchen", heading: "Come to the table.", body: [block("Pepper warmed over fire, coconut softened with lime and dishes prepared for sharing.", "menu-copy")], image: image("calicutPrawns", "A coastal prawn dish with curry leaf")},
       {_type: "contentSection", _key: "home-story", internalName: "Coastal story", eyebrow: "Our story", heading: "A coast that changed the table.", body: [block("Follow the old sea road from Calicut to the new coast in Scotland.", "story-copy")], image: image("storyPort", "A rain-washed historic spice port on the Malabar Coast")},
-      {_type: "callToAction", _key: "home-reservations", eyebrow: "Book your table", heading: "Your table by the coast.", text: "Choose your date, arrival time and party size online, with live capacity checked before confirmation.", primaryLink: {_type: "link", label: "Book your table", href: "/book-a-table", openInNewTab: false}, secondaryLink: {_type: "link", label: "Get directions", href: "https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+North+Lanarkshire+ML1+4TH", openInNewTab: true}, image: image("tableForTwo", "An intimate table for two at Malabar Coast")},
+      {_type: "callToAction", _key: "home-reservations", eyebrow: "Book your table", heading: "Your table by the coast.", text: "Choose your date, arrival time and party size online, with live capacity checked before confirmation.", primaryLink: {_type: "link", label: "Book your table", href: "/book-a-table", openInNewTab: false}, secondaryLink: {_type: "link", label: "Get directions", href: site.maps.directionsUrl, openInNewTab: true}, image: image("tableForTwo", "An intimate table for two at Malabar Coast")},
     ],
     seo: {title: "Malabar Coast | Southern Indian Restaurant in Holytown", description: "Southern Indian coastal cooking from Malabar to Scotland."},
   },
@@ -98,6 +100,8 @@ const pageSeeds = () => [
     heroText: "A neighbourhood dining room for the bright, generous cooking of Kerala and India's southern coast.",
     heroImage: image("diningRoom", "The warmly lit Malabar Coast dining room with teak, cane and brass details"),
     sections: [
+      {_type: "contentSection", _key: "restaurant-restaurants", internalName: "Our Restaurants", eyebrow: ourRestaurantsContent.title, heading: ourRestaurantsContent.subtitle, body: [...ourRestaurantsContent.paragraphs.map((paragraph,index)=>block(paragraph, `restaurants-copy-${index+1}`)), block(ourRestaurantsContent.locationTitle, "restaurants-location-title"), block(ourRestaurantsContent.address, "restaurants-location-address")]},
+      {_type: "contentSection", _key: "restaurant-food", internalName: "The Food of Malabar", eyebrow: foodOfMalabarContent.title, heading: foodOfMalabarContent.subtitle, body: foodOfMalabarContent.paragraphs.map((paragraph,index)=>block(paragraph, `food-copy-${index+1}`))},
       {_type: "contentSection", _key: "restaurant-welcome", internalName: "Welcome", eyebrow: "A warm arrival", heading: "Welcomed like home.", body: [block("Come for a quick supper, a long family table or a celebration. The welcome is relaxed, the plates are made for sharing, and there is always room for one more.", "welcome-copy")], image: image("tableForTwo", "A warm table setting at Malabar Coast")},
       {_type: "contentSection", _key: "restaurant-room", internalName: "The room", eyebrow: "Material and memory", heading: "Grounded in the coast.", body: [block("Dark teak, aged brass, cane, lime plaster, linen and laterite tones bring Kerala's textures into a contemporary Scottish dining room.", "room-copy")], image: image("archedPassage", "A plaster arch and teak screen leading into the dining room")},
       {_type: "callToAction", _key: "restaurant-hall", eyebrow: "Private gatherings", heading: "A room of your own.", text: "A flexible private hall with a built-in bar, raised stage and open floor.", primaryLink: {_type: "link", label: "Explore the private hall", href: "/hall", openInNewTab: false}, image: image("hallThree", "The private hall with stage and flexible seating")},
@@ -151,6 +155,7 @@ const pageSeeds = () => [
     heroText: "A coastline shaped by rain, trade and welcome, where food became a language long before it became a menu.",
     heroImage: image("storyPort", "A rain-washed historic spice port on the Malabar Coast"),
     sections: [
+      {_type: "contentSection", _key: "story-inspiration", internalName: "Our Inspiration", eyebrow: ourInspirationContent.title, heading: ourInspirationContent.subtitle, body: ourInspirationContent.paragraphs.map((paragraph,index)=>block(paragraph, `inspiration-copy-${index+1}`))},
       {_type: "contentSection", _key: "story-pepper", internalName: "Pepper", eyebrow: "Chapter I", heading: "The pepper coast", body: [block("For over 3,000 years, travellers came for black pepper, cardamom, cinnamon and cloves.", "pepper-copy")], image: image("storyPepper", "Black pepper and coastal ingredients")},
       {_type: "contentSection", _key: "story-monsoon", internalName: "Monsoon", eyebrow: "Chapter II", heading: "The monsoon road", body: [block("Seasonal winds connected the Malabar Coast with distant ports across the Indian Ocean.", "monsoon-copy")], image: image("storyGhats", "The green Western Ghats in monsoon weather")},
       {_type: "callToAction", _key: "story-table", eyebrow: "The story made edible", heading: "History, served warm.", text: "The old sea road is still present in the pepper, coconut and cardamom cooked with every day.", primaryLink: {_type: "link", label: "View the menu", href: "/menu", openInNewTab: false}, image: image("scotlandFish", "Fish in a golden coastal curry")},
@@ -165,7 +170,7 @@ const pageSeeds = () => [
     heroText: "Long before it appeared in a recipe book, Malabar pepper was measured here by hand and carried by the turning winds.",
     heroImage: image("storyPort", "The historic spice port of Calicut opening onto the Arabian Sea"),
     sections: [
-      {_type: "contentSection", _key: "calicut-intro", internalName: "The beginning", eyebrow: "01 / The beginning", heading: "The harbour where flavour became history.", note: "Arabian Sea · Monsoon season", body: [block("Calicut was less a border than a threshold—the place where soil, sea and distant tables met.", "calicut-intro-copy")]},
+      {_type: "contentSection", _key: "calicut-intro", internalName: "The beginning", eyebrow: "01 / The beginning", heading: "The harbour where flavour became history.", note: "Arabian Sea · Monsoon season", body: [block("Calicut was less a border than a threshold, the place where soil, sea and distant tables met.", "calicut-intro-copy")]},
       {_type: "contentSection", _key: "calicut-pepper", internalName: "Black gold", eyebrow: "The black gold of Malabar", heading: "Small enough to hold between two fingers. Valuable enough to redraw the world.", body: [block("Pepper thrived in the wet shade of the Western Ghats. Its clean, floral heat made it currency, medicine and obsession in ports thousands of miles away.", "calicut-pepper-copy")], image: image("storyPepper", "Peppercorns weighed on a brass merchant's balance")},
       {_type: "contentSection", _key: "calicut-monsoon", internalName: "Monsoon landscape", image: image("storyGhats", "Pepper vines climbing through the monsoon forest of the Western Ghats")},
       {_type: "contentSection", _key: "calicut-exchange", internalName: "Living exchange", eyebrow: "Port ledger · A living exchange", heading: "What arrived. What remained.", items: [
@@ -312,8 +317,9 @@ async function seed() {
     footerCreditLabel: "Made by Codrantlabs.in",
     footerCreditUrl: "https://codrantlabs.in/",
     address: {streetAddress: "33 Main Street", locality: "Holytown", region: "North Lanarkshire", postalCode: "ML1 4TH", country: "GB"},
-    coordinates: {latitude: 55.8207, longitude: -3.9735},
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+North+Lanarkshire+ML1+4TH",
+    coordinates: {latitude: site.geo.latitude, longitude: site.geo.longitude},
+    mapUrl: site.maps.directionsUrl,
+    mapEmbedUrl: site.maps.embedUrl,
     openingHours: [],
     socialLinks: [{_key: "instagram", platform: "Instagram", url: "https://www.instagram.com/malabarcoastuk"}],
     primaryNavigation: [
@@ -341,7 +347,7 @@ async function seed() {
   for (const [index, faq] of faqItems.entries()) await upsertByField("faqItem", "question", faq.question, {question: faq.question, answer: faq.answer, category: index >= 15 ? "Private hall" : "Restaurant", displayOrder: index, published: true});
 
   const testimonials = [
-    {name: "Just Eat guests", source: "Independent delivery platform", rating: 4.75, quote: "Eight early diners placed Malabar Coast at 4.75 out of 5 — a warm first word from Holytown."},
+    {name: "Just Eat guests", source: "Independent delivery platform", rating: 4.75, quote: "Eight early diners placed Malabar Coast at 4.75 out of 5, a warm first word from Holytown."},
     {name: "Uber Eats guests", source: "Independent delivery platform", rating: 5, quote: "The first two ratings arrived as a perfect 5.0 out of 5, carrying the earliest taste of the kitchen beyond our doors."},
   ];
   for (const [index, testimonial] of testimonials.entries()) await upsertByField("testimonial", "name", testimonial.name, {...testimonial, displayOrder: index, published: true});

@@ -11,7 +11,7 @@ const homeStoryChapters = [
     number: "01",
     label: "Calicut · The first port",
     title: "A coast open to the world.",
-    copy: "For three thousand years, monsoon winds carried travellers to Malabar—and pepper from these shores to tables far beyond them.",
+    copy: "For three thousand years, monsoon winds carried travellers to Malabar, and pepper from these shores to tables far beyond them.",
     image: "/story/calicut-spice-port.png",
     alt: "A historic spice port on the Malabar Coast opening onto the Arabian Sea",
   },

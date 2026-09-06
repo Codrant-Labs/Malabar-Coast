@@ -11,7 +11,7 @@ const testimonialRecords = [
     rating: "4.75",
     ratingLabel: "Rated 4.75 out of 5",
     ratingCount: "8 public ratings",
-    text: "Eight early diners have already placed Malabar Coast at 4.75 out of 5—a warm first word from Holytown.",
+    text: "Eight early diners have already placed Malabar Coast at 4.75 out of 5, a warm first word from Holytown.",
     author: "Just Eat guests",
     role: "Independent delivery platform",
     sources: [{ url: "https://www.just-eat.co.uk/area/ML1-Holytown", label: "View source" }],
@@ -29,7 +29,7 @@ const testimonialRecords = [
     rating: "4.80",
     ratingLabel: "Combined rating of 4.8 out of 5",
     ratingCount: "10 ratings across two platforms",
-    text: "Taken together, the ten published ratings average 4.8 out of 5—a transparent combined view of the early guest response.",
+    text: "Taken together, the ten published ratings average 4.8 out of 5, a transparent combined view of the early guest response.",
     author: "Combined guest score",
     role: "Calculated from the two public records above",
     sources: [

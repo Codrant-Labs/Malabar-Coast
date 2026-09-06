@@ -26,8 +26,12 @@ export const site = {
     addressCountry: "GB",
   },
   geo: {
-    latitude: 55.8207,
-    longitude: -3.9735,
+    latitude: 55.82137044664088,
+    longitude: -3.977184928534912,
+  },
+  maps: {
+    directionsUrl: "https://www.google.com/maps/search/?api=1&query=MALABAR+COAST+33+Main+Street+Holytown+ML1+4TH",
+    embedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d166.5915347424156!2d-3.977184928534912!3d55.82137044664088!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48886d005a9bd0b5%3A0x9fbf2c81d7d0d5e8!2sMALABAR%20COAST!5e0!3m2!1sen!2sin!4v1788676352372!5m2!1sen!2sin",
   },
 } as const;
 

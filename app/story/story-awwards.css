@@ -142,7 +142,8 @@
 .storyFilmFooter i { display: block; width: 2.5rem; height: 1px; background: var(--story-brass); }
 
 .storyManifesto {
-  padding: clamp(3.75rem, 5.5vw, 6rem) clamp(1.25rem, 4vw, 4.5rem) clamp(4rem, 6vw, 6.5rem);
+  --story-manifesto-gutter: max(clamp(1.25rem, 4vw, 4.5rem), calc((100vw - 108rem) / 2));
+  padding: clamp(4.5rem, 6vw, 7rem) var(--story-manifesto-gutter) clamp(5rem, 7vw, 8rem);
   background: var(--story-paper);
   color: #10201c;
 }
@@ -162,12 +163,12 @@
   display: flex;
   justify-content: space-between;
   gap: 2vw;
-  margin: clamp(2.25rem, 4vw, 4rem) 0;
+  margin: clamp(3rem, 4.5vw, 5rem) 0 clamp(4rem, 6vw, 7rem);
   font-family: "Bodoni 72", Didot, "Iowan Old Style", serif;
-  font-size: clamp(5.5rem, 13vw, 13rem);
+  font-size: clamp(5.5rem, 10.5vw, 11rem);
   font-weight: 400;
-  line-height: .6;
-  letter-spacing: -.085em;
+  line-height: .68;
+  letter-spacing: -.075em;
   text-transform: uppercase;
 }
 
@@ -175,22 +176,24 @@
 
 .storyManifestoCopy {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: clamp(2rem, 5vw, 6rem);
+  grid-template-columns: minmax(18rem, .68fr) minmax(34rem, 1.32fr);
+  gap: clamp(3rem, 6vw, 8rem);
   align-items: start;
-  margin-left: clamp(0rem, 7vw, 8rem);
+  margin-left: clamp(0rem, 5vw, 6rem);
+  padding-top: clamp(2rem, 3vw, 3.5rem);
+  border-top: 1px solid rgba(16, 32, 28, .25);
 }
 
 .storyManifestoCopy > p {
-  max-width: 38rem;
+  max-width: 28rem;
   margin: 0;
   font-family: "Iowan Old Style", Georgia, serif;
-  font-size: clamp(1.6rem, 2.7vw, 3.15rem);
-  line-height: 1.14;
+  font-size: clamp(1.7rem, 2.2vw, 2.6rem);
+  line-height: 1.18;
 }
 
-.storyManifestoCopy > div { display: grid; gap: 1.3rem; max-width: 29rem; }
-.storyManifestoCopy > div p { margin: 0; color: rgba(16, 32, 28, .74); font-family: "Iowan Old Style", Georgia, serif; font-size: 1rem; line-height: 1.7; }
+.storyManifestoCopy > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem clamp(2rem, 3vw, 3.75rem); max-width: none; }
+.storyManifestoCopy > div p { margin: 0; color: rgba(16, 32, 28, .74); font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(1rem, 1.08vw, 1.14rem); line-height: 1.72; }
 
 .storyAtlas {
   display: grid;
@@ -374,6 +377,7 @@
   .storyManifestoTitle { flex-direction: column; gap: .18em; font-size: clamp(5rem,19vw,9rem); }
   .storyManifestoTitle span:last-child { margin-left: 12vw; }
   .storyManifestoCopy { grid-template-columns: 1fr; margin-left: 0; }
+  .storyManifestoCopy > div { grid-template-columns: 1fr; max-width: 42rem; }
   .storyAtlas { display: block; }
   .storyAtlasCopy { position: sticky; z-index: 4; top: 0; min-height: 46vh; border-right: 0; background: rgba(7,19,16,.94); }
   .storyAtlasPanels { height: 46vh; min-height: 28rem; }

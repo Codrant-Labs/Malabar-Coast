@@ -6,6 +6,7 @@ import { StoryTransitionLink } from "./story-transition-link";
 import { JsonLd } from "../components/json-ld";
 import { absoluteUrl } from "../lib/site";
 import {getMarketingPage, getMarketingPageMetadata, getPageSection, portableTextToPlainText} from "@/sanity/lib/pages";
+import {ourInspirationContent} from "../lib/brand-content";
 
 const fallbackMetadata: Metadata = {
   title: "Our Story: From Malabar to Scotland",
@@ -107,6 +108,8 @@ const dishesFromTheStory = [
 
 export default async function StoryPage() {
   const cmsPage = await getMarketingPage("story");
+  const inspirationSection = getPageSection(cmsPage, "story-inspiration");
+  const inspirationParagraphs = portableTextToPlainText(inspirationSection?.body).split(/\n\s*\n/).filter(Boolean);
   const cmsChapters = [getPageSection(cmsPage, "story-pepper"), getPageSection(cmsPage, "story-monsoon")];
   const renderedChapters = chapters.map((chapter, index) => {
     const cmsChapter = cmsChapters[index];
@@ -159,23 +162,16 @@ export default async function StoryPage() {
 
       <section className="storyManifesto" id="story-content" aria-labelledby="manifesto-title">
         <div className="storyManifestoMeta" data-reveal>
-          <span>A culinary journey</span>
-          <span>Malabar to Scotland</span>
+          <span>{inspirationSection?.eyebrow || ourInspirationContent.title}</span>
+          <span>{inspirationSection?.heading || ourInspirationContent.subtitle}</span>
         </div>
         <h2 className="storyManifestoTitle" id="manifesto-title" aria-label="Our story">
           <span>Our</span><span>story</span>
         </h2>
         <div className="storyManifestoCopy">
-          <p data-reveal>
-            {cmsPage?.heroText || "A coastline shaped by rain, trade and welcome—where food became a language long before it became a menu."}
-          </p>
+          <p data-reveal>{inspirationSection?.heading || ourInspirationContent.subtitle}</p>
           <div data-reveal>
-            <p>
-              For over 3,000 years, this legendary shore welcomed travellers from Arabia, Rome, China and beyond, drawn by black pepper, cardamom, cinnamon and cloves.
-            </p>
-            <p>
-              We carry that exchange forward in Scotland: not as nostalgia, but as a living coastal kitchen rooted in generosity, balance and the memory of the sea.
-            </p>
+            {(inspirationParagraphs.length ? inspirationParagraphs : ourInspirationContent.paragraphs).map((paragraph)=><p key={paragraph}>{paragraph}</p>)}
           </div>
         </div>
       </section>

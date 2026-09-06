@@ -8,6 +8,7 @@ import { formatPrice } from "../lib/menu";
 import { absoluteUrl } from "../lib/site";
 import {getMarketingPage, getMarketingPageMetadata, getPageSection, portableTextToPlainText} from "@/sanity/lib/pages";
 import {getMenuContent} from "@/sanity/lib/menu";
+import {foodOfMalabarContent, ourRestaurantsContent} from "../lib/brand-content";
 
 const fallbackMetadata: Metadata = {
   title: "Restaurant in Holytown",
@@ -49,7 +50,7 @@ const signatures = [
     image: "/menu/cape-malay-lamb.png",
     eyebrow: "From the fire",
     title: "Spice with patience.",
-    copy: "Slow braises, toasted masala and smoke — layered for depth, never heat for its own sake.",
+    copy: "Slow braises, toasted masala and smoke, layered for depth, never heat for its own sake.",
   },
   {
     id: "desserts-malabar-coast-special-dessert",
@@ -62,7 +63,10 @@ const signatures = [
 
 export default async function RestaurantPage() {
   const [cmsPage, {items: currentMenuItems}] = await Promise.all([getMarketingPage("restaurant"), getMenuContent()]);
-  const welcomeSection = getPageSection(cmsPage, "restaurant-welcome");
+  const foodSection = getPageSection(cmsPage, "restaurant-food");
+  const restaurantsSection = getPageSection(cmsPage, "restaurant-restaurants");
+  const restaurantsParagraphs = portableTextToPlainText(restaurantsSection?.body).split(/\n\s*\n/).filter(Boolean);
+  const foodParagraphs = portableTextToPlainText(foodSection?.body).split(/\n\s*\n/).filter(Boolean);
   const roomSection = getPageSection(cmsPage, "restaurant-room");
   const hallSection = getPageSection(cmsPage, "restaurant-hall");
   return (
@@ -85,23 +89,19 @@ export default async function RestaurantPage() {
       </section>
 
       <section className="restaurantWelcome">
-        <Reveal className="welcomeLabel">{welcomeSection?.eyebrow || "A warm arrival"}</Reveal>
-        <Reveal as="h2" delay={70}>{welcomeSection?.heading || <>Welcomed<br />like home.</>}</Reveal>
+        <Reveal className="welcomeLabel">{restaurantsSection?.eyebrow || ourRestaurantsContent.title}</Reveal>
+        <Reveal as="h2" delay={70}>{restaurantsSection?.heading || ourRestaurantsContent.subtitle}</Reveal>
         <div className="welcomeCopy">
-          {welcomeSection ? <Reveal as="p">{portableTextToPlainText(welcomeSection.body)}</Reveal> : <>
-          <Reveal as="p">
-            A neighbourhood dining room for the bright, generous cooking of Kerala and India&apos;s
-            southern coast.
-          </Reveal>
-          <Reveal as="p" delay={80}>
-            Our kitchen begins with curry leaf, coconut, tamarind, pepper and seafood. Familiar
-            ingredients are cooked with the patience and balance that define Malabar food.
-          </Reveal>
-          <Reveal as="p" delay={140}>
-            Come for a quick supper, a long family table or a celebration. The welcome is relaxed,
-            the plates are made for sharing, and there is always room for one more.
-          </Reveal>
-          </>}
+          {(restaurantsParagraphs.length ? restaurantsParagraphs : ourRestaurantsContent.paragraphs).map((paragraph,index)=><Reveal as="p" delay={index*70} key={paragraph}>{paragraph}</Reveal>)}
+          {!restaurantsParagraphs.length&&<Reveal as="p" delay={210}><strong>{ourRestaurantsContent.locationTitle}</strong><br/>{ourRestaurantsContent.address}</Reveal>}
+        </div>
+      </section>
+
+      <section className="restaurantWelcome">
+        <Reveal className="welcomeLabel">{foodSection?.eyebrow || foodOfMalabarContent.title}</Reveal>
+        <Reveal as="h2" delay={70}>{foodSection?.heading || foodOfMalabarContent.subtitle}</Reveal>
+        <div className="welcomeCopy">
+          {(foodParagraphs.length ? foodParagraphs : foodOfMalabarContent.paragraphs).map((paragraph,index)=><Reveal as="p" delay={index*60} key={paragraph}>{paragraph}</Reveal>)}
         </div>
       </section>
 
@@ -199,13 +199,13 @@ export default async function RestaurantPage() {
         <div>
           <Reveal as="p">
             Coastal Kerala has always looked outward. Traders, travellers and cooks left traces
-            that still live in its food — in the pepper, the bread and the gentle acidity of a curry.
+            that still live in its food, in the pepper, the bread and the gentle acidity of a curry.
           </Reveal>
           <Reveal as="p" delay={80}>
             We honour that history without turning it into a museum: the cooking is rooted in
             tradition, made fresh for the table in front of us.
           </Reveal>
-          <Reveal as="strong" delay={140}>This is more than dining — this is Malabar Coast.</Reveal>
+          <Reveal as="strong" delay={140}>This is more than dining. This is Malabar Coast.</Reveal>
           <Reveal className="bridgeLinks" delay={180}>
             <Link href="/story">Read our story <span>→</span></Link>
             <Link href="/menu">View the menu <span>↗</span></Link>

@@ -4,10 +4,10 @@ import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import type { OrderRecord } from "../../lib/orders";
 import { OrderTable } from "./admin-ui";
-import { armOrderNotificationSound, playOrderNotificationSound } from "./order-notification-sound";
 
 type BroadcastPayload = {
-  orderId?: unknown;
+  kind?: unknown;
+  recordId?: unknown;
 };
 
 type ConnectionState = "connecting" | "live" | "unavailable";
@@ -33,19 +33,14 @@ export function LiveRecentOrders({
   useEffect(() => {
     if (!supabaseUrl || !publishableKey) return;
 
-    const armSound = () => {
-      void armOrderNotificationSound();
-    };
-    window.addEventListener("pointerdown", armSound, { once: true });
-    window.addEventListener("keydown", armSound, { once: true });
-
     const supabase = createClient(supabaseUrl, publishableKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
     const pendingRequests = new Set<string>();
 
     const loadOrder = async (payload: BroadcastPayload) => {
-      const orderId = typeof payload.orderId === "string" ? payload.orderId : "";
+      if (payload.kind !== "order") return;
+      const orderId = typeof payload.recordId === "string" ? payload.recordId : "";
       if (!orderIdPattern.test(orderId) || pendingRequests.has(orderId)) return;
 
       pendingRequests.add(orderId);
@@ -59,7 +54,6 @@ export function LiveRecentOrders({
         const body = await response.json() as { order?: OrderRecord };
         if (!body.order || body.order.id !== orderId) return;
 
-        playOrderNotificationSound();
         setOrders((current) => [
           body.order!,
           ...current.filter((order) => order.id !== orderId),
@@ -72,8 +66,8 @@ export function LiveRecentOrders({
     };
 
     const channel = supabase
-      .channel("admin-orders")
-      .on("broadcast", { event: "orders-changed" }, ({ payload }) => {
+      .channel("admin-activity")
+      .on("broadcast", { event: "activity-changed" }, ({ payload }) => {
         void loadOrder(payload as BroadcastPayload);
       })
       .subscribe((status, error) => {
@@ -85,8 +79,6 @@ export function LiveRecentOrders({
       });
 
     return () => {
-      window.removeEventListener("pointerdown", armSound);
-      window.removeEventListener("keydown", armSound);
       pendingRequests.clear();
       void supabase.removeChannel(channel);
     };

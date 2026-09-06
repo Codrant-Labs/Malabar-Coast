@@ -870,6 +870,48 @@ begin
 end $$;
 revoke all on function public.update_table_reservation(text,text,text,uuid) from public; grant execute on function public.update_table_reservation(text,text,text,uuid) to service_role;
 
+create or replace function public.admin_create_table_reservation(p_data jsonb,p_actor_user_id uuid)
+returns jsonb language plpgsql security definer set search_path=public as $$
+declare r public.table_reservations%rowtype; s public.restaurant_booking_settings%rowtype; actor_email text; actor_role text; occupied integer;
+begin
+  select email,role into actor_email,actor_role from public.admin_profiles where user_id=p_actor_user_id and is_active and role in ('owner','admin','manager');
+  if not found then return null; end if;
+  select * into s from public.restaurant_booking_settings where id=1;
+  if p_data->>'status' not in ('confirmed','cancelled','completed','no_show') then return null; end if;
+  if (p_data->>'partySize')::integer not between 1 and 100 or (p_data->>'endTime')::time <= (p_data->>'startTime')::time then return null; end if;
+  if p_data->>'status'='confirmed' then
+    perform pg_advisory_xact_lock(hashtext(p_data->>'bookingDate'));
+    select coalesce(sum(party_size),0) into occupied from public.table_reservations where booking_date=(p_data->>'bookingDate')::date and status='confirmed' and deleted_at is null and start_time < (p_data->>'endTime')::time and end_time > (p_data->>'startTime')::time;
+    if occupied + (p_data->>'partySize')::integer > s.capacity then raise exception 'CAPACITY_EXCEEDED'; end if;
+  end if;
+  insert into public.table_reservations(id,reference,status,name,email,phone,booking_date,start_time,end_time,party_size,occasion,accessibility_needs,dietary_requirements,notes,admin_notes)
+  values(left(p_data->>'id',80),left(p_data->>'reference',40),p_data->>'status',left(p_data->>'name',100),lower(left(p_data->>'email',160)),left(p_data->>'phone',40),(p_data->>'bookingDate')::date,(p_data->>'startTime')::time,(p_data->>'endTime')::time,(p_data->>'partySize')::integer,left(coalesce(p_data->>'occasion',''),80),left(coalesce(p_data->>'accessibilityNeeds',''),400),left(coalesce(p_data->>'dietaryRequirements',''),400),left(coalesce(p_data->>'notes',''),600),left(coalesce(p_data->>'adminNotes',''),1000)) returning * into r;
+  insert into public.admin_audit_log(actor_user_id,actor_email,actor_role,action,target_type,target_id,metadata) values(p_actor_user_id,actor_email,actor_role,'reservation.created','table_reservation',r.id,jsonb_build_object('status',r.status,'reference',r.reference));
+  return jsonb_build_object('id',r.id,'reference',r.reference,'createdAt',r.created_at,'updatedAt',r.updated_at,'status',r.status,'name',r.name,'email',r.email,'phone',r.phone,'bookingDate',r.booking_date,'startTime',to_char(r.start_time,'HH24:MI'),'endTime',to_char(r.end_time,'HH24:MI'),'partySize',r.party_size,'occasion',r.occasion,'accessibilityNeeds',r.accessibility_needs,'dietaryRequirements',r.dietary_requirements,'notes',r.notes,'adminNotes',r.admin_notes);
+end $$;
+revoke all on function public.admin_create_table_reservation(jsonb,uuid) from public; grant execute on function public.admin_create_table_reservation(jsonb,uuid) to service_role;
+
+create or replace function public.admin_update_table_reservation(p_reservation_id text,p_data jsonb,p_actor_user_id uuid)
+returns jsonb language plpgsql security definer set search_path=public as $$
+declare r public.table_reservations%rowtype; s public.restaurant_booking_settings%rowtype; actor_email text; actor_role text; occupied integer;
+begin
+  select email,role into actor_email,actor_role from public.admin_profiles where user_id=p_actor_user_id and is_active and role in ('owner','admin','manager');
+  if not found then return null; end if;
+  select * into s from public.restaurant_booking_settings where id=1;
+  if p_data->>'status' not in ('confirmed','cancelled','completed','no_show') then return null; end if;
+  if (p_data->>'partySize')::integer not between 1 and 100 or (p_data->>'endTime')::time <= (p_data->>'startTime')::time then return null; end if;
+  if p_data->>'status'='confirmed' then
+    perform pg_advisory_xact_lock(hashtext(p_data->>'bookingDate'));
+    select coalesce(sum(party_size),0) into occupied from public.table_reservations where id<>p_reservation_id and booking_date=(p_data->>'bookingDate')::date and status='confirmed' and deleted_at is null and start_time < (p_data->>'endTime')::time and end_time > (p_data->>'startTime')::time;
+    if occupied + (p_data->>'partySize')::integer > s.capacity then raise exception 'CAPACITY_EXCEEDED'; end if;
+  end if;
+  update public.table_reservations set status=p_data->>'status',name=left(p_data->>'name',100),email=lower(left(p_data->>'email',160)),phone=left(p_data->>'phone',40),booking_date=(p_data->>'bookingDate')::date,start_time=(p_data->>'startTime')::time,end_time=(p_data->>'endTime')::time,party_size=(p_data->>'partySize')::integer,occasion=left(coalesce(p_data->>'occasion',''),80),accessibility_needs=left(coalesce(p_data->>'accessibilityNeeds',''),400),dietary_requirements=left(coalesce(p_data->>'dietaryRequirements',''),400),notes=left(coalesce(p_data->>'notes',''),600),admin_notes=left(coalesce(p_data->>'adminNotes',''),1000),updated_at=now() where id=p_reservation_id and deleted_at is null returning * into r;
+  if r.id is null then return null; end if;
+  insert into public.admin_audit_log(actor_user_id,actor_email,actor_role,action,target_type,target_id,metadata) values(p_actor_user_id,actor_email,actor_role,'reservation.updated','table_reservation',r.id,jsonb_build_object('status',r.status,'fullRecord',true));
+  return jsonb_build_object('id',r.id,'reference',r.reference,'createdAt',r.created_at,'updatedAt',r.updated_at,'status',r.status,'name',r.name,'email',r.email,'phone',r.phone,'bookingDate',r.booking_date,'startTime',to_char(r.start_time,'HH24:MI'),'endTime',to_char(r.end_time,'HH24:MI'),'partySize',r.party_size,'occasion',r.occasion,'accessibilityNeeds',r.accessibility_needs,'dietaryRequirements',r.dietary_requirements,'notes',r.notes,'adminNotes',r.admin_notes);
+end $$;
+revoke all on function public.admin_update_table_reservation(text,jsonb,uuid) from public; grant execute on function public.admin_update_table_reservation(text,jsonb,uuid) to service_role;
+
 create or replace function public.admin_delete_table_reservation(p_reservation_id text,p_actor_user_id uuid)
 returns boolean language plpgsql security definer set search_path=public as $$
 declare actor_email text; actor_role text; affected integer;
@@ -920,6 +962,32 @@ begin
 end $$;
 revoke all on function public.update_hall_enquiry(text,text,text,uuid) from public; grant execute on function public.update_hall_enquiry(text,text,text,uuid) to service_role;
 
+create or replace function public.admin_create_hall_enquiry(p_data jsonb,p_actor_user_id uuid)
+returns jsonb language plpgsql security definer set search_path=public as $$
+declare h public.hall_enquiries%rowtype; actor_email text; actor_role text;
+begin
+  select email,role into actor_email,actor_role from public.admin_profiles where user_id=p_actor_user_id and is_active and role in ('owner','admin','manager');
+  if not found or p_data->>'status' not in ('new','contacted','approved','declined') then return null; end if;
+  insert into public.hall_enquiries(id,reference,status,name,email,phone,preferred_date,preferred_time,alternative_date,guest_count,occasion,message,contact_preference,admin_notes)
+  values(left(p_data->>'id',80),left(p_data->>'reference',40),p_data->>'status',left(p_data->>'name',100),lower(left(p_data->>'email',160)),left(p_data->>'phone',40),(p_data->>'preferredDate')::date,left(coalesce(p_data->>'preferredTime',''),40),nullif(p_data->>'alternativeDate','')::date,nullif(p_data->>'guestCount','')::integer,left(coalesce(p_data->>'occasion',''),100),left(p_data->>'message',1000),case when p_data->>'contactPreference'='email' then 'email' else 'phone' end,left(coalesce(p_data->>'adminNotes',''),1000)) returning * into h;
+  insert into public.admin_audit_log(actor_user_id,actor_email,actor_role,action,target_type,target_id,metadata) values(p_actor_user_id,actor_email,actor_role,'hall.enquiry.created','hall_enquiry',h.id,jsonb_build_object('status',h.status,'reference',h.reference));
+  return jsonb_build_object('id',h.id,'reference',h.reference,'createdAt',h.created_at,'updatedAt',h.updated_at,'status',h.status,'name',h.name,'email',h.email,'phone',h.phone,'preferredDate',h.preferred_date,'preferredTime',h.preferred_time,'alternativeDate',coalesce(h.alternative_date::text,''),'guestCount',h.guest_count,'occasion',h.occasion,'message',h.message,'contactPreference',h.contact_preference,'adminNotes',h.admin_notes);
+end $$;
+revoke all on function public.admin_create_hall_enquiry(jsonb,uuid) from public; grant execute on function public.admin_create_hall_enquiry(jsonb,uuid) to service_role;
+
+create or replace function public.admin_update_hall_enquiry(p_enquiry_id text,p_data jsonb,p_actor_user_id uuid)
+returns jsonb language plpgsql security definer set search_path=public as $$
+declare h public.hall_enquiries%rowtype; actor_email text; actor_role text;
+begin
+  select email,role into actor_email,actor_role from public.admin_profiles where user_id=p_actor_user_id and is_active and role in ('owner','admin','manager');
+  if not found or p_data->>'status' not in ('new','contacted','approved','declined') then return null; end if;
+  update public.hall_enquiries set status=p_data->>'status',name=left(p_data->>'name',100),email=lower(left(p_data->>'email',160)),phone=left(p_data->>'phone',40),preferred_date=(p_data->>'preferredDate')::date,preferred_time=left(coalesce(p_data->>'preferredTime',''),40),alternative_date=nullif(p_data->>'alternativeDate','')::date,guest_count=nullif(p_data->>'guestCount','')::integer,occasion=left(coalesce(p_data->>'occasion',''),100),message=left(p_data->>'message',1000),contact_preference=case when p_data->>'contactPreference'='email' then 'email' else 'phone' end,admin_notes=left(coalesce(p_data->>'adminNotes',''),1000),updated_at=now() where id=p_enquiry_id and deleted_at is null returning * into h;
+  if h.id is null then return null; end if;
+  insert into public.admin_audit_log(actor_user_id,actor_email,actor_role,action,target_type,target_id,metadata) values(p_actor_user_id,actor_email,actor_role,'hall.enquiry.updated','hall_enquiry',h.id,jsonb_build_object('status',h.status,'fullRecord',true));
+  return jsonb_build_object('id',h.id,'reference',h.reference,'createdAt',h.created_at,'updatedAt',h.updated_at,'status',h.status,'name',h.name,'email',h.email,'phone',h.phone,'preferredDate',h.preferred_date,'preferredTime',h.preferred_time,'alternativeDate',coalesce(h.alternative_date::text,''),'guestCount',h.guest_count,'occasion',h.occasion,'message',h.message,'contactPreference',h.contact_preference,'adminNotes',h.admin_notes);
+end $$;
+revoke all on function public.admin_update_hall_enquiry(text,jsonb,uuid) from public; grant execute on function public.admin_update_hall_enquiry(text,jsonb,uuid) to service_role;
+
 create or replace function public.admin_delete_hall_enquiry(p_enquiry_id text,p_actor_user_id uuid)
 returns boolean language plpgsql security definer set search_path=public as $$
 declare actor_email text; actor_role text; affected integer;
@@ -962,7 +1030,7 @@ security definer
 set search_path = public
 as $$
   select jsonb_build_object(
-    'version', '2026-08-23-admin-delete-v5',
+    'version', '2026-09-06-booking-crud-v6',
     'ordersTable', to_regclass('public.orders') is not null,
     'paymentEventsTable', to_regclass('public.order_payment_events') is not null,
     'adminProfilesTable', to_regclass('public.admin_profiles') is not null,

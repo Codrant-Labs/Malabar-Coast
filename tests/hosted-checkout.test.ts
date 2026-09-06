@@ -23,7 +23,7 @@ test("checkout presents payment as a compact secure handoff", async () => {
   assert.doesNotMatch(form, /paymentChoices/);
   assert.match(form, /paymentHandoff/);
   assert.match(form, /Continue to payment/);
-  assert.match(form, /Your card details never pass through this website/);
+  assert.doesNotMatch(form, /summarySecurityNote/);
   assert.match(styles, /\.paymentPromises/);
   assert.match(styles, /overflow-wrap:\s*anywhere/);
 });

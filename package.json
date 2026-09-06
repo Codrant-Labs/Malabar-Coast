@@ -11,8 +11,11 @@
     "lint": "eslint .",
     "test": "tsx --test tests/**/*.test.ts",
     "test:realtime": "tsx scripts/test-realtime.ts",
+    "test:realtime-transport": "tsx scripts/test-realtime-transport.ts",
     "stripe:webhook:sync": "tsx scripts/sync-stripe-webhook-events.ts",
     "sanity:seed": "tsx scripts/seed-sanity.ts",
+    "sanity:sync-brand-content": "tsx scripts/sync-brand-content.ts",
+    "sanity:sync-map": "tsx scripts/sync-map-settings.ts",
     "sanity:typegen": "npm --prefix studio run typegen"
   },
   "dependencies": {

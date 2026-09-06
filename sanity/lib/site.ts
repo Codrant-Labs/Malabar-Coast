@@ -16,6 +16,7 @@ export type SiteSettings = {
   address: {streetAddress: string; locality: string; region: string; postalCode: string; country: string};
   coordinates: {latitude: number; longitude: number};
   mapUrl: string;
+  mapEmbedUrl: string;
   openingHours: Array<{days: string; hours: string}>;
   socialLinks: Array<{platform: string; url: string}>;
   primaryNavigation: SiteLink[];
@@ -49,7 +50,8 @@ export const fallbackSiteSettings: SiteSettings = {
     country: site.address.addressCountry,
   },
   coordinates: site.geo,
-  mapUrl: "https://www.google.com/maps/search/?api=1&query=33+Main+Street+Holytown+North+Lanarkshire+ML1+4TH",
+  mapUrl: site.maps.directionsUrl,
+  mapEmbedUrl: site.maps.embedUrl,
   openingHours: [],
   socialLinks: [{platform: "Instagram", url: "https://www.instagram.com/malabarcoastuk"}],
   primaryNavigation: [
@@ -112,6 +114,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       ...settings,
       address: {...fallbackSiteSettings.address, ...(settings.address ?? {})},
       coordinates: {...fallbackSiteSettings.coordinates, ...(settings.coordinates ?? {})},
+      mapEmbedUrl: sanitiseGoogleMapsEmbedUrl(settings.mapEmbedUrl),
       logo: settings.logo?.url ? settings.logo : fallbackSiteSettings.logo,
       lightLogo: settings.lightLogo?.url ? settings.lightLogo : fallbackSiteSettings.lightLogo,
       primaryNavigation: navigationWithBooking,
@@ -122,4 +125,15 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     console.error("Sanity site settings fetch failed; using the checked-in site fallback.", error instanceof Error ? error.name : "UnknownError");
     return fallbackSiteSettings;
   }
+}
+
+function sanitiseGoogleMapsEmbedUrl(value: string | undefined) {
+  if (!value) return fallbackSiteSettings.mapEmbedUrl;
+  try {
+    const url = new URL(value);
+    if (url.protocol === "https:" && url.hostname === "www.google.com" && url.pathname === "/maps/embed") {
+      return url.toString();
+    }
+  } catch {}
+  return fallbackSiteSettings.mapEmbedUrl;
 }

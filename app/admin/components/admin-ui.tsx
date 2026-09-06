@@ -5,6 +5,7 @@ import { adminCan, adminRoleLabels, type AdminPermission } from "../../lib/admin
 import { getAllowedAdminTransitions, orderStatusLabels, type OrderRecord, type OrderStatus } from "../../lib/orders";
 import { displayDate, money } from "../../lib/admin-reporting";
 import {AdminDeleteButton} from "./admin-delete-button";
+import {AdminActivityNotifications} from "./admin-activity-notifications";
 
 const navigation = [
   { href: "/admin", label: "Overview", mark: "01", permission: "dashboard:read" },
@@ -18,6 +19,8 @@ const navigation = [
 ] satisfies { href: string; label: string; mark: string; permission: AdminPermission }[];
 
 export function AdminFrame({ active, session, children }: { active: string; session: AdminSession; children: ReactNode }) {
+  const realtimeUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const realtimePublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
   return (
     <main className="adminShell adminPortal">
       <aside className="adminSidebar">
@@ -40,6 +43,7 @@ export function AdminFrame({ active, session, children }: { active: string; sess
         </div>
       </aside>
       <div className="adminWorkspace">{children}</div>
+      <AdminActivityNotifications supabaseUrl={realtimeUrl} publishableKey={realtimePublishableKey}/>
     </main>
   );
 }

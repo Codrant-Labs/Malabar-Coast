@@ -91,7 +91,7 @@ export default async function CalicutStoryPage() {
         </div>
         <h2 id="calicut-intro-title" data-detail-reveal>{introduction?.heading || "The harbour where flavour became history."}</h2>
         <p data-detail-reveal>
-          {portableTextToPlainText(introduction?.body) || page?.heroText || "Long before it appeared in a recipe book, Malabar pepper was measured here by hand, loaded into wooden vessels and carried by the turning winds. Calicut was less a border than a threshold—the place where soil, sea and distant tables met."}
+          {portableTextToPlainText(introduction?.body) || page?.heroText || "Long before it appeared in a recipe book, Malabar pepper was measured here by hand, loaded into wooden vessels and carried by the turning winds. Calicut was less a border than a threshold, the place where soil, sea and distant tables met."}
         </p>
       </section>
 
@@ -112,7 +112,7 @@ export default async function CalicutStoryPage() {
           <span>{pepper?.eyebrow || "The black gold of Malabar"}</span>
           <blockquote>{pepper?.heading || "Small enough to hold between two fingers. Valuable enough to redraw the world."}</blockquote>
           <p>
-            {portableTextToPlainText(pepper?.body) || "Pepper thrived in the wet shade of the Western Ghats. Its heat was clean, floral and enduring—qualities that made it currency, medicine and obsession in ports thousands of miles away."}
+            {portableTextToPlainText(pepper?.body) || "Pepper thrived in the wet shade of the Western Ghats. Its heat was clean, floral and enduring, qualities that made it currency, medicine and obsession in ports thousands of miles away."}
           </p>
         </aside>
 

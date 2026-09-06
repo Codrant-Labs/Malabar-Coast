@@ -28,12 +28,12 @@ export default async function AdminReportsPage({ searchParams }: { searchParams:
   const maxDish = Math.max(1, ...report.topDishes.map((dish) => dish.units));
 
   return <AdminFrame active="/admin/reports" session={session}>
-    <AdminPageHeader eyebrow="Sales and performance" title="Know every service." description="Confirmed online sales, daily collections, monthly movement and dish demand—calculated directly from order records." actions={<nav className="adminPeriodTabs" aria-label="Report period">{periods.map((item) => <a className={period === item.value ? "isActive" : undefined} key={item.value} href={`/admin/reports?period=${item.value}`}>{item.label}</a>)}</nav>} />
+    <AdminPageHeader eyebrow="Sales and performance" title="Know every service." description="Confirmed online sales, daily collections, monthly movement and dish demand, calculated directly from order records." actions={<nav className="adminPeriodTabs" aria-label="Report period">{periods.map((item) => <a className={period === item.value ? "isActive" : undefined} key={item.value} href={`/admin/reports?period=${item.value}`}>{item.label}</a>)}</nav>} />
     <section className="adminMetrics" aria-label="Report summary">
       <MetricCard label="Confirmed sales" value={money(report.confirmedSalesPence)} detail={`${report.paidOrders.length} paid orders`} tone="good" />
       <MetricCard label="Average order" value={money(report.averageOrderPence)} detail={`${report.totalUnits} dishes sold`} />
       <MetricCard label="Completed" value={report.completedOrders.length} detail={`${report.activeOrders.length} still in progress`} />
-      <MetricCard label="Average kitchen time" value={report.averagePreparationMinutes === null ? "—" : `${report.averagePreparationMinutes}m`} detail="Confirmed to completed" />
+      <MetricCard label="Average kitchen time" value={report.averagePreparationMinutes === null ? "Not available" : `${report.averagePreparationMinutes}m`} detail="Confirmed to completed" />
     </section>
 
     <section className="adminSplitGrid adminReportGrid">

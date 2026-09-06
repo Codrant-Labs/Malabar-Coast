@@ -22,7 +22,6 @@ const sections: LegalSection[] = [
         <p>This website is operated by Malabar Coast. Throughout the Site, “we”, “us” and “our” refer to Malabar Coast. We provide this website, including its information, ordering tools and services, subject to your acceptance of the terms, conditions, policies and notices stated here.</p>
         <p>By visiting the Site or purchasing from us, you engage in our service and agree to these Terms of Service, including policies referenced here. These Terms apply to all users of the Site. Please read them carefully. If you do not agree, you must not access the Site or use its services.</p>
         <p>New features or tools added to the Site will also be subject to these Terms. We may update these Terms by publishing changes on this page. Your continued use of the Site after a change constitutes acceptance of the updated Terms.</p>
-        <p>Online card payments are completed on secure hosted pages provided by <strong>Stripe</strong>. Full card details do not enter or remain in the Malabar Coast application.</p>
       </>
     ),
   },
@@ -85,17 +84,6 @@ const sections: LegalSection[] = [
       <>
         <p>We may refuse, limit or cancel an order where there is an obvious pricing or availability error, suspected fraud, misuse, or another lawful reason. If we change or cancel an accepted order, we will use the contact details supplied with the order and provide any refund due.</p>
         <p>You agree to provide current, complete and accurate order and contact information so we can process payment, fulfil the order and contact you when necessary. See our <Link href="/returns">Returns & Cancellations Policy</Link> for remedies and refunds.</p>
-      </>
-    ),
-  },
-  {
-    id: "payment-processing",
-    title: "Payment processing",
-    content: (
-      <>
-        <p>Stripe collects card details, performs any required cardholder authentication, and returns a payment result to us. We use signed provider notifications and authenticated checks to confirm payment status.</p>
-        <p>An order is not treated as paid merely because a browser reaches a success page. Our records must receive or verify successful confirmation from the payment provider. If payment is refused, cancelled, expires or cannot be verified, the order will not move into paid fulfilment.</p>
-        <p>Charges are shown in pounds sterling unless stated otherwise. Your card issuer may apply its own terms, checks or fees.</p>
       </>
     ),
   },

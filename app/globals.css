@@ -1175,6 +1175,7 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
   width: 100%;
   height: 100%;
   border: 0;
+  touch-action: pan-x pan-y;
   filter: saturate(.68) sepia(.12) contrast(1.04);
 }
 
@@ -1389,7 +1390,8 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
 .homeReservationsLocationCopy > a:focus-visible span { transform: translate(.22rem, -.12rem); }
 
 .homeOverview {
-  padding: clamp(3rem, 6vw, 6rem) clamp(1.25rem, 4vw, 4rem);
+  --home-overview-gutter: max(clamp(1.25rem, 4vw, 4.5rem), calc((100vw - 108rem) / 2));
+  padding: clamp(4.5rem, 7vw, 7.5rem) var(--home-overview-gutter) clamp(3.5rem, 5.5vw, 6rem);
   background: #eee4d2;
   color: #071311;
 }
@@ -1398,7 +1400,7 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
   display: flex;
   justify-content: space-between;
   gap: 2rem;
-  padding-bottom: 1rem;
+  padding-bottom: 1.15rem;
   border-bottom: 1px solid rgba(7, 19, 17, .28);
   font-size: .52rem;
   letter-spacing: .19em;
@@ -1409,27 +1411,31 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
 
 .homeOverviewLead {
   display: grid;
-  grid-template-columns: 1.08fr .72fr;
-  gap: clamp(2rem, 5vw, 6rem);
-  align-items: end;
-  padding-block: clamp(2.5rem, 5vw, 5rem);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(2rem, 4vw, 5rem);
+  align-items: start;
+  padding-block: clamp(3.5rem, 6vw, 6.5rem);
 }
 
 .homeOverviewLead h2 {
+  grid-column: 1 / 7;
+  max-width: 7.5ch;
   margin: 0;
   font-family: "Bodoni 72", Didot, "Iowan Old Style", serif;
-  font-size: clamp(4rem, 8.5vw, 9.5rem);
+  font-size: clamp(4rem, 7vw, 8rem);
   font-weight: 400;
-  line-height: .8;
-  letter-spacing: -.06em;
+  line-height: .82;
+  letter-spacing: -.055em;
   text-transform: uppercase;
 }
 
-.homeOverviewLead p { margin: 0 0 2rem; font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(1.1rem, 1.7vw, 1.55rem); line-height: 1.55; }
+.homeOverviewLead > div { grid-column: 8 / -1; max-width: 42rem; padding-top: .4rem; }
+.homeOverviewLead p { margin: 0 0 1.35rem; color: rgba(7,19,17,.76); font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(1.05rem, 1.25vw, 1.3rem); line-height: 1.6; }
+.homeOverviewLead p:first-child { color: #071311; font-size: clamp(1.35rem, 1.7vw, 1.75rem); line-height: 1.4; }
 .homeOverviewLead a { display: flex; justify-content: space-between; gap: 2rem; min-height: 2.75rem; padding: 1rem 0; border-bottom: 1px solid rgba(7, 19, 17, .35); font-size: .57rem; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; }
 
 .homeOverviewFacts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; border-top: 1px solid rgba(7, 19, 17, .28); }
-.homeOverviewFacts > div { min-height: 9rem; padding: 1.5rem clamp(1rem, 2vw, 2rem); border-right: 1px solid rgba(7, 19, 17, .28); }
+.homeOverviewFacts > div { min-height: 8rem; padding: 1.5rem clamp(1rem, 2vw, 2rem); border-right: 1px solid rgba(7, 19, 17, .28); }
 .homeOverviewFacts > div:first-child { padding-left: 0; }
 .homeOverviewFacts > div:last-child { border-right: 0; }
 .homeOverviewFacts dt { margin-bottom: 1.5rem; color: #805621; font-size: .52rem; letter-spacing: .18em; text-transform: uppercase; }
@@ -1723,6 +1729,9 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
   .homeOverviewMeta { align-items: flex-start; }
   .homeOverviewMeta time { max-width: 9rem; text-align: right; line-height: 1.5; }
   .homeOverviewLead { grid-template-columns: 1fr; gap: 2.5rem; }
+  .homeOverviewLead h2,
+  .homeOverviewLead > div { grid-column: 1; }
+  .homeOverviewLead > div { max-width: 38rem; padding-top: 0; }
   .homeOverviewLead h2 { font-size: clamp(3.5rem, 15vw, 5.2rem); }
   .homeOverviewFacts { grid-template-columns: 1fr 1fr; }
   .homeOverviewFacts > div { min-height: 8rem; border-bottom: 1px solid rgba(7, 19, 17, .28); }
@@ -1813,9 +1822,11 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
 .promotionPopupActions a { display: flex; justify-content: space-between; gap: 2rem; min-height: 3.4rem; padding: 1rem 0; border-bottom: 1px solid rgba(238,229,210,.28); font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; }
 .promotionPopupNav { position: absolute; right: 1rem; bottom: 1rem; left: calc(45% + 1rem); display: grid; grid-template-columns: 2.75rem 1fr 2.75rem; gap: .65rem; align-items: center; }
 .promotionPopupNav > button { width: 2.75rem; height: 2.75rem; border: 1px solid rgba(238,229,210,.3); background: rgba(6,17,15,.65); color: #eee5d2; cursor: pointer; }
-.promotionPopupNav > div { display: flex; justify-content: center; gap: .55rem; }
-.promotionPopupNav > div button { width: .55rem; height: .55rem; padding: 0; border: 1px solid #c79b55; border-radius: 50%; background: transparent; cursor: pointer; }
-.promotionPopupNav > div button.isActive { background: #c79b55; }
+.promotionPopupNav > div { display: flex; justify-content: center; gap: 0; }
+.promotionPopupNav > div button { position: relative; display: grid; width: 2.75rem; height: 2.75rem; padding: 0; place-items: center; border: 0; background: transparent; cursor: pointer; }
+.promotionPopupNav > div button::after { content: ""; width: .55rem; height: .55rem; border: 1px solid #c79b55; border-radius: 50%; background: transparent; }
+.promotionPopupNav > div button.isActive::after { background: #c79b55; }
+.promotionPopupNav > div button:focus-visible { outline: 2px solid #c79b55; outline-offset: -4px; }
 
 .offersPage { min-height: 100vh; padding-top: 7rem; background: #071310; color: #eee5d2; }
 .offersHero { display:grid; grid-template-columns:.55fr 1.15fr .8fr; gap:clamp(1.5rem,5vw,6rem); align-items:end; padding:clamp(3rem,7vw,7rem) clamp(1.25rem,6vw,7rem) clamp(2.5rem,5vw,5rem); border-bottom:1px solid rgba(238,229,210,.18); }
@@ -1846,8 +1857,8 @@ h1 .indent { margin-left: clamp(2rem, 10vw, 10rem); color: transparent; -webkit-
 @keyframes promotionFade { from { opacity: 0; } }
 
 @media (max-width: 760px) {
-  .promotionPopup { padding: .65rem; }
-  .promotionPopupDialog { display: block; max-height: calc(100svh - 1.3rem); }
+  .promotionPopup { padding: max(.65rem, env(safe-area-inset-top)) max(.65rem, env(safe-area-inset-right)) max(.65rem, env(safe-area-inset-bottom)) max(.65rem, env(safe-area-inset-left)); }
+  .promotionPopupDialog { display: block; max-height: calc(100dvh - max(1.3rem, env(safe-area-inset-top) + env(safe-area-inset-bottom))); overscroll-behavior: contain; }
   .promotionPopupPoster { min-height: min(56svh, 30rem); }
   .promotionPopupCopy { padding: 2rem 1.25rem 5rem; }
   .promotionPopupCopy h2 { font-size: clamp(2.6rem, 12vw, 4rem); }

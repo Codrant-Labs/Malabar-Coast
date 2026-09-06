@@ -1,6 +1,7 @@
 import { createReservation, getBookingSettings } from "../../lib/booking-store";
 import { BookingValidationError, validateReservation } from "../../lib/bookings";
 import { notifyReservation } from "../../lib/email/notifications";
+import {publishAdminActivityEvent} from "../../lib/publishEvent";
 import { checkRateLimit, getClientAddress, isTrustedOrigin, noStoreJson, readLimitedJson, RequestBodyTooLargeError } from "../../lib/security";
 
 export const runtime = "nodejs";
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
     const settings = await getBookingSettings();
     const input = validateReservation(await readLimitedJson(request, 32_000), settings);
     const reservation = await createReservation(input);
-    await notifyReservation(reservation);
+    await Promise.all([notifyReservation(reservation), publishAdminActivityEvent("reservation", reservation.id)]);
     return noStoreJson({ reference: reservation.reference, bookingDate: reservation.bookingDate, startTime: reservation.startTime, endTime: reservation.endTime, partySize: reservation.partySize }, { status: 201 });
   } catch (error) {
     const status = error instanceof RequestBodyTooLargeError ? 413 : error instanceof BookingValidationError || error instanceof SyntaxError ? 400 : 409;

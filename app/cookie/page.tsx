@@ -22,16 +22,16 @@ const sections: LegalSection[] = [
   {
     id: "what-are-cookies",
     title: "What are cookies?",
-    content: <p>Cookies are small text files placed on your device when you visit a website. Similar technologies include pixels, tags and local storage. They can help a site work, remember your preferences, keep checkout secure, and—where you consent—help a business understand and improve how its site is used.</p>,
+    content: <p>Cookies are small text files placed on your device when you visit a website. Similar technologies include pixels, tags and local storage. They can help a site work, remember your preferences, keep checkout secure, and, where you consent, help a business understand and improve how its site is used.</p>,
   },
   {
     id: "categories",
     title: "How we categorise cookies",
     content: (
       <ul>
-        <li><strong>Strictly necessary</strong> — required for the Site to function, remember your basket, enable secure checkout or order access, and keep the Site safe. These are always active and do not require consent.</li>
-        <li><strong>Analytics & performance</strong> — help us understand how the Site is used so it can be improved. These must remain off unless you actively consent.</li>
-        <li><strong>Marketing & advertising</strong> — help measure campaigns or deliver relevant advertising. These must remain off unless you actively consent.</li>
+        <li><strong>Strictly necessary:</strong> required for the Site to function, remember your basket, enable secure checkout or order access, and keep the Site safe. These are always active and do not require consent.</li>
+        <li><strong>Analytics & performance:</strong> help us understand how the Site is used so it can be improved. These must remain off unless you actively consent.</li>
+        <li><strong>Marketing & advertising:</strong> help measure campaigns or deliver relevant advertising. These must remain off unless you actively consent.</li>
       </ul>
     ),
   },
@@ -51,10 +51,10 @@ const sections: LegalSection[] = [
     title: "The storage we use",
     content: (
       <ul>
-        <li><strong>Basket and interface storage</strong> — remembers items you add and limited interface preferences on your device.</li>
-        <li><strong>Order-access storage</strong> — helps keep customer order pages private after checkout.</li>
-        <li><strong>Security and administration cookies</strong> — support secure, authenticated access to restricted staff areas.</li>
-        <li><strong>Payment-provider storage</strong> — Stripe may set essential storage on its hosted checkout pages under its own policies.</li>
+        <li><strong>Basket and interface storage:</strong> remembers items you add and limited interface preferences on your device.</li>
+        <li><strong>Order-access storage:</strong> helps keep customer order pages private after checkout.</li>
+        <li><strong>Security and administration cookies:</strong> support secure, authenticated access to restricted staff areas.</li>
+        <li><strong>Payment-provider storage:</strong> Stripe may set essential storage on its hosted checkout pages under its own policies.</li>
       </ul>
     ),
   },

@@ -20,13 +20,13 @@ const sections: LegalSection[] = [
   },
   {
     id: "fresh-food",
-    title: "Fresh, perishable food — no change-of-mind refunds",
+    title: "Fresh, perishable food: no change-of-mind refunds",
     content: <p>Our meals are freshly prepared, perishable goods made to order. For this reason, and in line with the Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013, the 14-day “cooling-off” cancellation right does <strong>not</strong> apply to our food products once your order has been placed and prepared. We are unable to offer refunds or accept returns for a change of mind.</p>,
   },
   {
     id: "order-problems",
     title: "If something is wrong with your order",
-    content: <p>Where an item is missing or unavailable, we will replace it in a future delivery or refund the value of that item to your original payment method — whichever you prefer. From time to time we may also offer a refund, replacement or goodwill credit at our discretion as a gesture of goodwill; doing so does not change the terms of this policy.</p>,
+    content: <p>Where an item is missing or unavailable, we will replace it in a future delivery or refund the value of that item to your original payment method, whichever you prefer. From time to time we may also offer a refund, replacement or goodwill credit at our discretion as a gesture of goodwill; doing so does not change the terms of this policy.</p>,
   },
   {
     id: "delivery-issues",
